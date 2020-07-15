@@ -1,0 +1,41 @@
+<div class="row ivs-license-courese-package ivs-margin-top">
+    <div class="col-md-3 ivs-license-package-label">{{license_package_label}}</div>
+    <div class="col-md-6 ivs-license-package-label">{{license_package_info}}</div>
+</div>
+
+{{#course_license_has_items}}
+    <table class="generaltable table-sm table-bordered" id="ivs-license-course-table">
+        <tr>
+            <th scope="col" class="centeralign col-md-4">{{course_title}}</th>
+            <th scope="col" class="centeralign col-md-3">{{course_spots_title}}</th>
+            <th scope="col" class="centeralign col-md-4">{{course_package_title}}</th>
+            <th scope="col" class="centeralign col-md-1">{{course_reassign_title}}</th>
+        </tr>
+        {{#course_license}}
+            <tr>
+                {{id}}
+                <td>{{title}}</td>
+                {{id}}
+                <td>{{course_spots}}</td>
+                {{id}}
+                <td>{{product_name}}</td>
+                {{id}}
+                <td class="ivs-license-icon"><a class="ivs-license-course-remove" href="{{remove_link}}">{{#pix}}{{remove_icon}}{{/pix}}</a>
+                </td>
+            </tr>
+        {{/course_license}}
+        {{#instance_licences}}
+            <tr>
+                {{id}}
+                <td>{{title}}</td>
+                {{id}}
+                <td>{{course_spots}}</td>
+                {{id}}
+                <td>{{product_name}}</td>
+                {{id}}
+                <td>
+                </td>
+            </tr>
+        {{/instance_licences}}
+    </table>
+{{/course_license_has_items}}

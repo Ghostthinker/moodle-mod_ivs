@@ -1,0 +1,22 @@
+.ivs-questions .question-listing {
+    margin-top: 20px;
+}
+
+.ivs-questions .question-listing #question-types div {
+    margin-top: 10px;
+}
+
+.ivs-questions .question-summary-title .pull-left {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.ivs-questions .question-summary-footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.ivs-questions .question-summary-details-download {
+    float: right;
+}

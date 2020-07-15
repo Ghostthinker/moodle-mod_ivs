@@ -1,0 +1,132 @@
+<!--Header for all match Question Answers-->
+<div id="answers-{{id}}">
+    <div class="question">
+        <form class="pull-right">
+            <div class="form-group">
+                <select class="form-control" onchange="location = this.value;">
+                    {{#dropdown_options}}
+                        {{{.}}}
+                    {{/dropdown_options}}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!--Text Question Answers-->
+    {{#text_question}}
+        <div class="answers">
+            <table class="generaltable table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col" colspan="2">{{id_label}}<span class="answers-header-details">{{id}}</span></th>
+                    <th scope="col" colspan="1">{{type_label}}<span class="answers-header-details">{{question_type}}</span></th>
+                    <th scope="col" colspan="1">{{title_label}}<span class="answers-header-details">{{label}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col" colspan="4">{{question_label}}<span class="answers-header-details">{{question}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col" class="centeralign">{{name}}</th>
+                    <th scope="col" class="centeralign">{{user_id}}</th>
+                    <th scope="col"
+                        class="centeralign">{{first_text_answer}}</th>
+                    <th scope="col"
+                        class="centeralign">{{last_text_answer}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#answers}}
+                    {{{.}}}
+                {{/answers}}
+                </tbody>
+            </table>
+        </div>
+
+    {{/text_question}}
+
+    <!--Click Question Answers-->
+    {{#click_question}}
+        <div class="answers">
+            <table class="generaltable table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col" colspan="2">{{id_label}}<span class="answers-header-details">{{id}}</span></th>
+                    <th scope="col" colspan="1">{{type_label}}<span class="answers-header-details">{{question_type}}</span></th>
+                    <th scope="col" colspan="2">{{title_label}}<span class="answers-header-details">{{label}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col" colspan="5">{{question_label}}<span class="answers-header-details">{{question}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col">{{name}}</th>
+                    <th scope="col">{{user_id}}</th>
+                    <th scope="col">{{first_click_answer}}</th>
+                    <th scope="col">{{click_retries}}</th>
+                    <th scope="col" class="odd">{{last_click_answer}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#answers}}
+                    {{{.}}}
+                {{/answers}}
+                </tbody>
+            </table>
+        </div>
+    {{/click_question}}
+
+    <!--Single Choice Question Answers-->
+    {{#single_choice_question}}
+        <div class="answers">
+            <table class="generaltable table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col" colspan="2">{{id_label}}<span class="answers-header-details">{{id}}</span></th>
+                    <th scope="col" colspan="2">{{type_label}}<span class="answers-header-details">{{question_type}}</span></th>
+                    <th scope="col" colspan="2">{{title_label}}<span class="answers-header-details">{{label}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col" colspan="7">{{question_label}}<span class="answers-header-details">{{question}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col">{{name}}</th>
+                    <th scope="col">{{user_id}}</th>
+                    <th scope="col" colspan="2" class="text-center">{{first_single_choice_answer}}</th>
+                    <th scope="col">{{single_choice_retries}}</th>
+                    <th scope="col">{{last_single_choice_answer}}</th>
+                </tr>
+                <tr>
+                    <th scope="col" colspan="2"></th>
+                    <th scope="col" class="text-center"> {{single_choice_correct}} </th>
+                    <th scope="col" class="text-center"> {{single_choice_selected_answer}} </th>
+                    <th scope="col" colspan="2"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#answers}}
+                    {{{.}}}
+                {{/answers}}
+                </tbody>
+            </table>
+        </div>
+    {{/single_choice_question}}
+
+    <!--Items per Pager-->
+    <div class="question-answers-footer">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="items-per-page" class="">{{elements}}</label>
+
+                <select id="items-per-page" class="form-control"
+                        onchange="location = this.value;">
+                    {{#pager_options}}
+                        {{{.}}}
+                    {{/pager_options}}
+                </select>
+            </div>
+        </form>
+        <div class="question-download">
+            {{{download_options}}}
+        </div>
+    </div>
+
+</div>

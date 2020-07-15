@@ -1,0 +1,87 @@
+.ivs-license {
+    margin-bottom: 30px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.ivs-progress {
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+
+.ivs-progress .progressbar__label {
+    color: #333333 !important;
+}
+
+.ivs-circle-right {
+    width: 50px;
+}
+
+.ivs-license-instance-spots-label,
+.ivs-license-instance-duration-label {
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    width: 50%;
+}
+
+.ivs-license-duration,
+.ivs-license-spots {
+    text-align: center;
+}
+
+.ivs-intance-progress-spots-duration-wrapper {
+    width: 200px;
+}
+
+#ivs-license-course-table a:hover .icon {
+    opacity: 0.5;
+}
+
+.ivs-intance-progress-wrapper table {
+    width: 300px;
+}
+
+
+.ivs-license .mform > .form-group {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.ivs-license .ivs-license-data-policy {
+    margin-bottom: 20px;
+}
+
+.ivs-margin-top {
+    margin-top: 20px;
+}
+
+.ivs-license-icon {
+    text-align: center
+}
+
+.fheader{
+    font-size: 20px;
+}
+
+.current-package{
+    margin-bottom: 20px;
+}
+
+.ivs-license-instance-identification-value{
+    margin-bottom: 20px;
+}
+
+#id_ivs_player_version_player_version{
+    margin-left:70px;
+}
+
+#id_ivs_player_version_1{
+    margin-left: 150px;
+}

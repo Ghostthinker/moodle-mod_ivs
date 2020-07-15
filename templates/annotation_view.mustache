@@ -1,0 +1,39 @@
+<div id="comment-{{id}}">
+    <div class="comment-left">
+        <div class="field-picture"><img src="{{user_picture}}"></div>
+        <div class="field-name">
+            {{comment_author_link}}
+        </div>
+        <div class="field-timestamp"><a href="{{{player_link}}}">{{timecode}}</a></div>
+    </div>
+    <div class="comment-main">
+        <div class="field-ivs-annotation-preview"
+             data-setup='{"comment_timestamp": {{comment_timestamp}} }'>
+            <a href="{{{player_link}}}">
+                {{#preview_img_available}}
+                    <img src='{{{preview_image}}}'/>
+                {{/preview_img_available}}
+                {{^preview_img_available}}
+                    <video id="comment-{{id}}-video">
+                        <source src="{{video_url}}" type="video/mp4"
+                        />
+                        <div>Sorry, your browser or device is not supported!</div>
+                    </video>
+                {{/preview_img_available}}
+                {{{svg}}}
+            </a>
+        </div>
+        <div class="ivs-annotation-content">
+            <div class="field-created">{{comment_created}}</div>
+            <div class="field-body">
+                {{{comment_body}}}
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <ul class="field-annotations-replies">
+            {{{replies}}}
+        </ul>
+    </div>
+    <div class="clearfix"></div>
+
+</div>

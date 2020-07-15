@@ -1,0 +1,49 @@
+<div class="row ivs-license-courese-package">
+    <div class="col-md-3 ivs-license-package-label">{{license_package_label}}</div>
+    <div class="col-md-6 ivs-license-package-label">{{license_package_info}}</div>
+</div>
+
+<div class="row ivs-intance-progress-wrapper">
+    <div class="col-md-3"></div>
+    <div class="col-md-9 ivs-license-instance-spots-label">
+        <table>
+            <tr>
+                <td class="bold ivs-license-instance-spots-label">
+                    {{#str}}ivs_license_spots, mod_ivs{{/str}}
+                </td>
+                <td class="bold ivs-license-instance-duration-label">
+                    {{#str}}ivs_duration, mod_ivs{{/str}}
+                </td>
+            </tr>
+            <tr>
+                <td class="ivs-intance-progress-spots-wrapper">
+                    <div class="ivs-progress spots"
+                         data-progress="{{#license_instance_view_data}}{{spots_percentage}}{{/license_instance_view_data}}"
+                         data-label="{{#license_instance_view_data}}{{spots_percentage_label}}{{/license_instance_view_data}}"></div>
+                </td>
+
+                <td class="ivs-intance-progress-spots-duration-wrapper">
+                    <div class="ivs-progress duration"
+                         data-progress="{{#license_instance_view_data}}{{runtime_percentage}}{{/license_instance_view_data}}"
+                         data-label="{{#license_instance_view_data}}{{runtime_percentage_label}}{{/license_instance_view_data}}">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="ivs-license-spots">
+                    {{#str}}ivs_occupied_spots, mod_ivs{{/str}}
+                    : {{#license_instance_view_data}}{{spots_in_use}}{{/license_instance_view_data}}
+                    <br>
+                    {{#str}}ivs_available_spots, mod_ivs{{/str}}
+                    : {{#license_instance_view_data}}{{spots_left}}{{/license_instance_view_data}}
+                </td>
+                <td class="ivs-license-duration">
+                    {{#str}}ivs_license_period, mod_ivs{{/str}}
+                    <br>
+                    {{#license_instance_view_data}}{{expires_at}}{{/license_instance_view_data}}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+

@@ -1,0 +1,212 @@
+.ivs-annotations .comment-left {
+    float: left;
+}
+
+.ivs-annotations .comment-left .field-name {
+    word-wrap: break-word;
+    width: 140px;
+    color: #646464;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.ivs-annotations > div {
+    box-shadow: 2px 3px 5px silver;
+    margin-bottom: 8px;
+    padding: 8px;
+
+}
+
+.ivs-annotations .comment-main {
+    margin-left: 140px;
+}
+
+.ivs-annotations .field-timestamp a,
+.ivs-annotations .field-created {
+
+    color: #bebebe;
+    font-style: normal !important;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.ivs-annotations .field-created {
+    float: right;
+    margin-right: 10px;
+}
+
+.ivs-annotations .clearfix {
+    clear: both;
+
+}
+
+.ivs-annotations .field-links a {
+    font-weight: normal;
+    color: #C53512;
+    font-size: 13px;
+    display: none;
+}
+
+.ivs-annotations .field-ivs-annotation-preview {
+    width: 100%;
+    max-width: 400px;
+    min-height: 250px;
+    position: relative;
+
+}
+
+
+.used-region-side-post.used-region-side-pre .ivs-annotations .field-ivs-annotation-preview {
+    width: 100%;
+    max-width: 300px;
+    min-height: 180px;
+}
+
+.ivs-annotations .field-ivs-annotation-preview img,
+.ivs-annotations .field-ivs-annotation-preview video {
+    position: absolute;
+    width: 100%;
+    background: transparent url(../pix/ebvs.png) no-repeat;
+    background-size: contain;
+}
+
+.ivs-annotations .field-ivs-annotation-preview svg {
+    position: absolute;
+    display: none;
+}
+
+
+.ivs-annotations .ivs-annotation-content {
+    float: left;
+    padding-left: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.ivs-annotations .ivs-annotation-content .field-body {
+    margin-top: 18px;
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/**replies **/
+
+.ivs-annotations .field-annotations-replies {
+    margin: 0;
+
+}
+
+.ivs-annotations .field-annotations-replies .annotation-reply {
+    display: flex;
+    margin-bottom: 10px;
+    border-top: 1px solid #eee;
+
+}
+
+.ivs-annotations .field-annotations-replies .annotation-reply .user-picture {
+    width: 50px;
+    padding-top: 4px;
+}
+
+.ivs-annotations .field-annotations-replies .annotation-reply .ivs-annotation-content {
+    flex-grow: 1;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.ivs-annotations .field-annotations-replies .annotation-reply .ivs-annotation-content .annotation-reply-body {
+    float: left;
+}
+
+.ivs-annotations .field-annotations-replies .annotation-reply .ivs-annotation-content .annotation-reply-username {
+    float: left;
+    color: #646464;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.ivs-annotations .field-annotations-replies .annotation-reply .ivs-annotation-content .annotation-reply-date {
+    float: right;
+    color: #bebebe;
+    font-style: normal !important;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.ivs-annotations .field-picture img {
+    width: 100px;
+    height: 100px;
+}
+
+
+.sorticon.active {
+    filter: brightness(0.25);
+}
+
+.annotation-filter-form .form-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.annotation-filter-form .form-item select {
+    flex-grow: 1;
+    max-width: 123px;
+}
+
+.annotation-filter-form input[type="submit"] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.form-item-report {
+    font-size: 12px;
+}
+
+
+@media (min-width: 1200px) {
+
+    .annotation-filter-form .form-item {
+        flex-direction: row;
+    }
+
+    .annotation-filter-form .form-item label {
+        min-width: 100px;
+    }
+
+    .ivs-annotations .field-ivs-annotation-preview {
+        float: left;
+    }
+
+    .ivs-annotations .ivs-annotation-content {
+        width: calc(100% - 408px);
+    }
+
+    .used-region-side-post.used-region-side-pre .ivs-annotations .ivs-annotation-content,
+    .used-region-side-post.used-region-side-pre .ivs-annotations .field-ivs-annotation-preview {
+        width: 100%;
+        float: none;
+    }
+
+
+}
+
+@media (min-width: 1600px) {
+
+    .used-region-side-post.used-region-side-pre .ivs-annotations .ivs-annotation-content {
+        float: left;
+        width: calc(100% - 308px);
+    }
+
+    .used-region-side-post.used-region-side-pre .ivs-annotations .field-ivs-annotation-preview {
+        width: calc(100% - 308px);
+        max-width: 300px;
+        float: left;
+    }
+
+    .ivs-annotations .field-created {
+        margin-right: 0px;
+    }
+}
+
