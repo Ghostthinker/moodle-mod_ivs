@@ -20,6 +20,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 * Backup & Restore
 * Supports test environment
 
+![Create an IVS activity](https://interactive-video-suite.de/wp-content/uploads/2020/07/6-create-ivs-activity.gif)
+Creating an IVS activity
+
+
 # Changelog
 
 ### v1.0
