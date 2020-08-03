@@ -6,7 +6,7 @@ use ArrayIterator;
 
 defined('MOODLE_INTERNAL') || die();
 
-define('IVS_CORE_URL', 'http://interactive-video-suite.de');
+define('IVS_CORE_URL', 'https://interactive-video-suite.de');
 define('IVS_CORE_API_PREFIX', '/wp-json/interactive-video-suite/v1.0');
 define('IVS_CORE_API_CALLBACK_REGISTER', '/client/register');
 define('IVS_CORE_API_CALLBACK_STATUS', '/client/status');
