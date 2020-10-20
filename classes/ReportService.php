@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 namespace mod_ivs;
 
@@ -27,12 +48,12 @@ class ReportService {
         }
 
         $report = new Report();
-        $report->setTimecreated(time());
-        $report->setCourseId($course_id);
-        $report->setStartDate($startdate);
-        $report->setRotation($rotation);
-        $report->setFilter($filter);
-        $report->setUserId($user_id);
+        $report->set_timecreated(time());
+        $report->set_courseid($course_id);
+        $report->set_startdate($startdate);
+        $report->set_rotation($rotation);
+        $report->set_filter($filter);
+        $report->set_userid($user_id);
 
         $success = $this->save_to_db($report);
 
@@ -58,7 +79,7 @@ class ReportService {
         switch ($op) {
             case 'update':
             case 'delete':
-                if ($report->getUserId() == $USER->id) {
+                if ($report->get_userid() == $USER->id) {
                     return true;
                 }
         }
@@ -67,18 +88,18 @@ class ReportService {
 
     function save_to_db(Report $report) {
         global $DB;
-        $report->setTimemodified(time());
+        $report->set_timemodified(time());
 
-        $db_record = $report->getRecord();
+        $db_record = $report->get_record();
 
         $db_record['filter'] = serialize($db_record['filter']);
 
         $save = false;
-        if ($report->getId() !== null) {
+        if ($report->get_id() !== null) {
             $save = $DB->update_record('ivs_report', $db_record);
         } else {
             if ($id = $DB->insert_record('ivs_report', $db_record)) {
-                $report->setId($id);
+                $report->set_id($id);
                 $save = true;
             }
         }
@@ -168,18 +189,18 @@ class ReportService {
     public function getAnnotationsByReport(Report $report, AnnotationService $annotationService) {
 
         //get the options and unset the limit and offset. we want all
-        $options = $report->getFilter();
+        $options = $report->get_filter();
         unset($options['offset']);
         unset($options['limit']);
 
-        $context = \context_course::instance($report->getCourseId());
+        $context = \context_course::instance($report->get_courseid());
 
         //check if the report user has the globaly skip access permission
-        $SKIP_ACCESS_CHECK = has_capability('mod/ivs:view_any_comment', $context, $report->getUserId());
+        $SKIP_ACCESS_CHECK = has_capability('mod/ivs:view_any_comment', $context, $report->get_userid());
 
         $filter_timecreated_min = null;
 
-        switch ($report->getRotation()) {
+        switch ($report->get_rotation()) {
             case REPORT::ROTATION_DAY:
                 $filter_timecreated_min = strtotime("-1 day");
                 break;
@@ -194,8 +215,8 @@ class ReportService {
 
         $options['filter_timecreated_min'] = (int) $filter_timecreated_min;
 
-        $annotations = $annotationService->getAnnotationsByCourse($report->getCourseId(), $SKIP_ACCESS_CHECK, $options, false,
-                $report->getUserId());
+        $annotations = $annotationService->get_annotations_by_course($report->get_courseid(), $SKIP_ACCESS_CHECK, $options, false,
+                $report->get_userid());
 
         return $annotations;
     }
@@ -213,7 +234,7 @@ class ReportService {
         $video_cache = array();
         $account_cache = array();
 
-        $grouping = $report->getFilter()['grouping'];
+        $grouping = $report->get_filter()['grouping'];
 
         if (empty($annotations)) {
             return '<p>' . get_string("cockpit_filter_empty", 'ivs') . '</p>';
@@ -222,14 +243,14 @@ class ReportService {
         /** @var \mod_ivs\annotation $comment */
         foreach ($annotations as $comment) {
 
-            $video_id = $comment->getVideoId();
-            $user_id = $comment->getUserId();
+            $video_id = $comment->get_videoid();
+            $user_id = $comment->get_userid();
 
             if (empty($video_cache[$video_id])) {
 
-                $course_module = get_coursemodule_from_instance('ivs', $comment->getVideoId(), 0, false, MUST_EXIST);
+                $course_module = get_coursemodule_from_instance('ivs', $comment->get_videoid(), 0, false, MUST_EXIST);
                 $cm = \context_module::instance($course_module->id);
-                $ivs = $DB->get_record('ivs', array('id' => $comment->getVideoId()), '*', MUST_EXIST);
+                $ivs = $DB->get_record('ivs', array('id' => $comment->get_videoid()), '*', MUST_EXIST);
 
                 $video_cache[$video_id] = array(
                         'cm' => $cm,
@@ -244,7 +265,7 @@ class ReportService {
             }
 
             if (empty($account_cache[$user_id])) {
-                $account_cache[$user_id] = IvsHelper::getUser($comment->getUserId());
+                $account_cache[$user_id] = IvsHelper::get_user($comment->get_userid());
 
                 if ($grouping == "user") {
                     $user_link = new \moodle_url('/user/profile.php', array('id' => $user_id));

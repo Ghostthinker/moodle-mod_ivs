@@ -1,30 +1,24 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the backup steps that will be used by the backup_ivs_activity_task
- *
- * @package   mod_ivs
- * @category  backup
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die;
@@ -49,13 +43,13 @@ class backup_course_ivs_settings_step extends backup_activity_structure_step {
         // Get know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Get anonymize setting
+        // Get anonymize setting.
         $anonymize = $this->get_setting_value('anonymize');
 
-        //Backup Player Settings
-        $course_settings = new backup_nested_element('settings');
+        // Backup Player Settings.
+        $coursesettings = new backup_nested_element('settings');
 
-        $course_setting = new backup_nested_element('setting', array('id'), array(
+        $coursesetting = new backup_nested_element('setting', array('id'), array(
                 'target_id',
                 'target_type',
                 'name',
@@ -63,15 +57,15 @@ class backup_course_ivs_settings_step extends backup_activity_structure_step {
                 'locked'
         ));
 
-        $course_settings->add_child($course_setting);
+        $coursesettings->add_child($coursesetting);
 
-        //Player settings activity
-        $course_setting->set_source_sql('
+        // Player settings activity.
+        $coursesetting->set_source_sql('
             SELECT *
               FROM {ivs_settings}
              WHERE target_id = ? AND target_type = \'course\'',
                 array(backup::VAR_COURSEID));
 
-        return $this->prepare_activity_structure($course_settings);
+        return $this->prepare_activity_structure($coursesettings);
     }
 }

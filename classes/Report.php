@@ -1,8 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 namespace mod_ivs;
 
-//use \mod_ivs\exception;
 
 use DateTime;
 
@@ -16,17 +36,17 @@ class Report {
 
     private $id = null;
     private $rotation;
-    private $user_id;
-    private $course_id;
+    private $userid;
+    private $courseid;
     private $filter;
-    private $start_date;
+    private $startdate;
     private $timecreated;
     private $timemodified;
 
-    function __construct($db_record = false) {
-        if (is_object($db_record)) {
-            $db_record->filter = unserialize($db_record->filter);
-            $this->setRecord($db_record);
+    function __construct($dbrecord = false) {
+        if (is_object($dbrecord)) {
+            $dbrecord->filter = unserialize($dbrecord->filter);
+            $this->set_record($dbrecord);
         }
 
     }
@@ -43,15 +63,15 @@ class Report {
      * @param $timecreated
      * @param $timemodified
      */
-    public function setRecord($db_record) {
-        $this->id = $db_record->id;
-        $this->rotation = $db_record->rotation;
-        $this->user_id = $db_record->user_id;
-        $this->course_id = $db_record->course_id;
-        $this->filter = $db_record->filter;
-        $this->start_date = $db_record->start_date;
-        $this->timecreated = $db_record->timecreated;
-        $this->timemodified = $db_record->timemodified;
+    public function set_record($dbrecord) {
+        $this->id = $dbrecord->id;
+        $this->rotation = $dbrecord->rotation;
+        $this->userid = $dbrecord->user_id;
+        $this->courseid = $dbrecord->course_id;
+        $this->filter = $dbrecord->filter;
+        $this->startdate = $dbrecord->start_date;
+        $this->timecreated = $dbrecord->timecreated;
+        $this->timemodified = $dbrecord->timemodified;
     }
 
     /**
@@ -59,14 +79,14 @@ class Report {
      *
      * @return array
      */
-    public function getRecord() {
+    public function get_record() {
         return array(
                 'id' => $this->id,
                 'rotation' => $this->rotation,
-                'user_id' => $this->user_id,
-                'course_id' => $this->course_id,
+                'user_id' => $this->userid,
+                'course_id' => $this->courseid,
                 'filter' => $this->filter,
-                'start_date' => $this->start_date,
+                'start_date' => $this->startdate,
                 'timecreated' => (int) $this->timecreated,
                 'timemodified' => (int) $this->timemodified,
         );
@@ -75,118 +95,114 @@ class Report {
     /**
      * @return mixed
      */
-    public function getId() {
+    public function get_id() {
         return $this->id;
     }
 
     /**
      * @param mixed $id
      */
-    public function setId($id) {
+    public function set_id($id) {
         $this->id = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getRotation() {
+    public function get_rotation() {
         return $this->rotation;
     }
 
     /**
      * @param mixed $rotation
      */
-    public function setRotation($rotation) {
+    public function set_rotation($rotation) {
         $this->rotation = $rotation;
     }
 
     /**
      * @return mixed
      */
-    public function getUserId() {
-        return $this->user_id;
+    public function get_userid() {
+        return $this->userid;
     }
 
     /**
-     * @param mixed $user_id
+     * @param mixed $userid
      */
-    public function setUserId($user_id) {
-        $this->user_id = $user_id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCourseId() {
-        return $this->course_id;
-    }
-
-    /**
-     * @param mixed $course_id
-     */
-    public function setCourseId($course_id) {
-        $this->course_id = $course_id;
+    public function set_userid($userid) {
+        $this->userid = $userid;
     }
 
     /**
      * @return mixed
      */
-    public function getFilter() {
+    public function get_courseid() {
+        return $this->courseid;
+    }
+
+    /**
+     * @param mixed $courseid
+     */
+    public function set_courseid($courseid) {
+        $this->courseid = $courseid;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_filter() {
         return $this->filter;
     }
 
     /**
      * @param mixed $filter
      */
-    public function setFilter($filter) {
+    public function set_filter($filter) {
         $this->filter = $filter;
     }
 
     /**
      * @return mixed
      */
-    public function getStartDate() {
-        return $this->start_date;
+    public function get_startdate() {
+        return $this->startdate;
     }
 
     /**
-     * @param mixed $start_date
+     * @param mixed $startdate
      */
-    public function setStartDate($start_date) {
-        $this->start_date = $start_date;
+    public function set_startdate($startdate) {
+        $this->startdate = $startdate;
     }
 
     /**
      * @return mixed
      */
-    public function getTimecreated() {
+    public function get_timecreated() {
         return $this->timecreated;
     }
 
     /**
      * @param mixed $timecreated
      */
-    public function setTimecreated($timecreated) {
+    public function set_timecreated($timecreated) {
         $this->timecreated = $timecreated;
     }
 
     /**
      * @return mixed
      */
-    public function getTimemodified() {
+    public function get_timemodified() {
         return $this->timemodified;
     }
 
     /**
      * @param mixed $timemodified
      */
-    public function setTimemodified($timemodified) {
+    public function set_timemodified($timemodified) {
         $this->timemodified = $timemodified;
     }
-    /*
-      public function getTimeStartedFormatted() {
 
-      }
-    */
 
 }

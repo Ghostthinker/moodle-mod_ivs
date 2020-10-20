@@ -1,13 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Created by PhpStorm.
- * User: Ghostthinker
- * Date: 20.11.2018
- * Time: 13:29
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 namespace mod_ivs\license;
-
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
@@ -22,23 +37,23 @@ class LicenseCourseForm extends moodleform {
         global $DB;
 
         $lc = ivs_get_license_controller();
-        $course_licenses = $lc->getCourseLicenses([IVS_LICENCSE_ACTIVE], true);
-        //get course_ids of activated licenses
-        $active_course_licenses = [-1];
-        foreach ($course_licenses as $license) {
+        $courselicenses = $lc->get_course_licenses([IVS_LICENCSE_ACTIVE], true);
+        // Get course_ids of activated licenses.
+        $activecourselicenses = [-1];
+        foreach ($courselicenses as $license) {
             if (!empty($license->course_id)) {
-                $active_course_licenses[] = $license->course_id;
+                $activecourselicenses[] = $license->course_id;
             }
         }
 
-        list($active_courses_db, $db_params) = $DB->get_in_or_equal($active_course_licenses, SQL_PARAMS_NAMED, null, false);
+        list($activecoursesdb, $dbparams) = $DB->get_in_or_equal($activecourselicenses, SQL_PARAMS_NAMED, null, false);
 
-        $query = "SELECT id, fullname, shortname from {course} WHERE id $active_courses_db";
-        $courselist = $DB->get_records_sql($query, $db_params);
-        $course_names = array();
+        $query = "SELECT id, fullname, shortname from {course} WHERE id $activecoursesdb";
+        $courselist = $DB->get_records_sql($query, $dbparams);
+        $coursenames = array();
 
         foreach ($courselist as $id => $course) {
-            $course_names[$id] = $course->fullname;
+            $coursenames[$id] = $course->fullname;
         }
 
         $options = array(
@@ -46,16 +61,16 @@ class LicenseCourseForm extends moodleform {
                 'noselectionstring' => get_string('ivs_course_selector_none', 'ivs'),
         );
 
-        $course_names = ['noselectionstring' => get_string('ivs_course_selector_none', 'ivs')] + $course_names;
+        $coursenames = ['noselectionstring' => get_string('ivs_course_selector_none', 'ivs')] + $coursenames;
         $lc = ivs_get_license_controller();
-        $course_licenses = $lc->getCourseLicenses([IVS_LICENCSE_ACTIVE]);
-        $license_options = $lc->getCourseLicenseOptions($course_licenses);
+        $courselicenses = $lc->get_course_licenses([IVS_LICENCSE_ACTIVE]);
+        $licenseoptions = $lc->get_course_license_options($courselicenses);
 
-        if (count($license_options) > 0) {
-            $mform->addElement('autocomplete', 'course', get_string('ivs_course_license_selector_label', 'ivs'), $course_names,
+        if (count($licenseoptions) > 0) {
+            $mform->addElement('autocomplete', 'course', get_string('ivs_course_license_selector_label', 'ivs'), $coursenames,
                     $options);
             $mform->addElement('select', 'license_id', get_string('ivs_course_license_selector_flat_label', 'ivs'),
-                    $license_options);
+                    $licenseoptions);
             $mform->addElement('submit', 'submitbutton', get_string('ivs_activate_course_license_label', 'ivs'));
 
         } else {
@@ -65,11 +80,11 @@ class LicenseCourseForm extends moodleform {
 
     }
 
-    //Custom validation should be added here
-    function validation($data, $files) {
+    // Custom validation should be added here.
+    public function validation($data, $files) {
         $errors = [];
 
-        //Error if no course is selected
+        // Error if no course is selected.
         if (empty($data['course']) || $data['course'] == 'noselectionstring') {
             $errors['course'] = \core\notification::error(get_string('ivs_course_license_error_no_course_selected', 'ivs'));
         }

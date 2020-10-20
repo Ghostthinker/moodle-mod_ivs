@@ -1,21 +1,24 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 use mod_ivs\ivs_match\AssessmentConfig;
@@ -23,28 +26,23 @@ use mod_ivs\settings\SettingsService;
 use mod_ivs\MoodleLicenseController;
 use mod_ivs\IvsHelper;
 
-/**
- * Prints a particular instance of ivs
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
- *
- * @package    mod_ivs
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
- */
+
 
 // Replace ivs with the name of your module and remove this line.
 
 require_once('../../config.php');
 require_once('./lib.php');
 require_once('./locallib.php');
-global $USER;
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
+global $USER,$DB;
+
+$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n = optional_param('n', 0, PARAM_INT);  // ... ivs instance ID - it should be named as the first character of the module.
-$cid = optional_param('cid', null, PARAM_INT);  // the  comment id to jump to
-$embedded = optional_param('embedded', null, PARAM_INT);  // the  comment id to jump to
+$cid = optional_param('cid', null, PARAM_INT);  // The  comment id to jump to.
+$embedded = optional_param('embedded', null, PARAM_INT);  // The  comment id to jump to.
+$course = $DB->get_record('course', array('id'=>optional_param('courseid', SITEID, PARAM_INT)), '*', MUST_EXIST);
+
+require_login($course,false);
 
 if ($id) {
     $cm = get_coursemodule_from_id('ivs', $id, 0, false, MUST_EXIST);
@@ -58,19 +56,20 @@ if ($id) {
     error('You must specify a course_module ID or an instance ID');
 }
 
-$activity_context = \context_module::instance($id);
+$activitycontext = \context_module::instance($id);
 
-$settingsController = new SettingsService();
+$settingscontroller = new SettingsService();
 
-$activity_settings = $settingsController->getSettingsForActivity($ivs->id, $course->id);
+$activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $course->id);
 
-$video_host = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs);
-$video_url = $video_host->getVideo();
+$videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs);
+$videourl = $videohost->get_video();
 
-$match_enabled = $activity_settings['match_question_enabled']->value;
+$matchenabled = $activitysettings['match_question_enabled']->value;
 
 require_login($course, true, $cm);
-
+$context = context_course::instance($course->id);
+$userroles = get_user_roles($context, $USER->id);
 if (empty($embedded)) {
     $event = \mod_ivs\event\course_module_viewed::create(array(
             'objectid' => $PAGE->cm->instance,
@@ -87,7 +86,6 @@ if (empty($embedded)) {
     $PAGE->set_heading(format_string($course->fullname));
 
     $PAGE->requires->jquery();
-    //ivs_add_ep5_js_and_css_dependencies($PAGE, $CFG);
 
     // Output starts here.
     echo $OUTPUT->header();
@@ -95,50 +93,50 @@ if (empty($embedded)) {
 
     $lc = ivs_get_license_controller();
 
-    $hasActiveLicense = $lc->hasActiveLicense(['course' => $course]);
-
-    if (!$hasActiveLicense) {
+    $hasactivelicense = $lc->has_active_license(['course' => $course]);
+    if (!$hasactivelicense) {
         \core\notification::error(get_string('ivs_activity_licence_error', 'ivs'));
         echo $OUTPUT->footer();
         exit;
     }
 
-    $active_license = $lc->getActiveLicense(['course' => $course]);
+    $activelicense = $lc->get_active_license(['course' => $course]);
+
 
     $context = context_course::instance($COURSE->id);
     $roles = get_user_roles($context, $USER->id);
-    $roleId = 0;
+    $roleid = 0;
     foreach ($roles as $role) {
-        $roleId = $role->roleid;
+        $roleid = $role->roleid;
     }
 
-    if ($roleId < 5) {
-        $usage = $active_license->spots_in_use / $active_license->spots;
-        if ($active_license->usage == 'spots_nearly_full') {
+    if ($roleid < 5) {
+        $usage = $activelicense->spots_in_use / $activelicense->spots;
+        if ($activelicense->usage == 'spots_nearly_full') {
             \core\notification::info(get_string('ivs_usage_info', 'ivs',
                     ['name' => $COURSE->fullname, 'usage' => round($usage * 100)]));
-        } else if ($active_license->usage == 'spots_full') {
+        } else if ($activelicense->usage == 'spots_full') {
             \core\notification::warning(get_string('ivs_usage_warning', 'ivs',
                     ['name' => $COURSE->fullname, 'usage' => round($usage * 100)]));
-        } else if ($active_license->usage == 'spots_overbooked') {
+        } else if ($activelicense->usage == 'spots_overbooked') {
             \core\notification::error(get_string('ivs_usage_error', 'ivs',
                     ['name' => $COURSE->fullname, 'usage' => round($usage * 100)]));
         }
         $time = strtotime(date("Y-m-d H:i:s"));
-        $resttime = strtotime($active_license->expires_at) - $time;
+        $resttime = strtotime($activelicense->expires_at) - $time;
         $resttime = round($resttime / 86400);
-        if ($active_license->runtime == 'duration_nearly_end') {
+        if ($activelicense->runtime == 'duration_nearly_end') {
             \core\notification::warning(get_string('ivs_duration_warning', 'ivs',
                     ['name' => $COURSE->fullname, 'resttime' => $resttime]));
         }
     }
 
-    if (empty($video_url)) {
+    if (empty($videourl)) {
         echo get_string('ivs_video_config_error', 'ivs');
         echo $OUTPUT->footer();
         exit;
     }
-    $url_iframe = $_SERVER['REQUEST_URI'] . "&embedded=1";
+    $urliframe = $_SERVER['REQUEST_URI'] . "&embedded=1";
     ?>
 
     <div>
@@ -158,7 +156,6 @@ if (empty($embedded)) {
         </style>
         <script>
 
-            //
             setInterval(function () {
                 var container_width = $("div[role=main]").width();
                 var good_height_min = container_width / 1.8;
@@ -172,7 +169,7 @@ if (empty($embedded)) {
 
         </script>
         <!-- IVS Video -->
-        <iframe class="edubreak-responsive-iframe" name="edubreakplayer" frameborder="0" src="<?php print $url_iframe ?>"
+        <iframe class="edubreak-responsive-iframe" name="edubreakplayer" frameborder="0" src="<?php print $urliframe ?>"
                 allowfullscreen></iframe>
 
         <!-- Annotations URL -->
@@ -183,7 +180,9 @@ if (empty($embedded)) {
                 <?php print get_string('ivs:view:comment_overview', 'ivs'); ?></a>
         </div>
 
-        <?php if ($match_enabled && has_capability('mod/ivs:access_match_reports', $activity_context)): ?>
+
+        <?php if ($matchenabled && has_capability('mod/ivs:access_match_reports', $activitycontext)): ?>
+
             <!-- Questions URL -->
 
             <div style="padding:8px 0">
@@ -204,38 +203,38 @@ if (empty($embedded)) {
     exit;
 } else {
 
-    $courseService = new \mod_ivs\CourseService();
-    $groups = $courseService->getAllCourseGroups($course->id);
-    $members = $courseService->getCourseMembers($course->id);
-    $roles = $courseService->getRoleNames($course->id);
+    $courseservice = new \mod_ivs\CourseService();
+    $groups = $courseservice->get_all_course_groups($course->id);
+    $members = $courseservice->get_course_members($course->id);
+    $roles = $courseservice->get_role_names($course->id);
 
-    /////////////////////
-    //build acces realms
-    /////////////////////
-    $access_realms = array();
 
-    //private and course realm
+    // Build acces realms.
 
-    $access_realms[] = array(
+    $accessrealms = array();
+
+    // Private and course realm.
+
+    $accessrealms[] = array(
             'key' => 'private',
             'icon' => 'icon-roadblock',
             'label' => get_string('ivs:acc_label:private', 'ivs'),
     );
 
-    $access_realms[] = array(
+    $accessrealms[] = array(
             'key' => 'course',
             'icon' => 'icon-ep5-globe',
             'label' => get_string('ivs:acc_label:course', 'ivs'),
     );
 
-    //Swap annotation visibility if setting default is set to "course"
-    if ((int) $activity_settings['annotation_realm_default_enabled']->value) {
-        $array_tmp = $access_realms;
-        $access_realms[0] = $array_tmp[1];
-        $access_realms[1] = $array_tmp[0];
+    // Swap annotation visibility if setting default is set to "course".
+    if ((int) $activitysettings['annotation_realm_default_enabled']->value) {
+        $arraytmp = $accessrealms;
+        $accessrealms[0] = $arraytmp[1];
+        $accessrealms[1] = $arraytmp[0];
     }
 
-    //member realm
+    // Member realm.
 
     if (!empty($members)) {
 
@@ -246,75 +245,113 @@ if (empty($embedded)) {
                     'label' => $value->firstname . ' ' . $value->lastname
             );
         }
-        $accessMembers = array();
-        $accessMembers['key'] = 'member';
-        $accessMembers['label'] = get_string('ivs:acc_label:members', 'ivs');
-        $accessMembers['values'] = $values;
-        $accessMembers['icon'] = 'icon-user';
-        $access_realms[] = $accessMembers;
+        $accessmembers = array();
+        $accessmembers['key'] = 'member';
+        $accessmembers['label'] = get_string('ivs:acc_label:members', 'ivs');
+        $accessmembers['values'] = $values;
+        $accessmembers['icon'] = 'icon-user';
+        $accessrealms[] = $accessmembers;
     }
 
-    //group realm
+    // Group realm.
     $values = array();
     if (!empty($groups)) {
         foreach ($groups as $value) {
             $values[] = array('key' => $value->id, 'label' => $value->name);
         }
-        $accessGroups = array();
-        $accessGroups['key'] = 'group';
-        $accessGroups['icon'] = 'icon-users';
-        $accessGroups['label'] = get_string('ivs:acc_label:group', 'ivs');
-        $accessGroups['values'] = $values;
-        $access_realms[] = $accessGroups;
+        $accessgroups = array();
+        $accessgroups['key'] = 'group';
+        $accessgroups['icon'] = 'icon-users';
+        $accessgroups['label'] = get_string('ivs:acc_label:group', 'ivs');
+        $accessgroups['values'] = $values;
+        $accessrealms[] = $accessgroups;
     }
 
-    //role realm
+    // Role realm.
     $values = array();
     if (!empty($roles)) {
         foreach ($roles as $value) {
             $values[] = array('key' => $value->id, 'label' => $value->localname);
         }
-        $accessRoles = array();
-        $accessRoles['key'] = 'role';
-        $accessRoles['label'] = get_string('ivs:acc_label:role', 'ivs');
-        $accessRoles['values'] = $values;
-        $accessRoles['icon'] = 'icon-user-secret';
-        $access_realms[] = $accessRoles;
+        $accessroles = array();
+        $accessroles['key'] = 'role';
+        $accessroles['label'] = get_string('ivs:acc_label:role', 'ivs');
+        $accessroles['values'] = $values;
+        $accessroles['icon'] = 'icon-user-secret';
+        $accessrealms[] = $accessroles;
     }
 
-    $user_picture = new user_picture($USER);
-    $user_picture_url = $user_picture->get_url($PAGE) . '';
+    $userpicture = new user_picture($USER);
+    $userpictureurl = $userpicture->get_url($PAGE) . '';
 
-    $backend_url = new \moodle_url('/mod/ivs/backend.php');
+    $backendurl = new \moodle_url('/mod/ivs/backend.php');
 
-    $may_create_pinned_annotations = has_capability('mod/ivs:create_pinned_comments', $activity_context);
-    $may_lock_annotation_access = has_capability('mod/ivs:lock_annotation_access', $activity_context);
+    $maycreatepinnedannotations = has_capability('mod/ivs:create_pinned_comments', $activitycontext);
+    $maylockannotationaccess = has_capability('mod/ivs:lock_annotation_access', $activitycontext);
 
-    $player_config = array(
+    $permissioncreatecomment = has_capability('mod/ivs:create_comment', $activitycontext);
+
+    // enable accessibility options
+    $accessbilityenabled = (int) $activitysettings['accessibility_enabled']->value;
+
+    $ratingoptions = [];
+    if ($accessbilityenabled) {
+        $ratingoptions = [
+                'rating_options' =>
+                        [
+                                [
+                                'rating' => 34,
+                                'label' => 'red',
+                                'color' => '#FF0000',
+                                'icon' => 'icon-traffic-triangle',
+                                ],
+                                [
+                                        'rating' => 67,
+                                        'label' => 'yellow',
+                                        'color' => '#FFFF00',
+                                        'icon' => 'icon-traffic-square',
+                                ],
+                                [
+                                        'rating' => 100,
+                                        'label' => 'green',
+                                        'color' => '#00FF00',
+                                        'icon' => 'icon-traffic-circle',
+                                ]
+                        ],
+                'rating_options_default' => [
+                        'rating' => 0,
+                        'label' => 'gray',
+                        'color' => '#CCCCCC',
+                        'icon' => 'icon-traffic-circle-outer',
+                ],
+        ];
+    }
+
+    $playerconfig = array(
             'overlay_mode' => false,
             'align_top' => false,
-            'hide_when_inactive' => (int) $activity_settings['hide_when_inactive']->value,
-            'list_item_buttons_hover_enabled' => (int) $activity_settings['list_item_buttons_hover_enabled']->value,
+            'hide_when_inactive' => (int) $activitysettings['hide_when_inactive']->value,
+            'list_item_buttons_hover_enabled' => (int) $activitysettings['list_item_buttons_hover_enabled']->value,
             'current_userdata' => array(
                     'name' => $USER->firstname . ' ' . $USER->lastname,
-                    'picture' => $user_picture_url,
+                    'picture' => $userpictureurl,
                     'url' => ''
             ),
             'plugins' => array(
                     'edubreak_annotations' => array(
-                            'interface_uri' => $backend_url . '',
-                            'may_create_comment' => true,
+                            'interface_uri' => $backendurl . '',
                             'default_open' => 1,
                             'default_cid' => $cid,
+                            'permission_create_comment' => $permissioncreatecomment,
                             'video_id' => $cm->instance,
                             'current_userdata' => array(
                                     'name' => $USER->firstname . ' ' . $USER->lastname,
-                                    'picture' => $user_picture_url,
+                                    'picture' => $userpictureurl,
                                     'url' => ''
                             ),
-                            'pin_mode_allowed' => $may_create_pinned_annotations,
-                            'pin_mode_pause_allowed' => $may_create_pinned_annotations,
-                            'readmore_enabled' => (int) $activity_settings['annotations_readmore_enabled']->value,
+                            'pin_mode_allowed' => $maycreatepinnedannotations,
+                            'pin_mode_pause_allowed' => $maycreatepinnedannotations,
+                            'readmore_enabled' => (int) $activitysettings['annotations_readmore_enabled']->value,
                             'client_side_screenshots_enabled' => true,
                             'client_side_screenshots_width' => 400
                     ),
@@ -330,46 +367,53 @@ if (empty($embedded)) {
                             'display_mode' => 'bullet'
                     ),
                     'edubreak_annotations_access' => array(
-                            'realms' => $access_realms,
-                            'inline_edit_allowed' => $may_lock_annotation_access
+                            'realms' => $accessrealms,
+                            'inline_edit_allowed' => $maylockannotationaccess
                     ),
             )
     );
+    // extend accessibility options, if available
+    $playerconfig['plugins']['edubreak_annotations_rating'] += $ratingoptions;
 
-    $playbackcommandService = new \mod_ivs\PlaybackcommandService();
+    $playbackcommandservice = new \mod_ivs\PlaybackcommandService();
 
-    if ((int) $activity_settings['playbackcommands_enabled']->value) {
-        $player_config['plugins']['edubreak_playbackcommands'] = array(
-                'interface_uri' => $backend_url . '',
-                'may_edit' => ivs_may_edit_playbackcommands($activity_context),
+    if ((int) $activitysettings['playbackcommands_enabled']->value) {
+        $playerconfig['plugins']['edubreak_playbackcommands'] = array(
+                'interface_uri' => $backendurl . '',
+                'may_edit' => ivs_may_edit_playbackcommands($activitycontext),
                 'video_id' => $cm->instance,
-                'playbackcommands' => $playbackcommandService->retrieve($cm->id)
+                'playbackcommands' => $playbackcommandservice->retrieve($cm->id)
         );
-        if ($offset = $playbackcommandService->hasSequence($cm->id)) {
-            $player_config['offset'] = $offset;
+        if ($offset = $playbackcommandservice->has_sequence($cm->id)) {
+            $playerconfig['offset'] = $offset;
         }
     }
 
-    $matchController = new \mod_ivs\MoodleMatchController();
+    $matchcontroller = new \mod_ivs\MoodleMatchController();
 
-    if ($match_enabled) {
+    if ($matchenabled) {
 
+        $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
 
-        $assessment_config =
-                $matchController->assessment_config_get_by_user_and_video($matchController->get_current_user_id(), $cm->instance,
+        if (!$permissionsavematch) {
+            \core\notification::info(get_string('ivs_disabled_saving_match_result', 'ivs'));
+        }
+
+        $assessmentconfig =
+                $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
                         false);
 
-        $player_config['playbackrate_enabled'] = false;
-        $player_config['settings_button_enabled'] = false;
+        $playerconfig['playbackrate_enabled'] = false;
+        $playerconfig['settings_button_enabled'] = false;
 
-        $player_config['plugins']['edubreak_match'] = array(
-                'interface_uri' => $backend_url . '',
+        $playerconfig['plugins']['edubreak_match'] = array(
+                'interface_uri' => $backendurl . '',
                 'video_id' => $cm->instance,
                 'take_id' => null,
                 'full_screen_start' => true,
-                'may_edit' => ivs_may_edit_match_questions($activity_context),
+                'may_edit' => ivs_may_edit_match_questions($activitycontext),
                 'active_context' => $cm->instance,
-                'assessment_config' => $assessment_config,
+                'assessment_config' => $assessmentconfig,
                 'sounds' => [
                         'enabled' => false,
                         'correct' => new \moodle_url('/mod/ivs/assets/correct.mp3') . '',
@@ -377,17 +421,17 @@ if (empty($embedded)) {
                 ]
         );
 
-        $player_config['plugins']['edubreak_match_question_choice'] = [
+        $playerconfig['plugins']['edubreak_match_question_choice'] = [
                 'feedback_text_enabled' => true,
                 'feedback_video_enabled' => true,
                 'default_options' => 3,
                 'max_allowed_choices' => 5,
-                'default_random_question' => (int) $activity_settings['default_random_question']->value,
+                'default_random_question' => (int) $activitysettings['default_random_question']->value,
         ];
-        $player_config['plugins']['edubreak_match_question_click'] = array(
+        $playerconfig['plugins']['edubreak_match_question_click'] = array(
                 'feedback_enabled' => true
         );
-        $player_config['plugins']['edubreak_match_question_text'] = array(
+        $playerconfig['plugins']['edubreak_match_question_text'] = array(
                 'default_max_length' => 500,
                 'feedabck_enabled' => true
         );
@@ -395,12 +439,10 @@ if (empty($embedded)) {
 
     $conf = get_config('mod_ivs');
 
-    $config_string = json_encode($player_config);
+    $configstring = json_encode($playerconfig);
 
-    // $lang_file = ivs_get_lang_file($CFG);
-
-    $js_conf = $PAGE->requires->get_config_for_javascript($PAGE, $OUTPUT);
-    $res_versions = $js_conf['jsrev'];
+    $jsconf = $PAGE->requires->get_config_for_javascript($PAGE, $OUTPUT);
+    $resversions = $jsconf['jsrev'];
 
     ?>
     <!DOCTYPE html>
@@ -411,16 +453,16 @@ if (empty($embedded)) {
 
         <?php
 
-        $include_files = ivs_ep5_get_js_and_css_dependencies();
-        $js_files = $include_files['js'];
-        $css_files = $include_files['css'];
+        $includefiles = ivs_ep5_get_js_and_css_dependencies();
+        $jsfiles = $includefiles['js'];
+        $cssfiles = $includefiles['css'];
 
-        foreach ($js_files as $js_file) {
-            echo '<script src="' . $js_file . '"></script>';
+        foreach ($jsfiles as $jsfile) {
+            echo '<script src="' . $jsfile . '"></script>';
         }
 
-        foreach ($css_files as $css_file) {
-            echo '<link rel="stylesheet" href="' . $css_file . '">';
+        foreach ($cssfiles as $cssfile) {
+            echo '<link rel="stylesheet" href="' . $cssfile . '">';
         }
 
         ?>
@@ -434,7 +476,7 @@ if (empty($embedded)) {
         <div class="ep5-media">
             <video crossorigin="anonymous" class="ep5-media-video" width="100%"
                    preload="metadata">
-                <source src="<?php echo $video_url ?>" type="video/mp4"
+                <source src="<?php echo $videourl ?>" type="video/mp4"
                 />
                 <div>Sorry, your browser or device is not supported!</div>
             </video>
@@ -444,13 +486,12 @@ if (empty($embedded)) {
     <?php
     echo '<script>
   $(document).ready(function(){
-    var player_configuration = ' . $config_string . ';
+    var player_configuration = ' . $configstring . ';
     $(\'.edubreakplayer:not(".ep5-processed")\').edubreakplayer(player_configuration).addClass(\'ep5-processed\');
   });
-
 </script>';
 
-    //todo footer
+    // Todo footer.
     ?>
 
     </body>

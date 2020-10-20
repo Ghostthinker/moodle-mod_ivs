@@ -1,5 +1,27 @@
 <?php
-// Standard GPL and phpdocs
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
+
+// Standard GPL and phpdocs.
 namespace mod_ivs\output\match;
 
 use moodle_url;
@@ -46,15 +68,15 @@ class question_summary implements renderable, templatable {
             $data->questions[] = $output->render($renderable);
         }
 
-        //Render Pager Options in Dropdown
-        $pager_url = new moodle_url('/mod/ivs/questions.php?id=' . $this->module->id . '&question-summary');
+        // Render Pager Options in Dropdown.
+        $pagerurl = new moodle_url('/mod/ivs/questions.php?id=' . $this->module->id . '&question-summary');
 
         if (optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT) == 10) {
-            $data->pager_options[] = '<option selected value="' . $pager_url . '&perpage=10">10</option>';
-            $data->pager_options[] = '<option value="' . $pager_url . '&perpage=100">100</option>';
+            $data->pager_options[] = '<option selected value="' . $pagerurl . '&perpage=10">10</option>';
+            $data->pager_options[] = '<option value="' . $pagerurl . '&perpage=100">100</option>';
         } else {
-            $data->pager_options[] = '<option value="' . $pager_url . '&perpage=10">10</option>';
-            $data->pager_options[] = '<option selected value="' . $pager_url . '&perpage=100">100</option>';
+            $data->pager_options[] = '<option value="' . $pagerurl . '&perpage=10">10</option>';
+            $data->pager_options[] = '<option selected value="' . $pagerurl . '&perpage=100">100</option>';
         }
 
         $data->elements = get_string("ivs_match_question_answer_menu_label_elements_per_page", 'ivs');

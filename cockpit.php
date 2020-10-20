@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 use mod_ivs\IvsHelper;
 
@@ -20,12 +41,12 @@ $courseid = optional_param('id', 0, PARAM_INT); // This are required.
 
 global $USER;
 
-//filters
+// Filters.
 
-$filter_users = optional_param('filter_users', null, PARAM_INT); // filter for drawings
-$filter_has_drawing = optional_param('filter_has_drawing', null, PARAM_RAW); // filter for drawings
-$filter_rating = optional_param('filter_rating', null, PARAM_RAW); // filter for drawings
-$filter_access = optional_param('filter_access', null, PARAM_RAW); // filter for drawings
+$filterusers = optional_param('filter_users', null, PARAM_INT); // filter for drawings
+$filterhasdrawing = optional_param('filter_has_drawing', null, PARAM_RAW); // filter for drawings
+$filterrating = optional_param('filter_rating', null, PARAM_RAW); // filter for drawings
+$filteraccess = optional_param('filter_access', null, PARAM_RAW); // filter for drawings
 
 $PAGE->set_url('/mod/ivs/cockpit.php', array(
         'page' => $page,
@@ -34,10 +55,10 @@ $PAGE->set_url('/mod/ivs/cockpit.php', array(
         'sortorder' => $sortorder,
         'contextid' => $contextid,
         'id' => $courseid,
-        'filter_users' => $filter_users,
-        'filter_has_drawing' => $filter_has_drawing,
-        'filter_rating' => $filter_rating,
-        'filter_access' => $filter_access,
+        'filter_users' => $filterusers,
+        'filter_has_drawing' => $filterhasdrawing,
+        'filter_rating' => $filterrating,
+        'filter_access' => $filteraccess,
         'grouping' => $grouping,
 ));
 
@@ -54,37 +75,34 @@ if ($contextid) {
 require_login($course, true);
 require_capability('mod/ivs:access_reports', $context);
 
-//process heading and set base theme
+// Process heading and set base theme.
 
 $heading = get_string('cockpit_heading', 'ivs');
 
 $PAGE->set_title($heading);
 $PAGE->set_heading($heading);
-//$PAGE->set_context($course_context);
 $PAGE->set_pagelayout('standard');
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.css'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.js'));
 $PAGE->requires->jquery();
 
-//This is for admins and everyone with the course permission to manage reports
-$ACCESS_REPORTS = has_capability('mod/ivs:access_reports', $context);
+// This is for admins and everyone with the course permission to manage reports.
+$accessreports = has_capability('mod/ivs:access_reports', $context);
 
-//register services
-$ANNOTATION_SERVICE = new \mod_ivs\AnnotationService();
-$REPORT_SERVICE = new \mod_ivs\ReportService();
+// Register services.
+$annotationservice = new \mod_ivs\AnnotationService();
+$reportservice = new \mod_ivs\ReportService();
 
-//Get Query String to hide filter blocks while editing and creating reports
-$report_action = null;
-if (!empty($_GET['report_action'])) {
-    $report_action = $_GET['report_action'];
-}
+// Get Query String to hide filter blocks while editing and creating reports.
+$reportaction = optional_param('report_action',null,PARAM_ALPHANUMEXT);
 
-//filter form is required by filter but alos for options in reptz form
-$filter_form = new \mod_ivs\cockpit_filter_form($PAGE, $course, $context, $_GET);
 
-if (empty($report_action)) {
-    //region Sort BLOCK
+// Filter form is required by filter but alos for options in reptz form.
+$filterform = new \mod_ivs\cockpit_filter_form($PAGE, $course, $context, $_GET);
+
+if (empty($reportaction)) {
+    // Region Sort BLOCK.
 
     $iconasc = $OUTPUT->pix_icon(
             't/sort_asc',
@@ -104,17 +122,17 @@ if (empty($report_action)) {
             )
     );
 
-    // Time create DESC
-    $sort_url_timecreated_desc = $PAGE->url;
-    $sort_url_timecreated_desc->param("sortkey", "timecreated");
-    $sort_url_timecreated_desc->param("sortorder", "DESC");
-    $sort_url_timecreated_desc_out = "<a href=\"$sort_url_timecreated_desc\">$icondesc</a>";
+    // Time create DESC.
+    $sorturltimecreateddesc = $PAGE->url;
+    $sorturltimecreateddesc->param("sortkey", "timecreated");
+    $sorturltimecreateddesc->param("sortorder", "DESC");
+    $sorturltimecreateddescout = "<a href=\"$sorturltimecreateddesc\">$icondesc</a>";
 
-    // Time create ASC
-    $sort_url_timecreated_asc = $PAGE->url;
-    $sort_url_timecreated_asc->param("sortkey", "timecreated");
-    $sort_url_timecreated_asc->param("sortorder", "ASC");
-    $sort_url_timecreated_asc_out = "<a href=\"$sort_url_timecreated_asc\">$iconasc</a>";
+    // Time create ASC.
+    $sorturltimecreatedasc = $PAGE->url;
+    $sorturltimecreatedasc->param("sortkey", "timecreated");
+    $sorturltimecreatedasc->param("sortorder", "ASC");
+    $sorturltimecreatedascout = "<a href=\"$sorturltimecreatedasc\">$iconasc</a>";
 
     $iconasc = $OUTPUT->pix_icon(
             't/sort_asc',
@@ -134,71 +152,71 @@ if (empty($report_action)) {
             )
     );
 
-    // Timestamp DESC
-    $sort_url_timestamp_desc = $PAGE->url;
-    $sort_url_timestamp_desc->param("sortkey", "timestamp");
-    $sort_url_timestamp_desc->param("sortorder", "DESC");
-    $sort_url_timestamp_desc_out = "<a href=\"$sort_url_timestamp_desc\">$icondesc</a>";
+    // Timestamp DESC.
+    $sorturltimestampdesc = $PAGE->url;
+    $sorturltimestampdesc->param("sortkey", "timestamp");
+    $sorturltimestampdesc->param("sortorder", "DESC");
+    $sorturltimestampdescout = "<a href=\"$sorturltimestampdesc\">$icondesc</a>";
 
-    // Timestamp ASC
-    $sort_url_timestamp_asc = $PAGE->url;
-    $sort_url_timestamp_asc->param("sortkey", "timestamp");
-    $sort_url_timestamp_asc->param("sortorder", "ASC");
-    $sort_url_timestamp_asc_out = "<a href=\"$sort_url_timestamp_asc\">$iconasc</a>";
+    // Timestamp ASC.
+    $sorturltimestampasc = $PAGE->url;
+    $sorturltimestampasc->param("sortkey", "timestamp");
+    $sorturltimestampasc->param("sortorder", "ASC");
+    $sorturltimestampascout = "<a href=\"$sorturltimestampasc\">$iconasc</a>";
 
     $bc = new block_contents();
     $bc->title = get_string('block_filter_sort', 'ivs');
     $bc->attributes['class'] = 'menu block';
     $bc->content = "<div>" . get_string('block_filter_timecreated', 'ivs') .
-            ": $sort_url_timecreated_desc_out $sort_url_timecreated_asc_out </div>";
+            ": $sorturltimecreateddescout $sorturltimecreatedascout </div>";
     $bc->content .= "<div>" . get_string('block_filter_timestamp', 'ivs') .
-            ": $sort_url_timestamp_desc_out $sort_url_timestamp_asc_out </div>";
+            ": $sorturltimestampdescout $sorturltimestampascout </div>";
     $PAGE->blocks->add_fake_block($bc, 'side-post');
 
-    //#endregion
+    // Endregion.
 
-    //region Filter BLOCK
+    // Region Filter BLOCK.
 
     $bc = new block_contents();
     $bc->title = get_string('block_filter_title', 'ivs');
     $bc->attributes['class'] = 'menu block';
-    $bc->content = $filter_form->render();
+    $bc->content = $filterform->render();
     $PAGE->blocks->add_fake_block($bc, 'side-post');
-    //endregion
+    // Endregion.
 
-    //region Group BLOCK
+    // Region Group BLOCK.
     $bc = new block_contents();
     $bc->title = get_string('block_grouping_title', 'ivs');
     $bc->attributes['class'] = 'menu block';
 
-    //Grouping block urls
-    $url_group_none = clone $PAGE->url;
-    $url_group_none->param("grouping", "none");
-    $url_group_none->param("page", 0);
+    // Grouping block urls.
+    $urlgroupnone = clone $PAGE->url;
+    $urlgroupnone->param("grouping", "none");
+    $urlgroupnone->param("page", 0);
 
-    $url_group_video = clone $PAGE->url;
-    $url_group_video->param("grouping", "video");
-    $url_group_video->param("page", 0);
+    $urlgroupvideo = clone $PAGE->url;
+    $urlgroupvideo->param("grouping", "video");
+    $urlgroupvideo->param("page", 0);
 
-    $url_group_person = clone $PAGE->url;
-    $url_group_person->param("grouping", "user");
-    $url_group_person->param("page", 0);
+    $urlgroupperson = clone $PAGE->url;
+    $urlgroupperson->param("grouping", "user");
+    $urlgroupperson->param("page", 0);
 
-    $group_block =
+    $groupblock =
             '<input type="radio" name="grouping" value="none" ' . ($grouping == 'none' || empty($grouping) ? "checked" : "") .
-            ' onClick="window.location =\'' . $url_group_none . '\';" />Keine<br>';
-    $group_block .= '<input type="radio" name="grouping" value="video" ' . ($grouping == 'video' ? ' checked ' : '') .
-            '  onClick="window.location =\'' . $url_group_video . '\';" />Video<br>';
-    $group_block .= '<input type="radio" name="grouping" value="user" ' . ($grouping == 'user' ? ' checked ' : '') .
-            '  onClick="window.location =\'' . $url_group_person . '\';" />Person';
+            ' onClick="window.location =\'' . $urlgroupnone . '\';" />Keine<br>';
+    $groupblock .= '<input type="radio" name="grouping" value="video" ' . ($grouping == 'video' ? ' checked ' : '') .
+            '  onClick="window.location =\'' . $urlgroupvideo . '\';" />Video<br>';
+    $groupblock .= '<input type="radio" name="grouping" value="user" ' . ($grouping == 'user' ? ' checked ' : '') .
+            '  onClick="window.location =\'' . $urlgroupperson . '\';" />Person';
 
-    $bc->content = '<div>' . $group_block . '</div>';
+    $bc->content = '<div>' . $groupblock . '</div>';
     $PAGE->blocks->add_fake_block($bc, 'side-post');
 
 }
-//endregion
+// Endregion.
 
-//the current page and filter options
+// Ehe current page and filter options.
 $options = array(
                 'offset' => $page * $perpage,
                 'limit' => $perpage,
@@ -206,77 +224,76 @@ $options = array(
                 'sortorder' => $sortorder,
                 'grouping' => $grouping
 
-        ) + $filter_form->getActiveFilter();
+        ) + $filterform->get_active_filter();
 
-//region REPORT BLOCK
+// Region REPORT BLOCK.
 
-if ($ACCESS_REPORTS) {
+if ($accessreports) {
 
-    $report_form = new \mod_ivs\cockpit_report_form($PAGE, $course, $context, $_POST, $REPORT_SERVICE);
+    $reportform = new \mod_ivs\cockpit_report_form($PAGE, $course, $context, $_POST, $reportservice);
 
-    $out_report = "";
-    if (!empty($_POST)) {
+    $outreport = "";
+    $rawuserpost['submit'] = optional_param('submit', '', PARAM_ALPHANUMEXT);
 
-        if (isset($_POST['submit'])) {
+    if (isset($rawuserpost['submit'])) {
+        $rawuserpost['report_start_date'] = optional_param('report_start_date', '', PARAM_ALPHANUMEXT);
+        $rawuserpost['report_rotation'] = optional_param('report_rotation', '', PARAM_ALPHANUMEXT);
+        $rawuserpost['report_id'] = optional_param('report_id', '', PARAM_ALPHANUMEXT);
 
-
-            $report_form->processForm($courseid, $_POST, $options, $USER->id);
-
-        }
+        $reportform->process_form($courseid, $rawuserpost, $options, $USER->id);
     }
 
-    #$report_block = new annotation_report_form_block();
     $bc = new block_contents();
     $bc->title = get_string("block_report_title", 'ivs');
     $bc->attributes['class'] = 'menu block';
-    $bc->content = $report_form->render() . $out_report;
+    $bc->content = $reportform->render() . $outreport;
     $PAGE->blocks->add_fake_block($bc, 'side-post');
 }
 
-//endregion
+// Endregion.
 
-//breadcrumb
+// Breadcrumb.
 $PAGE->navbar->add(get_string('annotation_overview_menu_item', 'ivs'));
 
-//This is for admins and everyone with the course permission to view any comments
-$SKIP_ACCESS_CHECK = has_capability('mod/ivs:view_any_comment', $context);
+// This is for admins and everyone with the course permission to view any comments.
+$skipaccesscheck = has_capability('mod/ivs:view_any_comment', $context);
 
 echo $OUTPUT->header();
 
-$annotations = $ANNOTATION_SERVICE->getAnnotationsByCourse($courseid, $SKIP_ACCESS_CHECK, $options);
+$annotations = $annotationservice->get_annotations_by_course($courseid, $skipaccesscheck, $options);
 
 $renderer = $PAGE->get_renderer('ivs');
 
-$totalcountData = $ANNOTATION_SERVICE->getAnnotationsByCourse($courseid, $SKIP_ACCESS_CHECK, $options, true);
+$totalcountData = $annotationservice->get_annotations_by_course($courseid, $skipaccesscheck, $options, true);
 $totalcount = $totalcountData->total;
 
-//HEADER
+// HEADER.
 
 $summary = get_string("cockpit_summary", 'ivs', array("total" => $totalcount));
 
-//ANNOTATIONS
+// ANNOTATIONS.
 echo '<div class="ivs-annotations ivs-annotations-report">';
 
 if (empty($annotations)) {
     echo get_string("cockpit_filter_empty", 'ivs');
 } else {
 
-    $video_cache = array();
-    $account_cache = array();
+    $videocache = array();
+    $accountcache = array();
 
     /** @var \mod_ivs\annotation $comment */
     foreach ($annotations as $comment) {
 
-        $video_id = $comment->getVideoId();
-        if (empty($video_cache[$video_id])) {
+        $videoid = $comment->get_videoid();
+        if (empty($videocache[$videoid])) {
 
-            $course_module = get_coursemodule_from_instance('ivs', $video_id, 0, false, MUST_EXIST);
-            $ivs = $DB->get_record('ivs', array('id' => $video_id), '*', MUST_EXIST);
-            $context = \context_module::instance($course_module->id);
+            $coursemodule = get_coursemodule_from_instance('ivs', $videoid, 0, false, MUST_EXIST);
+            $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
+            $context = \context_module::instance($coursemodule->id);
 
-            $video_cache[$video_id] = array(
+            $videocache[$videoid] = array(
                     'cm' => $context,
-                    'course_module' => $course_module,
+                    'course_module' => $coursemodule,
                     'ivs' => $ivs,
             );
 
@@ -285,24 +302,24 @@ if (empty($annotations)) {
             }
         }
 
-        $user_id = $comment->getUserId();
+        $userid = $comment->get_userid();
 
-        if (empty($account_cache[$user_id])) {
-            $account_cache[$user_id] = IvsHelper::getUser($comment->getUserId());
+        if (empty($accountcache[$userid])) {
+            $accountcache[$userid] = IvsHelper::get_user($comment->get_userid());
 
             if ($grouping == "user") {
-                echo "<h2>" . $account_cache[$user_id]['fullname'] . "</h2>";
+                echo "<h2>" . $accountcache[$userid]['fullname'] . "</h2>";
             }
         }
 
-        $renderable = new \mod_ivs\output\annotation_view($comment, $video_cache[$video_id]['ivs'],
-                $video_cache[$video_id]['course_module']);
+        $renderable = new \mod_ivs\output\annotation_view($comment, $videocache[$videoid]['ivs'],
+                $videocache[$videoid]['course_module']);
         echo $renderer->render($renderable);
     }
 }
 echo '</div>';
-//echo '<div class="cockpit-summary">'.$summary.'</div>';
-//PAGER
+
+// PAGER.
 if ($totalcount > $perpage) {
     echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $PAGE->url);
 }

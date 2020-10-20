@@ -1,11 +1,32 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 require_once('../../config.php');
 
 define('DEFAULT_PAGE_SIZE', 10); //TODO INCREASE THIS
 define('SHOW_ALL_PAGE_SIZE', 5000);
 
-//pager, sort and settings
+// Pager, sort and settings.
 $page = optional_param('page', 0, PARAM_INT); // Which page to show.
 $perpage = optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT);
 
@@ -19,7 +40,7 @@ $context = \context_module::instance($cmid);
 
 require_login($course, true, $cm);
 
-//only allow if permission is correct
+// Only allow if permission is correct.
 if (!has_capability('mod/ivs:access_match_reports', $context)) {
     print_error('accessdenied', 'admin');
 }
@@ -34,7 +55,7 @@ $PAGE->set_heading($course->fullname);
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/question_view.css'));
 $PAGE->requires->jquery();
 
-//breadcrumb
+// Breadcrumb.
 $PAGE->navbar->add(get_string('ivs:view:question_overview', 'ivs'), new moodle_url('/mod/ivs/questions.php?id=' . $cm->id));
 
 echo $OUTPUT->header();
@@ -45,16 +66,16 @@ $questions = $controller->match_questions_get_by_video_db_order($ivs->id);
 
 $renderer = $PAGE->get_renderer('ivs');
 
-//Pager
+// Pager.
 $page = optional_param('page', 0, PARAM_INT); // Which page to show.
 $perpage = optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
 $offset = $page * $perpage;
 
-$courseService = new \mod_ivs\CourseService();
+$courseservice = new \mod_ivs\CourseService();
 
-$courseStudents = $courseService->getCourseStudents($course->id);
+$coursestudents = $courseservice->get_course_students($course->id);
 
-$student_answer_summary = [];
+$studentanswersummary = [];
 
 echo '<div class="ivs-questions">';
 echo '<h3>' . $heading . '</h3>';
@@ -75,7 +96,7 @@ echo '<h3>' . $heading . '</h3>';
         <div class="tab-pane active" id="question-summary" role="tabpanel">
             <?php
             $renderable = new \mod_ivs\output\match\question_summary($ivs, array_values($questions), $cm, $offset, $perpage,
-                    $courseStudents);
+                    $coursestudents);
             echo $renderer->render($renderable);
             ?>
         </div>
@@ -103,7 +124,7 @@ echo '</div>';
 
 $totalcount = count($questions);
 
-//PAGER
+// PAGER.
 if ($totalcount > $perpage) {
     echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $PAGE->url);
 }

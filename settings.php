@@ -16,15 +16,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   mod_forum
- * @copyright  2009 Petr Skoda (http://skodak.org)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/adminlib.php');
-
+require_login(null,false);
 $ADMIN->add('modsettings', new admin_category('interactive_video_suite_settings', get_string('modulecategory', 'ivs'),
         $module->is_enabled() === false));
 
@@ -33,7 +34,7 @@ $settings = new admin_settingpage($section, get_string('settings', 'ivs'), 'mood
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot . '/mod/ivs/lib.php');
 
-    //IVS-Settings
+    // IVS-Settings.
     $settings->add(new admin_setting_heading('mod_ivs/ivssettings', get_string('ivs_settings', 'ivs'), ''));
 
     $settings->add(new admin_setting_configcheckbox('ivs_switchcast_external_files_enabled',
@@ -44,27 +45,29 @@ if ($ADMIN->fulltree) {
             get_string('ivs_setting_switchcast_internal_files_title', 'ivs'),
             get_string('ivs_setting_switchcast_internal_files_help', 'ivs'), 1));
 
-    //Player-Settings
+    // Player-Settings.
 
     $settings->add(new admin_setting_heading('mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'), ''));
 
-    $ivs_settings = \mod_ivs\settings\SettingsService::getSettingsDefinitions();
+    $ivssettings = \mod_ivs\settings\SettingsService::get_settings_definitions();
 
-    foreach ($ivs_settings as $player_setting) {
+    foreach ($ivssettings as $playersetting) {
 
-        switch ($player_setting->type) {
+        switch ($playersetting->type) {
             case 'checkbox':
-                if ($player_setting->locked_site) {
-                    $settings->add(new admin_setting_configcheckbox_with_lock("mod_ivs/" . $player_setting->name,
-                            $player_setting->title, get_string($player_setting->description . '_help', 'ivs'),
-                            $player_setting->default));
+                if ($playersetting->lockedsite) {
+                    $settings->add(new admin_setting_configcheckbox_with_lock("mod_ivs/" . $playersetting->name,
+                            $playersetting->title, get_string($playersetting->description . '_help', 'ivs'),
+                            $playersetting->default));
                 } else {
-                    $settings->add(new admin_setting_configcheckbox($player_setting->name, $player_setting->title,
-                            $player_setting->description, $player_setting->default));
+                    $settings->add(new admin_setting_configcheckbox($playersetting->name, $playersetting->title,
+                            $playersetting->description, $playersetting->default));
                 }
                 break;
         }
     }
+
+
 }
 
 $ADMIN->add('interactive_video_suite_settings', $settings);

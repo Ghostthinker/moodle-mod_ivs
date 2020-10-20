@@ -1,13 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Created by PhpStorm.
- * User: Ghostthinker
- * Date: 20.11.2018
- * Time: 13:29
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 namespace mod_ivs\license;
-
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
@@ -22,7 +37,7 @@ class TestsystemForm extends moodleform {
         $mform->setType('ivs_testsystem', PARAM_RAW);
         $lc = ivs_get_license_controller();
 
-        $status = $lc->getStatus();
+        $status = $lc->get_status();
         $group = [];
         $mform->addElement('header', 'section_testsystem', get_string('ivs_set_testsystem', 'ivs'));
         $group[] = &$mform->createElement('text', '', '',
@@ -32,8 +47,8 @@ class TestsystemForm extends moodleform {
         $mform->setExpanded("section_testsystem", false);
     }
 
-    //Custom validation should be added here
-    function validation($data, $files) {
+    // Custom validation should be added here.
+    public function validation($data, $files) {
     }
 
 }

@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 namespace mod_ivs;
 
@@ -6,92 +27,91 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
-//require_once('../../../config.php');
 
 //TODO create interface
 class PlaybackcommandService {
-    public function fromJson() {
+    public function from_json() {
 
     }
 
     /**
      * Save Playbackcommand
      *
-     * @param $post_data
-     * @param $activity_id
+     * @param $postdata
+     * @param $activityid
      * @return array
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function save($post_data, $activity_id) {
+    public function save($postdata, $activityid) {
 
-        if (!$this->hasEditAccess($activity_id)) {
+        if (!$this->has_edit_access($activityid)) {
             throw new Exception("Access denied");
         }
 
-        $commands = $this->retrieve($activity_id);
-        $is_new = true;
+        $commands = $this->retrieve($activityid);
+        $isnew = true;
 
-        if (empty($post_data->id)) {
-            $is_new = false;
+        if (empty($postdata->id)) {
+            $isnew = false;
             $id = uniqid("", true);
         } else {
-            $id = clean_param($post_data->id, PARAM_TEXT);
+            $id = clean_param($postdata->id, PARAM_TEXT);
         }
 
         $command = [];
 
         $command['id'] = $id;
-        $command['type'] = clean_param($post_data->type, PARAM_ALPHANUM);
-        $command['timestamp'] = clean_param($post_data->timestamp, PARAM_INT);
-        $command['duration'] = clean_param($post_data->duration, PARAM_INT);
-        $command['title'] = clean_param($post_data->title, PARAM_TEXT);
+        $command['type'] = clean_param($postdata->type, PARAM_ALPHANUM);
+        $command['timestamp'] = clean_param($postdata->timestamp, PARAM_INT);
+        $command['duration'] = clean_param($postdata->duration, PARAM_INT);
+        $command['title'] = clean_param($postdata->title, PARAM_TEXT);
 
-        //special fields
+        // Special fields.
         switch ($command['type']) {
             case "pause":
-                $command['wait_time'] = clean_param($post_data->wait_time, PARAM_INT);
+                $command['wait_time'] = clean_param($postdata->wait_time, PARAM_INT);
                 break;
             case "playbackrate":
-                $command['playbackrate'] = clean_param($post_data->playbackrate, PARAM_FLOAT);
+                $command['playbackrate'] = clean_param($postdata->playbackrate, PARAM_FLOAT);
                 break;
             case "zoom":
-                $command['zoom'] = clean_param($post_data->zoom, PARAM_FLOAT);
-                $command['zoom_transform'] = $post_data->zoomdata;
+                $command['zoom'] = clean_param($postdata->zoom, PARAM_FLOAT);
+                $command['zoom_transform'] = $postdata->zoomdata;
                 break;
             case "audio":
-                //TODO
-                //$command['audio'] = clean_param($post_data->audio);
+                // TODO.
+                // ... $command['audio'] = clean_param($post_data->audio);
                 break;
             case "drawing":
-                $command['drawing_data'] = $post_data->drawing_data;
+                $command['drawing_data'] = $postdata->drawing_data;
                 break;
             case "text":
-                $command['drawing_data'] = $post_data->drawing_data;
+                $command['drawing_data'] = $postdata->drawing_data;
                 break;
             case "textoverlay":
                 //not used 19.12.2016 - 17:00 - SH - but kinda working
-                $command['body'] = clean_param($post_data->body, PARAM_TEXT);
-                $command['position'] = $post_data->position;
+                $command['body'] = clean_param($postdata->body, PARAM_TEXT);
+                $command['position'] = $postdata->position;
                 break;
         }
 
-        //check existing id
-        $is_new = true;
+        // Check existing id.
+        $isnew = true;
         if (count($commands) > 0) {
             foreach ($commands as $k => $c) {
                 if ($c['id'] === $id) {
                     $commands[$k] = $command;
-                    $is_new = false;
+                    $isnew = false;
                 }
             }
         }
-        if ($is_new) {
+        if ($isnew) {
             $commands[] = $command;
         }
 
         global $DB;
-        $ivs = $this->loadVideoByActivityId($activity_id);
+        $ivs = $this->load_video_by_activity_id($activityid);
         $ivs->playbackcommands = json_encode($commands);
 
         $DB->update_record('ivs', $ivs);
@@ -102,13 +122,13 @@ class PlaybackcommandService {
     /**
      * Retrieve Playbackcommand
      *
-     * @param $activity_id
+     * @param $activityid
      * @return mixed
      * @throws \Exception
      */
-    public function retrieve($activity_id) {
+    public function retrieve($activityid) {
 
-        $ivs = $this->loadVideoByActivityId($activity_id);
+        $ivs = $this->load_video_by_activity_id($activityid);
 
         if (empty($ivs)) {
             throw new Exception("video not found");
@@ -127,31 +147,30 @@ class PlaybackcommandService {
     /**
      * Delete Playbackcommand
      *
-     * @param $playback_command_id
-     * @param $activity_id
+     * @param $playbackcommandid
+     * @param $activityid
      * @throws \dml_exception
      */
-    public function delete($playback_command_id, $activity_id) {
+    public function delete($playbackcommandid, $activityid) {
 
 
-        if (!$this->hasEditAccess($activity_id)) {
+        if (!$this->has_edit_access($activityid)) {
             throw new Exception("Access denied");
         }
 
-        $commands = $this->retrieve($activity_id);
+        $commands = $this->retrieve($activityid);
 
-        //check if command id exists
+        // Check if command id exists.
         foreach ($commands as $k => $c) {
-            if ($c['id'] === $playback_command_id) {
+            if ($c['id'] === $playbackcommandid) {
                 unset($commands[$k]);
             }
         }
 
         global $DB;
-        $ivs = $this->loadVideoByActivityId($activity_id);
+        $ivs = $this->load_video_by_activity_id($activityid);
         $ivs->playbackcommands = json_encode(array_values($commands));
 
-        //print_r($ivs->playbackcommands);die();
 
         $DB->update_record('ivs', $ivs);
     }
@@ -159,43 +178,42 @@ class PlaybackcommandService {
     /**
      * Load Video by activity id
      *
-     * @param $activity_id
+     * @param $activityid
      * @return mixed
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    private function loadVideoByActivityId($activity_id) {
+    private function load_video_by_activity_id($activityid) {
         global $DB;
 
-        $cm = $this->getActivity($activity_id);
-        // $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+        $cm = $this->get_activity($activityid);
         $ivs = $DB->get_record('ivs', array('id' => $cm->instance), '*', MUST_EXIST);
 
         return $ivs;
 
     }
 
-    private function getActivity($activity_id) {
-        return get_coursemodule_from_id('ivs', $activity_id, 0, false, MUST_EXIST);
+    private function get_activity($activityid) {
+        return get_coursemodule_from_id('ivs', $activityid, 0, false, MUST_EXIST);
     }
 
-    private function hasEditAccess($activity_id) {
+    private function has_edit_access($activityid) {
 
-        $activity_context = \context_module::instance($activity_id);
-        return has_capability('mod/ivs:edit_playbackcommands', $activity_context);
+        $activitycontext = \context_module::instance($activityid);
+        return has_capability('mod/ivs:edit_playbackcommands', $activitycontext);
 
     }
 
     /**
      * Special behavior playbackcommand sequence
      *
-     * @param $activity_id
+     * @param $activityid
      * @return array
      * @throws \Exception
      */
-    public function hasSequence($activity_id) {
+    public function has_sequence($activityid) {
 
-        $commands = $this->retrieve($activity_id);
+        $commands = $this->retrieve($activityid);
 
         if (count($commands) > 0) {
             foreach ($commands as $pc) {

@@ -21,13 +21,14 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
-$messageproviders = array(
-        'ivs_annotation_direct_mention' => array(),
-        'ivs_annotation_indirect_mention' => array(),
-        'ivs_annotation_reply' => array(),
-        'ivs_annotation_conversation' => array(),
-        'ivs_annotation_tag' => array(),
-        'ivs_annotation_report' => array()
-);
-
-
+class provider implements \core_privacy\local\metadata\null_provider {
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}

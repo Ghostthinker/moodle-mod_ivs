@@ -1,32 +1,24 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module ivs
- *
- * All the ivs specific functions, needed to implement the module
- * logic, should go here. Never include this file from your lib.php!
- *
- * @package    mod_ivs
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -45,39 +37,37 @@ function ivs_ep5_get_js_and_css_dependencies() {
 
     global $DB;
 
-    $css_files = [];
-    $js_files = [];
+    $cssfiles = [];
+    $jsfiles = [];
 
     $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 
-    $active_license = null;
+    $activelicense = null;
     if ($id) {
         $cm = get_coursemodule_from_id('ivs', $id, 0, false, MUST_EXIST);
         $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
         $lc = ivs_get_license_controller();
-        $active_license = $lc->getActiveLicense(['course' => $course]);
+        $activelicense = $lc->get_active_license(['course' => $course]);
     }
 
-    if ($active_license) {
-        $license_cdn = $lc->getCDNSource($active_license->id);
-        $core_url = $lc->getCoreUrl();
-        foreach ($license_cdn->js as $js_item) {
-            // $PAGE->requires->js(IVS_CORE_URL . $js_item, TRUE);
-            $js_files[] = $core_url . $js_item;
+    if ($activelicense) {
+        $licensecdn = $lc->get_cdn_source($activelicense->id);
+        $core_url = $lc->get_core_url();
+        foreach ($licensecdn->js as $js_item) {
+            $jsfiles[] = $core_url . $js_item;
         }
-        foreach ($license_cdn->css as $css_item) {
-            // $PAGE->requires->css($css_item, TRUE);
-            $css_files[] = $core_url . $css_item;
+        foreach ($licensecdn->css as $css_item) {
+            $cssfiles[] = $core_url . $css_item;
         }
 
         $lng = current_language();
-        $langfile = $core_url . ((array) $license_cdn->lang)[$lng];
+        $langfile = $core_url . ((array) $licensecdn->lang)[$lng];
 
-        $js_files[] = $langfile;
+        $jsfiles[] = $langfile;
     }
 
-    return ['js' => $js_files, 'css' => $css_files];
+    return ['js' => $jsfiles, 'css' => $cssfiles];
 
 }
 

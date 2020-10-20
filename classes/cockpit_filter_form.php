@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 namespace mod_ivs;
 
@@ -9,7 +30,8 @@ global $CFG;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-class cockpit_filter_form {
+class cockpit_filter_form
+{
 
     public static $FILTER_USERS = "filter_users";
     public static $FILTER_HAS_DRAWING = "filter_has_drawing";
@@ -29,50 +51,53 @@ class cockpit_filter_form {
      * @param $context
      * @param $parameters
      */
-    public function __construct($PAGE, $course, $context, $raw_parameters) {
+    public function __construct($PAGE, $course, $context, $rawparameters)
+    {
         $this->PAGE = $PAGE;
         $this->course = $course;
         $this->context = $context;
 
-        $this->_parseParameters($raw_parameters);
+        $this->_parse_parameters($rawparameters);
     }
 
-    function render() {
+    function render()
+    {
 
-        //render user select
+        // Render user select.
         $out = "";
-        $user_options = $this->getUserOptions();
-        $out .= $this->_createSelect(self::$FILTER_USERS, get_string("users"), $user_options);
+        $useroptions = $this->get_user_options();
+        $out .= $this->_create_select(self::$FILTER_USERS, get_string("users"), $useroptions);
 
-        //render drawing select
-        $has_drawing_options = $this->getHasDrawingOptions();
-        $out .= $this->_createSelect(self::$FILTER_HAS_DRAWING, get_string("filter_label_has_drawing", 'ivs'),
-                $has_drawing_options);
+        // Render drawing select.
+        $hasdrawingoptions = $this->get_has_drawing_options();
+        $out .= $this->_create_select(
+            self::$FILTER_HAS_DRAWING,
+            get_string("filter_label_has_drawing", 'ivs'),
+            $hasdrawingoptions
+        );
 
-        //render rating select
-        $rating_options = $this->getRatingOptions();
-        $out .= $this->_createSelect(self::$FILTER_RATING, get_string("filter_label_rating", 'ivs'), $rating_options);
+        // Render rating select.
+        $ratingoptions = $this->get_rating_options();
+        $out .= $this->_create_select(self::$FILTER_RATING, get_string("filter_label_rating", 'ivs'), $ratingoptions);
 
-        //render access select
-        $access_options = $this->getAccessOptions();
-        $out .= $this->_createSelect(self::$FILTER_ACCESS, get_string("filter_label_access", 'ivs'), $access_options);
+        // Render access select.
+        $accessoptions = $this->get_access_options();
+        $out .= $this->_create_select(self::$FILTER_ACCESS, get_string("filter_label_access", 'ivs'), $accessoptions);
 
-        //build url and hidden fields
+        // Build url and hidden fields.
         $url = clone $this->PAGE->url;
         $action = "$url";
 
         $params = $url->params();
 
-        //set all existing GET parameters so paging will include sort etc
+        // Set all existing GET parameters so paging will include sort etc.
         foreach ($params as $key => $val) {
-
-            //every filtering will reset the pager to 0 and the actual filter value
+            // Every filtering will reset the pager to 0 and the actual filter value.
             if ($key == "page" || substr($key, 0, 7) == "filter_") {
                 continue;
             }
 
             $out .= '<input type="hidden" name="' . $key . '" value="' . $val . '" />';
-
         }
 
         $out .= "<input type='submit' value='" . get_string("apply_filter", 'ivs') . "'>";
@@ -83,43 +108,43 @@ class cockpit_filter_form {
      * Parse RAW user input for query values. BE CAREFUL HERE. This is raw input
      * that gets to sql!
      *
-     * @param $raw_parameters
+     * @param $rawparameters
      */
-    private function _parseParameters($raw_parameters) {
+    private function _parse_parameters($rawparameters)
+    {
 
-        $this->_parseSimpleSelectOptionInput(self::$FILTER_RATING, $raw_parameters, $this->getRatingOptions());
-        $this->_parseSimpleSelectOptionInput(self::$FILTER_ACCESS, $raw_parameters, $this->getAccessOptions());
-        $this->_parseSimpleSelectOptionInput(self::$FILTER_USERS, $raw_parameters, $this->getUserOptions());
+        $this->_parse_simple_select_option_input(self::$FILTER_RATING, $rawparameters, $this->get_rating_options());
+        $this->_parse_simple_select_option_input(self::$FILTER_ACCESS, $rawparameters, $this->get_access_options());
+        $this->_parse_simple_select_option_input(self::$FILTER_USERS, $rawparameters, $this->get_user_options());
 
-        //HAS DRAWINGS
+        // HAS DRAWINGS.
         $this->parameters[self::$FILTER_HAS_DRAWING] = null;
 
-        if (array_key_exists(self::$FILTER_HAS_DRAWING, $raw_parameters)) {
-
-            if ($raw_parameters[self::$FILTER_HAS_DRAWING] == 'yes') {
+        if (array_key_exists(self::$FILTER_HAS_DRAWING, $rawparameters)) {
+            if ($rawparameters[self::$FILTER_HAS_DRAWING] == 'yes') {
                 $this->parameters[self::$FILTER_HAS_DRAWING] = 'yes';
-            } else if ($raw_parameters[self::$FILTER_HAS_DRAWING] == 'no') {
+            } elseif ($rawparameters[self::$FILTER_HAS_DRAWING] == 'no') {
                 $this->parameters[self::$FILTER_HAS_DRAWING] = 'no';
             }
         }
-
     }
 
     /**
      * Parse the raw user input so the parameters only have allowed values
      *
      * @param $key
-     * @param $raw_parameters
+     * @param $rawparameters
      * @param $options
      */
-    private function _parseSimpleSelectOptionInput($key, $raw_parameters, $options) {
+    private function _parse_simple_select_option_input($key, $rawparameters, $options)
+    {
         $this->parameters[$key] = null;
 
-        if (array_key_exists($key, $raw_parameters)) {
-            $rating = $raw_parameters[$key];
-            //only put uid in array if it is an allowed available option
-            $rating_options = $options;
-            if (array_key_exists($rating, $rating_options)) {
+        if (array_key_exists($key, $rawparameters)) {
+            $rating = $rawparameters[$key];
+            // Only put uid in array if it is an allowed available option.
+            $ratingoptions = $options;
+            if (array_key_exists($rating, $ratingoptions)) {
                 $this->parameters[$key] = $rating;
             }
         }
@@ -128,9 +153,10 @@ class cockpit_filter_form {
     /**
      * Get users by course as select options
      */
-    private function getUserOptions() {
+    private function get_user_options()
+    {
         $cs = new CourseService();
-        $members = $cs->getCourseMembers($this->course->id);
+        $members = $cs->get_course_members($this->course->id);
         $options = array();
 
         foreach ($members as $member) {
@@ -140,7 +166,8 @@ class cockpit_filter_form {
         return $options;
     }
 
-    private function getHasDrawingOptions() {
+    private function get_has_drawing_options()
+    {
         $options = array();
 
         $options['yes'] = get_string("yes");
@@ -154,10 +181,10 @@ class cockpit_filter_form {
      *
      * @return array
      */
-    private function getRatingOptions() {
+    private function get_rating_options()
+    {
         $options = array();
 
-        //$options['none'] = get_string("rating_option_none", 'ivs');
         $options['red'] = get_string("rating_option_red", 'ivs');
         $options['yellow'] = get_string("rating_option_yellow", 'ivs');
         $options['green'] = get_string("rating_option_green", 'ivs');
@@ -165,7 +192,8 @@ class cockpit_filter_form {
         return $options;
     }
 
-    private function getAccessOptions() {
+    private function get_access_options()
+    {
         $options = array();
 
         $options['private'] = get_string('ivs:acc_label:private', 'ivs');
@@ -185,29 +213,31 @@ class cockpit_filter_form {
      * @param $options
      * @return string
      */
-    private function _createSelect($id, $label, $options) {
+    private function _create_select($id, $label, $options)
+    {
 
-        $options_out = '<option>' . get_string("filter_all", 'ivs') . '</option>';
+        $optionsout = '<option>' . get_string("filter_all", 'ivs') . '</option>';
 
-        $default_value = !empty($this->parameters[$id]) ? $this->parameters[$id] : null;
+        $defaultvalue = !empty($this->parameters[$id]) ? $this->parameters[$id] : null;
 
         foreach ($options as $k => $v) {
+            $selected = $k == $defaultvalue ? ' selected ' : '';
 
-            $selected = $k == $default_value ? ' selected ' : '';
-
-            $options_out .= '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
+            $optionsout .= '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
         }
 
-        return "<div class='form-item'><label for='" . $id . "'>$label</label> <select name=\"$id\" id=\"$id\">" . $options_out .
+        return "<div class='form-item'><label for='" . $id . "'>$label</label> <select name=\"$id\" id=\"$id\">" . $optionsout .
                 "</select></div>";
     }
 
-    //Custom validation should be added here
-    function validation($data, $files) {
+    // Custom validation should be added here.
+    function validation($data, $files)
+    {
         return array();
     }
 
-    public function getActiveFilter() {
+    public function get_active_filter()
+    {
         return $this->parameters;
     }
 }

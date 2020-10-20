@@ -1,9 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Created by PhpStorm.
- * User: Ghostthinker
- * Date: 20.11.2018
- * Time: 13:29
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 namespace mod_ivs\settings;
@@ -21,32 +36,32 @@ class SettingsCourseForm extends moodleform {
         $mform = $this->_form;
         $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'));
 
-        $course_id = $this->_customdata['course_id'];
+        $courseid = $this->_customdata['course_id'];
 
-        $settings_definitions = \mod_ivs\settings\SettingsService::getSettingsDefinitions();
+        $settingsdefinitions = \mod_ivs\settings\SettingsService::get_settings_definitions();
         $settingsController = new SettingsService();
-        $global_settings = $settingsController->getSettingsGlobal();
-        $coursesettings = $settingsController->loadSettings($course_id, 'course');
+        $globalsettings = $settingsController->get_settings_global();
+        $coursesettings = $settingsController->load_settings($courseid, 'course');
 
         /** @var \mod_ivs\settings\SettingsDefinition $settings_definition */
-        foreach ($settings_definitions as $settings_definition) {
+        foreach ($settingsdefinitions as $settings_definition) {
 
             switch ($settings_definition->type) {
                 case 'checkbox':
 
-                    $settingsController::addVisSettingToForm($global_settings, $settings_definition, $mform, true);
+                    $settingsController::add_vis_setting_to_form($globalsettings, $settings_definition, $mform, true);
 
                     if (isset($coursesettings[$settings_definition->name])) {
-                        if (!$global_settings[$settings_definition->name]->locked) {
+                        if (!$globalsettings[$settings_definition->name]->locked) {
                             $mform->setDefault($settings_definition->name . "[value]",
                                     $coursesettings[$settings_definition->name]->value);
                             $mform->setDefault($settings_definition->name . "[locked]",
                                     $coursesettings[$settings_definition->name]->locked);
                         } else {
                             $mform->setDefault($settings_definition->name . "[value]",
-                                    $global_settings[$settings_definition->name]->value);
+                                    $globalsettings[$settings_definition->name]->value);
                             $mform->setDefault($settings_definition->name . "[locked]",
-                                    $global_settings[$settings_definition->name]->locked);
+                                    $globalsettings[$settings_definition->name]->locked);
                         }
                     }
                     break;
@@ -57,7 +72,7 @@ class SettingsCourseForm extends moodleform {
 
     }
 
-    //Custom validation should be added here
+    // Custom validation should be added here.
     function validation($data, $files) {
         return array();
     }

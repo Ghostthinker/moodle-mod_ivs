@@ -1,32 +1,24 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * English strings for ivs
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
- *
- * @package    mod_ivs
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -180,7 +172,7 @@ $string['ivs_setting_match_question'] = "Enable video questions";
 $string['ivs_setting_match_question_help'] =
         "Questions allow you to capture student knowledge and feedback directly in the video using single choice, click questions and essays.";
 $string['ivs:edit_match_questions'] = "Edit video questions";
-$string['ivs:create_match_answers'] = "View video test answers";
+$string['ivs:create_match_answers'] = "Create video test answers";
 $string['ivs:access_match_reports'] = "Access video test reports";
 $string['ivs_setting_match_answer_setting'] = "Include answers of video with video questions";
 $string['ivs_match_config'] = "Grade";
@@ -242,6 +234,8 @@ $string['ivs_setting_single_choice_question_random_default_help'] =
         'When creating single-choice questions in the video test, enable random order.';
 $string['ivs_setting_autohide_controlbar'] = 'Hide controlbar automatically';
 $string['ivs_setting_autohide_controlbar_help'] = 'Show or hide the video controlbar automatically.';
+$string['ivs_setting_accessibility'] = 'Enable accessibility';
+$string['ivs_setting_accessibility_help'] = 'Enable all available features for better accessibility.';
 $string['ivs_match_question_summary_details_last_try'] = "Last attempt";
 $string['ivs_match_question_summary_details_label'] = "Label";
 $string['ivs_match_download_summary_details_label'] = "Download all question summary details";
@@ -313,3 +307,4 @@ $string['ivs_same_player_version'] = 'The playerversion matches already';
 $string['ivs_changed_player_successfully'] = 'Player version set';
 $string['ivs_actual_player_version'] = 'Actual player version: ';
 $string['ivs_course_license_core_offline'] = 'The license server could not be reached. Please reload this page and try again.';
+$string['ivs_disabled_saving_match_result'] = 'Your match results will not be saved.';

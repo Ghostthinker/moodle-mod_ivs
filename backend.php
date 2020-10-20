@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 use mod_ivs\MoodleMatchController;
 
@@ -19,155 +40,157 @@ ini_set('display_startup_errors', true);
 
 $www_root = $CFG->wwwroot;
 
-$path_endpoint = $www_root . "/mod/ivs/backend.php/";
+$pathendpoint = $www_root . "/mod/ivs/backend.php/";
 
-$request_uri = strtok($_SERVER["REQUEST_URI"], '?');
+$requesturi = strtok($_SERVER["REQUEST_URI"], '?');
 
-$actual_url = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$request_uri}";
-$url = str_replace($path_endpoint, "", $actual_url);
+$actualurl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$requesturi}";
+$url = str_replace($pathendpoint, "", $actualurl);
 
 $args = explode("/", $url);
 
 $endpoint = $args[0];
-$video_id = $args[1];
+$videoid = $args[1];
 
-$post_data = array();
+$postdata = array();
 
-if (!\mod_ivs\IvsHelper::accessPlayer($video_id)) {
+if (!\mod_ivs\IvsHelper::access_player($videoid)) {
     ivs_backend_error_exit();
 }
 
 switch ($endpoint) {
     case 'comments':
-        if ($request_body = file_get_contents('php://input')) {
-            $post_data = json_decode($request_body);
+        if ($requestbody = file_get_contents('php://input')) {
+            $postdata = json_decode($requestbody);
         }
-        ivs_backend_comments($args, $post_data);
+        ivs_backend_comments($args, $postdata);
         break;
     case 'playbackcommands':
-        if ($request_body = file_get_contents('php://input')) {
-            $post_data = json_decode($request_body);
+        if ($requestbody = file_get_contents('php://input')) {
+            $postdata = json_decode($requestbody);
         }
-        ivs_backend_playbackcommands($args, $post_data);
+        ivs_backend_playbackcommands($args, $postdata);
         break;
     case 'match_questions':
     case 'match_answers':
     case "match_context":
         $mc = new MoodleMatchController();
         array_shift($args);
-        if ($request_body = file_get_contents('php://input')) {
-            $post_data = json_decode($request_body, true);
+        if ($requestbody = file_get_contents('php://input')) {
+            $postdata = json_decode($requestbody, true);
         }
-        $mc->handleRequest($endpoint, $args, $_SERVER['REQUEST_METHOD'], $post_data);
+        $mc->handle_request($endpoint, $args, $_SERVER['REQUEST_METHOD'], $postdata);
         break;
 
 }
 
-function ivs_backend_comments($args, $post_data) {
-    $video_id = $args[1];
-    $parent_id = null;
+function ivs_backend_comments($args, $postdata) {
+    $videoid = $args[1];
+
+    $parentid = null;
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
-
-            $annotations = \mod_ivs\annotation::retrieve_from_db_by_video($video_id);
+            $annotations = \mod_ivs\annotation::retrieve_from_db_by_video($videoid);
 
             $data = array();
 
             /** @var \mod_ivs\annotation $annotation */
             foreach ($annotations as $annotation) {
-                $data[] = $annotation->toPlayerComment();
+                $data[] = $annotation->to_player_comment();
             }
             print json_encode($data);
-            die();
-            break;
-        case 'POST':
 
+            die();
+        case 'POST':
             if (!empty($args[2]) && $args[2] == 'reply') {
-                $parent_id = $args[3];
+                $parentid = $args[3];
                 //Todo: check
             }
 
+            //check access
             $annotation = new \mod_ivs\annotation();
-            $annotation->from_request_body($post_data, $parent_id);
 
-            print json_encode($annotation->toPlayerComment());
+            $annotation->from_request_body($postdata, $parentid);
+
+            if (!$annotation->access("create")) {
+                ivs_backend_error_exit();
+            }
+
+            $annotation->from_request_body($postdata, $parentid);
+
+            print json_encode($annotation->to_player_comment());
+
             die();
 
-            break;
         case 'PUT':
-            $annotation_id = $args[2];
+            $annotationid = $args[2];
 
             if (!empty($args[2]) && $args[2] == 'field') {
 
-                $annotation_id = $args[3];
-                $annotation = \mod_ivs\annotation::retrieve_from_db($annotation_id, true);
+                $annotationid = $args[3];
+                $annotation = \mod_ivs\annotation::retrieve_from_db($annotationid, true);
 
-                foreach ($post_data as $fieldset) {
+                foreach ($postdata as $fieldset) {
 
                     $key = $fieldset->key;
                     $value = $fieldset->value;
 
-                    //check access lock
+                    // Check access lock.
                     if ($key == "access_settings" && $annotation->access("lock_access")) {
-                        $annotation->lockAccess($value);
+                        $annotation->lock_access($value);
                     }
                 }
 
-                print json_encode($annotation->toPlayerComment());
-                die();
+                print json_encode($annotation->to_player_comment());
+                exit;
             }
 
             /** @var \mod_ivs\annotation $an */
 
             if (!empty($args[2]) && $args[2] == 'reply') {
-                $annotation_id = $args[4];
-                //$parent_id = $args[3];
+                $annotationid = $args[4];
             }
-            $annotation = \mod_ivs\annotation::retrieve_from_db($annotation_id, true);
+            $annotation = \mod_ivs\annotation::retrieve_from_db($annotationid, true);
 
             if (!$annotation->access("edit")) {
                 ivs_backend_error_exit();
             }
-            $annotation->from_request_body($post_data);
+            $annotation->from_request_body($postdata);
 
-            print json_encode($annotation->toPlayerComment());
+            print json_encode($annotation->to_player_comment());
             die();
-
-            break;
         case 'DELETE':
-            $annotation_id = $args[2];
+            $annotationid = $args[2];
 
             if (!empty($args[2]) && $args[2] == 'reply') {
-                $annotation_id = $args[4];
-                //$parent_id = $args[3];
+                $annotationid = $args[4];
             }
             /** @var \mod_ivs\annotation $an */
-            $an = \mod_ivs\annotation::retrieve_from_db($annotation_id);
+            $an = \mod_ivs\annotation::retrieve_from_db($annotationid);
 
             if (!$an->access("delete")) {
-                print_r($an->getRecord());
+                print_r($an->get_record());
                 ivs_backend_error_exit();
             }
             $an->delete_from_db($an);
 
             die("ok");
-            break;
     }
 }
 
-function ivs_backend_playbackcommands($args, $post_data) {
-    $video_nid = $args[1];
+function ivs_backend_playbackcommands($args, $postdata) {
+    $videonid = $args[1];
 
-    $course_module = get_coursemodule_from_instance('ivs', $video_nid, 0, false, MUST_EXIST);
-    $activity = \context_module::instance($course_module->id);
+    $coursemodule = get_coursemodule_from_instance('ivs', $videonid, 0, false, MUST_EXIST);
+    $activity = \context_module::instance($coursemodule->id);
     $playbackcommandService = new \mod_ivs\PlaybackcommandService();
-    $activity_id = $activity->instanceid;
+    $activityid = $activity->instanceid;
 
     switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
             try {
-                $playbackcommands = $playbackcommandService->retrieve($activity_id);
+                $playbackcommands = $playbackcommandService->retrieve($activityid);
                 print json_encode($playbackcommands);
                 exit;
             } catch (Exception $e) {
@@ -178,7 +201,7 @@ function ivs_backend_playbackcommands($args, $post_data) {
         case 'POST':
         case 'PUT':
             try {
-                $playbackcommand = $playbackcommandService->save($post_data, $activity_id);
+                $playbackcommand = $playbackcommandService->save($postdata, $activityid);
                 print json_encode($playbackcommand);
                 exit;
             } catch (Exception $e) {
@@ -186,9 +209,9 @@ function ivs_backend_playbackcommands($args, $post_data) {
             }
             break;
         case 'DELETE':
-            $playback_command_id = $args[2];
+            $playbackcommandid = $args[2];
             try {
-                $playbackcommandService->delete($playback_command_id, $activity_id);
+                $playbackcommandService->delete($playbackcommandid, $activityid);
                 print "ok";
                 exit;
             } catch (Exception $e) {
@@ -199,6 +222,10 @@ function ivs_backend_playbackcommands($args, $post_data) {
     }
 }
 
+/**
+ * @param string $data
+ * @param int $status_code
+ */
 function ivs_backend_error_exit($data = "access denied", $status_code = 403) {
     http_response_code($status_code);
     json_encode($data);

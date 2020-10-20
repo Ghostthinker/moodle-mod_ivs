@@ -1,42 +1,29 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 use mod_ivs\annotation;
 
-/**
- * Define all the restore steps that will be used by the restore_ivs_activity_task
- *
- * @package   mod_ivs
- * @category  backup
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
- */
 
-/**
- * Structure step to restore one ivs activity
- *
- * @package   mod_ivs
- * @category  backup
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
- */
 class restore_ivs_activity_structure_step extends restore_activity_structure_step {
 
     protected $videocomment_cache;
@@ -94,25 +81,25 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
         global $DB;
         $data = (object) $data;
 
-        //Do not return. if user_id = null -> anonymization
+        // Do not return. if user_id = null -> anonymization.
         if (empty($data->user_id)) {
-            $user_id = null;
+            $userid = null;
         } else {
-            $user_id = $data->user_id;
+            $userid = $data->user_id;
         }
 
-        $videocomments_setting = $this->get_setting_value('include_videocomments');
+        $videocommentssetting = $this->get_setting_value('include_videocomments');
 
-        $new_course_id = $this->get_courseid();
-        $new_course_context = context_course::instance($new_course_id);
+        $newcourseid = $this->get_courseid();
+        $newcoursecontext = context_course::instance($newcourseid);
 
-        $user_is_in_new_course = is_enrolled($new_course_context, $user_id, '', true);
+        $userisinnewcourse = is_enrolled($newcoursecontext, $userid, '', true);
 
         $restore = false;
 
-        if ($user_is_in_new_course || empty($user_id)) {
+        if ($userisinnewcourse || empty($userid)) {
 
-            switch ($videocomments_setting) {
+            switch ($videocommentssetting) {
                 case 'all':
                     $restore = true;
                     break;
@@ -138,8 +125,8 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
             if ($restore) {
                 $oldid = $data->id;
 
-                $new_activity_id = $this->get_new_parentid('ivs');
-                $data->video_id = $new_activity_id;
+                $newactivityid = $this->get_new_parentid('ivs');
+                $data->video_id = $newactivityid;
 
                 if (!empty($data->parent_id)) {
                     $this->videocomment_cache[$oldid] = $data;
@@ -161,8 +148,8 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
 
         $oldid = $data->id;
 
-        $new_activity_id = $this->get_new_parentid('ivs');
-        $data->video_id = $new_activity_id;
+        $newactivityid = $this->get_new_parentid('ivs');
+        $data->video_id = $newactivityid;
 
         $newitemid = $DB->insert_record('ivs_matchquestion', $data);
 
@@ -177,27 +164,27 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
             return;
         }
 
-        $user_id = $data->user_id;
+        $userid = $data->user_id;
 
-        $match_answers_setting = $this->get_setting_value('include_match');
+        $matchanswerssetting = $this->get_setting_value('include_match');
 
-        $new_course_id = $this->get_courseid();
-        $new_course_context = context_course::instance($new_course_id);
-        $user_is_in_new_course = is_enrolled($new_course_context, $user_id, '', true);
+        $newcourseid = $this->get_courseid();
+        $newcoursecontext = context_course::instance($newcourseid);
+        $userisinnewcourse = is_enrolled($newcoursecontext, $userid, '', true);
 
-        //Is user in new course enrolled
-        if ($user_is_in_new_course) {
-            //Is match answer setting enabled
-            if ($match_answers_setting) {
+        // Is user in new course enrolled.
+        if ($userisinnewcourse) {
+            // Is match answer setting enabled.
+            if ($matchanswerssetting) {
                 $oldid = $data->id;
 
-                $new_activity_id = $this->get_new_parentid('ivs');
-                $data->video_id = $new_activity_id;
+                $newactivityid = $this->get_new_parentid('ivs');
+                $data->video_id = $newactivityid;
 
-                $data->context_id = $new_activity_id;
+                $data->context_id = $newactivityid;
 
-                $new_item_id = $DB->insert_record('ivs_matchtake', $data);
-                $this->set_mapping('matchtake', $oldid, $new_item_id);
+                $newitemid = $DB->insert_record('ivs_matchtake', $data);
+                $this->set_mapping('matchtake', $oldid, $newitemid);
             }
         }
     }
@@ -210,25 +197,25 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
             return;
         }
 
-        $user_id = $data->user_id;
+        $userid = $data->user_id;
 
-        $match_answers_setting = $this->get_setting_value('include_match');
+        $matchanswerssetting = $this->get_setting_value('include_match');
 
-        $new_course_id = $this->get_courseid();
-        $new_course_context = context_course::instance($new_course_id);
-        $user_is_in_new_course = is_enrolled($new_course_context, $user_id, '', true);
+        $newcourseid = $this->get_courseid();
+        $newcoursecontext = context_course::instance($newcourseid);
+        $userisinnewcourse = is_enrolled($newcoursecontext, $userid, '', true);
 
-        //Is user in new course enrolled
-        if ($user_is_in_new_course) {
-            //Is match answer setting enabled
-            if ($match_answers_setting) {
-                $old_question_id = $data->question_id;
-                $new_question_id = $this->get_mapping('matchquestion', $old_question_id);
-                $data->question_id = $new_question_id->newitemid;
+        // Is user in new course enrolled.
+        if ($userisinnewcourse) {
+            // Is match answer setting enabled.
+            if ($matchanswerssetting) {
+                $oldquestionid = $data->question_id;
+                $newquestionid = $this->get_mapping('matchquestion', $oldquestionid);
+                $data->question_id = $newquestionid->newitemid;
 
-                $old_take_id = $data->take_id;
-                $new_take_id = $this->get_mapping('matchtake', $old_take_id);
-                $data->take_id = $new_take_id->newitemid;
+                $oldtakeid = $data->take_id;
+                $newtakeid = $this->get_mapping('matchtake', $oldtakeid);
+                $data->take_id = $newtakeid->newitemid;
 
                 $DB->insert_record('ivs_matchanswer', $data);
             }
@@ -245,11 +232,11 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
 
         $oldid = $data->id;
 
-        $new_activity_id = $this->get_new_parentid('ivs');
-        $data->target_id = $new_activity_id;
+        $newactivityid = $this->get_new_parentid('ivs');
+        $data->target_id = $newactivityid;
 
-        $new_item_id = $DB->insert_record('ivs_settings', $data);
-        $this->set_mapping('playersettings', $oldid, $new_item_id);
+        $newitemid = $DB->insert_record('ivs_settings', $data);
+        $this->set_mapping('playersettings', $oldid, $newitemid);
     }
 
     /**
@@ -273,15 +260,15 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
             return;
         }
 
-        foreach ($this->videocomment_cache as $old_id => $data) {
-            $old_parent_id = $data->parent_id;
-            $new_parent_id = $this->get_mapping('videocomment', $old_parent_id);
-            $data->parent_id = $new_parent_id->newitemid;
+        foreach ($this->videocomment_cache as $oldid => $data) {
+            $oldparentid = $data->parent_id;
+            $newparentid = $this->get_mapping('videocomment', $oldparentid);
+            $data->parent_id = $newparentid->newitemid;
             $newitemid = $DB->insert_record('ivs_videocomment', $data);
             $annotation = annotation::retrieve_from_db($newitemid);
             $annotation->write_annotation_access();
             $data->id = $newitemid;
-            $this->set_mapping('videocomment', $old_id, $newitemid);
+            $this->set_mapping('videocomment', $oldid, $newitemid);
         }
     }
 }

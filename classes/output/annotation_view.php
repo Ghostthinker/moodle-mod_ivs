@@ -1,5 +1,27 @@
 <?php
-// Standard GPL and phpdocs
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
+
+// Standard GPL and phpdocs.
 namespace mod_ivs\output;
 
 use html_writer;
@@ -37,10 +59,9 @@ class annotation_view implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
 
         global $PAGE;
-        $data = new stdClass();// $data = (object)$this->annotation->getRecord();
+        $data = new stdClass();
 
-        ;
-        $user = IvsHelper::getUser($this->annotation->getUserId());
+        $user = IvsHelper::get_user($this->annotation->get_userid());
 
         if ($user['fullname']) {
             $userpicture = new user_picture($user['user']);
@@ -53,25 +74,25 @@ class annotation_view implements renderable, templatable {
             $data->user_picture = (string) new \moodle_url('/user/pix.php');
         }
 
-        $data->comment_body = $this->annotation->getBody();
-        $data->id = $this->annotation->getId();
+        $data->comment_body = $this->annotation->get_body();
+        $data->id = $this->annotation->get_id();
 
-        $data->comment_created = userdate($this->annotation->getTimecreated());
-        $data->comment_timestamp = $this->annotation->getTimestamp() / 1000;
-        $data->timecode = $this->annotation->getTimecode(true);
+        $data->comment_created = userdate($this->annotation->get_timecreated());
+        $data->comment_timestamp = $this->annotation->get_timestamp() / 1000;
+        $data->timecode = $this->annotation->get_timecode(true);
 
         $data->svg = "";
 
-        $additional_data = $this->annotation->getAdditionalData();
+        $additionaldata = $this->annotation->get_additionaldata();
 
-        if (isset($additional_data['drawing_data'])) {
-            $data->svg = $additional_data['drawing_data']->svg;
+        if (isset($additionaldata['drawing_data'])) {
+            $data->svg = $additionaldata['drawing_data']->svg;
         }
 
         $data->player_link =
-                new \moodle_url('/mod/ivs/view.php', array('id' => $this->module->id, 'cid' => $this->annotation->getId()));
+                new \moodle_url('/mod/ivs/view.php', array('id' => $this->module->id, 'cid' => $this->annotation->get_id()));
 
-        $data->preview_image = $this->annotation->getPreviewURL();
+        $data->preview_image = $this->annotation->get_preview_url();
 
         if ($data->preview_image) {
             $data->preview_img_available = true;
@@ -79,23 +100,21 @@ class annotation_view implements renderable, templatable {
             $data->preview_img_available = false;
         }
 
-        //$data->replies = print_r($this->annotation->getReplies(), TRUE);
         $data->replies = '';
-        $replies = $this->annotation->getReplies();
+        $replies = $this->annotation->get_replies();
 
         $renderer = $PAGE->get_renderer('ivs');
 
-        //Render Replies
+        // Render Replies.
         /** @var \mod_ivs\annotation $comment */
         foreach ($replies as $reply) {
             $renderable = new \mod_ivs\output\annotation_reply_view($reply);
             $data->replies .= $renderer->render($renderable);
         }
 
-        $video_host = \mod_ivs\upload\VideoHostFactory::create($this->module, $this->ivs);
+        $videohost = \mod_ivs\upload\VideoHostFactory::create($this->module, $this->ivs);
 
-        $data->video_url = $video_host->getVideo();
-        // $data->user_picture = ""
+        $data->video_url = $videohost->get_video();
         return $data;
     }
 }

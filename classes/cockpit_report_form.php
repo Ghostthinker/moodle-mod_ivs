@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 namespace mod_ivs;
 
@@ -14,7 +35,7 @@ class cockpit_report_form {
     protected $course;
     protected $context;
     protected $parameters;
-    private $reportService;
+    private $reportservice;
 
     /**
      * cockpit_filter_form constructor.
@@ -22,17 +43,17 @@ class cockpit_report_form {
      * @param $PAGE
      * @param $course
      * @param $context
-     * @param $raw_parameters
-     * @param \mod_ivs\ReportService $reportService
+     * @param $rawparameters
+     * @param \mod_ivs\ReportService $reportservice
      */
-    public function __construct($PAGE, $course, $context, $raw_parameters, ReportService $reportService) {
+    public function __construct($PAGE, $course, $context, $rawparameters, ReportService $reportservice) {
         $this->PAGE = $PAGE;
         $this->course = $course;
         $this->context = $context;
 
-        $this->reportService = $reportService;
+        $this->reportservice = $reportservice;
 
-        $this->parameters = $this->_parseParameters($raw_parameters);
+        $this->parameters = $this->_parse_parameters($rawparameters);
 
     }
 
@@ -40,73 +61,73 @@ class cockpit_report_form {
 
         global $DB;
         $for_out = "";
-        //build url and hidden fields
+        // Build url and hidden fields.
 
         $out = "";
 
-        //report parameters
-        $report_action = optional_param('report_action', null, PARAM_RAW);
-        $report_id = optional_param('report_id', null, PARAM_RAW);
+        // Report parameters.
+        $reportaction = optional_param('report_action', null, PARAM_RAW);
+        $reportid = optional_param('report_id', null, PARAM_RAW);
 
-        //Todo: Switch case
-        if ($report_action == 'create') {
+        // Todo: Switch case.
+        if ($reportaction == 'create') {
 
-            $out .= $this->renderForm();
-        } else if ($report_action == 'update') {
-            if (!empty($report_id)) {
+            $out .= $this->render_form();
+        } else if ($reportaction == 'update') {
+            if (!empty($reportid)) {
 
-                $report = $this->reportService->retrieve_from_db($report_id);
+                $report = $this->reportservice->retrieve_from_db($reportid);
 
-                //TODO check - is this my report
+                // TODO check - is this my report.
 
-                //build filter url
-                $new_update_url = $this->PAGE->url;
-                $new_update_url->param("filter_users", $report->getFilter()['filter_users']);
-                $new_update_url->param("grouping", $report->getFilter()['grouping']);
-                $new_update_url->param("sortkey", $report->getFilter()['sortkey']);
-                $new_update_url->param("sortorder", $report->getFilter()['sortorder']);
-                $new_update_url->param("report_action", "update_form");
-                $new_update_url->param("report_id", $report->getId());
-                redirect($new_update_url);
+                // Build filter url.
+                $newupdateurl = $this->PAGE->url;
+                $newupdateurl->param("filter_users", $report->get_filter()['filter_users']);
+                $newupdateurl->param("grouping", $report->get_filter()['grouping']);
+                $newupdateurl->param("sortkey", $report->get_filter()['sortkey']);
+                $newupdateurl->param("sortorder", $report->get_filter()['sortorder']);
+                $newupdateurl->param("report_action", "update_form");
+                $newupdateurl->param("report_id", $report->get_id());
+                redirect($newupdateurl);
                 return;
 
             }
-        } else if ($report_action == 'delete') {
-            if (!empty($report_id)) {
+        } else if ($reportaction == 'delete') {
+            if (!empty($reportid)) {
 
                 require_sesskey();
 
-                //access check
-                $report = $this->reportService->retrieve_from_db($report_id);
+                // Access check.
+                $report = $this->reportservice->retrieve_from_db($reportid);
                 if (empty($report)) {
                     throw new \Exception("Report not found");
                 }
 
-                if ($this->reportService->access_check("delete", $report)) {
+                if ($this->reportservice->access_check("delete", $report)) {
 
-                    $this->reportService->delete_from_db($report_id);
-                    $this->redirectToCockpit();
+                    $this->reportservice->delete_from_db($reportid);
+                    $this->redirect_to_cockpit();
                 } else {
                     throw new \Exception("Report access denied");
                 }
             }
-        } else if ($report_action == 'update_form') {
-            if (!empty($report_id)) {
-                $report = $this->reportService->retrieve_from_db($report_id);
+        } else if ($reportaction == 'update_form') {
+            if (!empty($reportid)) {
+                $report = $this->reportservice->retrieve_from_db($reportid);
 
-                if (!empty($report->getFilter()['filter_users'])) {
-                    $report_user = $DB->get_record('user', array('id' => $report->getFilter()['filter_users']));
-                    $username = $report_user->firstname . " " . $report_user->lastname;
+                if (!empty($report->get_filter()['filter_users'])) {
+                    $reportuser = $DB->get_record('user', array('id' => $report->get_filter()['filter_users']));
+                    $username = $reportuser->firstname . " " . $reportuser->lastname;
                     $out .= "<div>" . get_string("users") . ": " . $username . "</div>";
                 }
 
-                if (!empty($report->getFilter()['filter_has_drawing'])) {
+                if (!empty($report->get_filter()['filter_has_drawing'])) {
                     $out .= "<div>" . get_string("filter_label_has_drawing", 'ivs') . ": " .
-                            get_string($report->getFilter()['filter_has_drawing']) . "</div>";
+                            get_string($report->get_filter()['filter_has_drawing']) . "</div>";
                 }
 
-                if (!empty($report->getFilter()['filter_rating'])) {
-                    switch ($report->getFilter()['filter_rating']) {
+                if (!empty($report->get_filter()['filter_rating'])) {
+                    switch ($report->get_filter()['filter_rating']) {
                         case "red":
                             $rating = 'rating_option_red';
                             break;
@@ -121,42 +142,39 @@ class cockpit_report_form {
                     $out .= "<div>" . get_string("filter_label_rating", 'ivs') . ": " . get_string($rating, 'ivs') . "</div>";
                 }
 
-                if (!empty($report->getFilter()['filter_access'])) {
+                if (!empty($report->get_filter()['filter_access'])) {
                     $out .= "<div>" . get_string("filter_label_access", 'interactive_video_suite') . ": " .
-                            get_string('ivs:acc_label:' . $report->getFilter()['filter_access'], 'ivs') . "</div>";
+                            get_string('ivs:acc_label:' . $report->get_filter()['filter_access'], 'ivs') . "</div>";
                 }
 
-                if (!empty($report->getFilter()['grouping'])) {
+                if (!empty($report->get_filter()['grouping'])) {
                     $out .= "<div>" . get_string("block_grouping_title", 'interactive_video_suite') . ": " .
-                            get_string('ivs:acc_label:group_' . $report->getFilter()['grouping'], 'ivs') . "</div>";
+                            get_string('ivs:acc_label:group_' . $report->get_filter()['grouping'], 'ivs') . "</div>";
                 }
 
-                $out .= $this->renderForm($report);
+                $out .= $this->render_form($report);
             }
 
         } else {
-            $out .= $this->renderListing();
+            $out .= $this->render_listing();
         }
         return $out;
 
     }
 
-    function renderForm($report = null) {
+    function render_form($report = null) {
         $out = "";
-        $start_date = "";
-        $value_rotation = "";
+        $startdate = "";
+        $valuerotation = "";
         $url = clone $this->PAGE->url;
         $action = "$url";
 
         $params = $url->params();
 
-        //$out .= print_r($params, TRUE);
-        //$out .= print_r($report, TRUE);
-
-        //set all existing GET parameters so paging will include sort etc
+        // Set all existing GET parameters so paging will include sort etc.
         foreach ($params as $key => $val) {
 
-            //every filtering will reset the pager to 0 and the actual filter value
+            // Every filtering will reset the pager to 0 and the actual filter value.
             if ($key == "page" || substr($key, 0, 7) == "report_") {
                 continue;
             }
@@ -165,80 +183,80 @@ class cockpit_report_form {
 
         }
 
-        $start_date = date_create();
+        $startdate = date_create();
 
         if ($report) {
             $out .= '<input type="hidden" name="report_id" value="' . $report->getId() . '" />';
-            $value_rotation = $report->getRotation();
+            $valuerotation = $report->getRotation();
 
-            date_timestamp_set($start_date, date($report->getStartDate()));
-            $start_date = date_format($start_date, 'd.m.Y');
+            date_timestamp_set($startdate, date($report->getStartDate()));
+            $startdate = date_format($startdate, 'd.m.Y');
         } else {
-            date_timestamp_set($start_date, time());
-            $start_date = date_format($start_date, 'd.m.Y');
+            date_timestamp_set($startdate, time());
+            $startdate = date_format($startdate, 'd.m.Y');
         }
 
-        $options_out = "";
+        $optionsout = "";
 
-        $options = $this->getRotationOptions();
+        $options = $this->get_rotation_options();
 
         foreach ($options as $option => $label) {
 
-            $options_out .= "<option value=" . $option;
+            $optionsout .= "<option value=" . $option;
 
-            if ($option == $value_rotation) {
-                $options_out .= " selected=" . $value_rotation;
+            if ($option == $valuerotation) {
+                $optionsout .= " selected=" . $valuerotation;
             }
 
-            $options_out .= ">" . $label . "</option>";
+            $optionsout .= ">" . $label . "</option>";
 
         }
 
         $out .= "<br><div class='form-item'><label>" . get_string("report_start_date", 'ivs') .
-                "</label><input type=\"text\" name=\"report_start_date\" value=" . $start_date . "></div>";
+                "</label><input type=\"text\" name=\"report_start_date\" value=" . $startdate . "></div>";
         $out .= "<div class='form-item'><label>" . get_string("report_rotation", 'ivs') .
-                "</label><select name=\"report_rotation\">" . $options_out . "</select></div>";
+                "</label><select name=\"report_rotation\">" . $optionsout . "</select></div>";
         $out .= "<input type='submit' name='submit' value='" . get_string("save_report", 'ivs') . "'>";
 
         return "<form class='annotation-filter-form' method='post' action='" . $action . "'>$out</form>";
     }
 
-    function renderListing() {
+    function render_listing() {
 
         global $USER;
 
-        $action_create_link = clone $this->PAGE->url;
-        $action_create_link->param("report_action", "create");
+        $actioncreatelink = clone $this->PAGE->url;
+        $actioncreatelink->param("report_action", "create");
 
-        $reports = $this->reportService->getReportsByCourse($this->course->id, $USER->id);
+        $reports = $this->reportservice->getReportsByCourse($this->course->id, $USER->id);
 
         $out = "";
 
         /** @var Report $report */
         foreach ($reports as $report) {
 
-            $filter = $report->getFilter();
+            $filter = $report->get_filter();
 
-            $edit_url = clone $this->PAGE->url;
-            $edit_url->param("report_action", "update");
-            $edit_url->param("report_id", $report->getId());
-            $edit_url->param("filter_users", $filter['filter_users']);
+            $editurl = clone $this->PAGE->url;
+            $editurl->param("report_action", "update");
+            $editurl->param("report_id", $report->get_id());
+            $editurl->param("filter_users", $filter['filter_users']);
 
-            $delete_url = clone $this->PAGE->url;
-            $delete_url->param("report_action", "delete");
-            $delete_url->param("report_id", $report->getId());
-            $delete_url->param("filter_users", $filter['filter_users']);
-            $delete_url->param("sesskey", sesskey());
+            $deleteurl = clone $this->PAGE->url;
+            $deleteurl->param("report_action", "delete");
+            $deleteurl->param("report_id", $report->get_id());
+            $deleteurl->param("filter_users", $filter['filter_users']);
+            $deleteurl->param("sesskey", sesskey());
 
-            $date_string = date_format_string($report->getStartDate(), "%d %h %Y");
+            $datestring = date_format_string($report->get_startdate(), "%d %h %Y");
 
             $out .= get_string('block_report_title_single', 'ivs') . ", " .
-                    get_string('report_rotation_' . $report->getRotation(), 'interactive_video_suite') . ", " . $date_string .
-                    " <div class='form-item-report'> <a href='" . $edit_url . "'>" .
-                    get_string("report_edit", 'interactive_video_suite') . "</a> <a href='" . $delete_url . "'>" .
+                    get_string('report_rotation_' . $report->get_rotation(), 'interactive_video_suite') . ", " . $datestring .
+                    " <div class='form-item-report'> <a href='" . $editurl . "'>" .
+                    get_string("report_edit", 'interactive_video_suite') . "</a> <a href='" . $deleteurl . "'>" .
                     get_string("report_delete", 'ivs') . "</a></div><br>";
         }
-        $out .= "<br><a href=$action_create_link><input type=\"button\" value='" . get_string("create_report", 'ivs') . "' /></a>";
+        $out .= "<br><a href=$actioncreatelink><input type=\"button\" value='" . get_string("create_report", 'ivs') . "' /></a>";
 
         $out .= "<p>" . get_string("create_report_hint", 'ivs') . "</p>";
         return $out;
@@ -249,25 +267,25 @@ class cockpit_report_form {
      * Parse RAW user input for query values. BE CAREFUL HERE. This is raw input
      * that gets to sql!
      *
-     * @param $raw_parameters
+     * @param $rawparameters
      */
-    private function _parseParameters($raw_parameters) {
+    private function _parse_parameters($rawparameters) {
 
-        $parsed_parameters = array();
+        $parsedparameters = array();
 
-        if (!empty($raw_parameters['report_id'])) {
+        if (!empty($rawparameters['report_id'])) {
 
-            $parsed_parameters['report_id'] = $raw_parameters['report_id'];
+            $parsedparameters['report_id'] = $rawparameters['report_id'];
 
         }
 
-        return $parsed_parameters;
+        return $parsedparameters;
     }
 
     /**
      * @return array
      */
-    public function getRotationOptions() {
+    public function get_rotation_options() {
         $options = array(
                 Report::ROTATION_DAY => get_string("report_rotation_" . Report::ROTATION_DAY, 'ivs'),
                 Report::ROTATION_WEEK => get_string("report_rotation_" . Report::ROTATION_WEEK, 'ivs'),
@@ -280,60 +298,60 @@ class cockpit_report_form {
      * Parse the raw user input so the parameters only have allowed values
      *
      * @param $key
-     * @param $raw_parameters
+     * @param $rawparameters
      * @param $options
      */
-    private function _parseSimpleSelectOptionInput($key, $raw_parameters, $options) {
+    private function _parse_simple_select_option_input($key, $rawparameters, $options) {
         $this->parameters[$key] = null;
 
-        if (array_key_exists($key, $raw_parameters)) {
-            $rating = $raw_parameters[$key];
-            //only put uid in array if it is an allowed available option
-            $rating_options = $options;
-            if (array_key_exists($rating, $rating_options)) {
+        if (array_key_exists($key, $rawparameters)) {
+            $rating = $rawparameters[$key];
+            // Only put uid in array if it is an allowed available option.
+            $ratingoptions = $options;
+            if (array_key_exists($rating, $ratingoptions)) {
                 $this->parameters[$key] = $rating;
             }
         }
     }
 
-    public function getActiveFilter() {
+    public function get_active_filter() {
         return $this->parameters;
     }
 
-    public function processForm($courseid, $raw_user_post, $options, $user_id) {
+    public function process_form($courseid, $rawuserpost, $options, $userid) {
 
-        $start_date = $raw_user_post['report_start_date'] ? $start_date = strtotime($raw_user_post['report_start_date']) :
-                $start_date = time();
+        $startdate = $rawuserpost['report_start_date'] ? $startdate = strtotime($rawuserpost['report_start_date']) :
+                $startdate = time();
 
-        //check rotation
-        $rotation_options = $this->getRotationOptions();
+        // Check rotation.
+        $rotationoptions = $this->get_rotation_options();
 
-        $rotation = array_key_exists($raw_user_post['report_rotation'], $rotation_options) ? $raw_user_post['report_rotation'] :
+        $rotation = array_key_exists($rawuserpost['report_rotation'], $rotationoptions) ? $rawuserpost['report_rotation'] :
                 Report::ROTATION_MONTH;
-        $report_id = isset($raw_user_post['report_id']) ? (int) $raw_user_post['report_id'] : null;
+        $reportid = isset($rawuserpost['report_id']) ? (int) $rawuserpost['report_id'] : null;
 
-        //update existing
-        if (empty($report_id)) {
-            $this->reportService->createReport($courseid, $start_date, $rotation, $options, $user_id);
+        // Update existing.
+        if (empty($reportid)) {
+            $this->reportservice->createReport($courseid, $startdate, $rotation, $options, $userid);
         } else {
 
-            $report = $this->reportService->retrieve_from_db($report_id);
+            $report = $this->reportservice->retrieve_from_db($reportid);
 
-            //report not found
+            // Report not found.
             if (empty($report)) {
                 return;
             }
 
-            if ($this->reportService->access_check("update", $report)) {
+            if ($this->reportservice->access_check("update", $report)) {
 
-                $report->setRotation($rotation);
-                $report->setStartDate($start_date);
+                $report->set_rotation($rotation);
+                $report->set_startdate($startdate);
 
-                $this->reportService->save_to_db($report);
+                $this->reportservice->save_to_db($report);
             }
 
         }
-        $this->redirectToCockpit();
+        $this->redirect_to_cockpit();
 
     }
 
@@ -342,10 +360,10 @@ class cockpit_report_form {
      *
      * @throws \moodle_exception
      */
-    function redirectToCockpit() {
-        /** @var \moodle_url $new_url */
-        $new_url = $this->PAGE->url;
-        $new_url->remove_params(array("report_action", "report_id"));
-        redirect($new_url);
+    function redirect_to_cockpit() {
+        /** @var \moodle_url $newurl */
+        $newurl = $this->PAGE->url;
+        $newurl->remove_params(array("report_action", "report_id"));
+        redirect($newurl);
     }
 }

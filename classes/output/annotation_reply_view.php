@@ -1,5 +1,27 @@
 <?php
-// Standard GPL and phpdocs
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
+
+// Standard GPL and phpdocs.
 namespace mod_ivs\output;
 
 use mod_ivs\IvsHelper;
@@ -23,8 +45,6 @@ class annotation_reply_view implements renderable, templatable {
      */
     public function __construct(\mod_ivs\annotation $annotation) {
         $this->annotation = $annotation;
-        # $this->ivs = $ivs;
-        # $this->module = $module;
     }
 
     /**
@@ -35,13 +55,13 @@ class annotation_reply_view implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
 
-        $user = IvsHelper::getUser($this->annotation->getUserId());
+        $user = IvsHelper::get_user($this->annotation->get_userid());
 
-        $data->comment_body = $this->annotation->getBody();
-        $data->id = $this->annotation->getId();
+        $data->comment_body = $this->annotation->get_body();
+        $data->id = $this->annotation->get_id();
         $data->user_picture = $user['picture'];
         $data->comment_author_link = $user['fullname'];
-        $data->comment_created = userdate($this->annotation->getTimecreated());
+        $data->comment_created = userdate($this->annotation->get_timecreated());
 
         return $data;
     }

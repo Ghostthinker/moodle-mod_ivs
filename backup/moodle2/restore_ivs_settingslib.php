@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package moodlecore
- * @subpackage backup-moodle2
- * @copyright 2010 onwards YOUR_NAME_GOES_HERE {@link YOUR_URL_GOES_HERE}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
-// This activity has not particular settings but the inherited from the generic
-// backup_activity_task so here there isn't any class definition, like the ones
-// existing in /backup/moodle2/backup_settingslib.php (activities section)
+// This activity has not particular settings but the inherited from the generic.
+// backup_activity_task so here there isn't any class definition, like the ones.
+// existing in /backup/moodle2/backup_settingslib.php (activities section).
 
 class restore_match_answer_setting extends restore_activity_generic_setting {
 

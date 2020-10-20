@@ -1,32 +1,24 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The main ivs configuration form
- *
- * It uses the standard core Moodle formslib. For more info about them, please
- * visit: http://docs.moodle.org/en/Development:lib/formslib.php
- *
- * @package    mod_ivs
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -101,50 +93,50 @@ class mod_ivs_mod_form extends moodleform_mod {
                     ));
         }
 
-        //Grade settings
+        // Grade settings.
         $this->standard_grading_coursemodule_elements();
 
         $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'));
-        $settings_definitions = \mod_ivs\settings\SettingsService::getSettingsDefinitions();
+        $settingsdefinitions = \mod_ivs\settings\SettingsService::get_settings_definitions();
 
         $settingsController = new SettingsService();
-        $parent_settings = $settingsController->getParentSettingsForActivity($this->_course->id);
+        $parentsettings = $settingsController->get_rarent_settings_for_activity($this->_course->id);
 
         if (!empty($this->_instance)) {
-            $activiy_settings = $settingsController->loadSettings($this->_instance, 'activity');
+            $activiysettings = $settingsController->load_settings($this->_instance, 'activity');
         }
 
-        /** @var \mod_ivs\settings\SettingsDefinition $settings_definition */
-        foreach ($settings_definitions as $settings_definition) {
+        /** @var \mod_ivs\settings\SettingsDefinition $settingsdefinition */
+        foreach ($settingsdefinitions as $settingsdefinition) {
 
-            switch ($settings_definition->type) {
+            switch ($settingsdefinition->type) {
                 case 'checkbox':
-                    $settingsController::addVisSettingToForm($parent_settings, $settings_definition, $mform, false);
+                    $settingsController::add_vis_setting_to_form($parentsettings, $settingsdefinition, $mform, false);
 
-                    if (isset($activiy_settings[$settings_definition->name])) {
-                        if (!$parent_settings[$settings_definition->name]->locked) {
-                            $mform->setDefault($settings_definition->name . "[value]",
-                                    $activiy_settings[$settings_definition->name]->value);
-                            $mform->setDefault($settings_definition->name . "[locked]",
-                                    $activiy_settings[$settings_definition->name]->locked);
+                    if (isset($activiysettings[$settingsdefinition->name])) {
+                        if (!$parentsettings[$settingsdefinition->name]->locked) {
+                            $mform->setDefault($settingsdefinition->name . "[value]",
+                                    $activiysettings[$settingsdefinition->name]->value);
+                            $mform->setDefault($settingsdefinition->name . "[locked]",
+                                    $activiysettings[$settingsdefinition->name]->locked);
                         } else {
-                            $mform->setDefault($settings_definition->name . "[value]",
-                                    $parent_settings[$settings_definition->name]->value);
-                            $mform->setDefault($settings_definition->name . "[locked]",
-                                    $parent_settings[$settings_definition->name]->locked);
+                            $mform->setDefault($settingsdefinition->name . "[value]",
+                                    $parentsettings[$settingsdefinition->name]->value);
+                            $mform->setDefault($settingsdefinition->name . "[locked]",
+                                    $parentsettings[$settingsdefinition->name]->locked);
                         }
                     } else {
-                        $mform->setDefault($settings_definition->name . "[value]",
-                                $parent_settings[$settings_definition->name]->value);
-                        $mform->setDefault($settings_definition->name . "[locked]",
-                                $parent_settings[$settings_definition->name]->locked);
+                        $mform->setDefault($settingsdefinition->name . "[value]",
+                                $parentsettings[$settingsdefinition->name]->value);
+                        $mform->setDefault($settingsdefinition->name . "[locked]",
+                                $parentsettings[$settingsdefinition->name]->locked);
                     }
             }
         }
 
         $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_match_config_video_test', 'ivs'));
 
-        ////Assessment Mode
+        // Assessment Mode.
         $attemptoptions = array(
                 AssessmentConfig::ASSESSMENT_TYPE_FORMATIVE => get_string('ivs_match_config_assessment_mode_formative', 'ivs'));
 

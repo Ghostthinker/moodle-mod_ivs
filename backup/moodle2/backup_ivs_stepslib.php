@@ -1,42 +1,29 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the backup steps that will be used by the backup_ivs_activity_task
- *
- * @package   mod_ivs
- * @category  backup
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-/**
- * Define the complete ivs structure for backup, with file and id annotations
- *
- * @package   mod_ivs
- * @category  backup
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
- */
+
 class backup_ivs_activity_structure_step extends backup_activity_structure_step {
 
     /**
@@ -49,11 +36,9 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
         // Get know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Get anonymize setting
+        // Get anonymize setting.
         $anonymize = $this->get_setting_value('anonymize');
 
-        // Get match answer setting
-        //$match_answers_setting = $this->get_setting_value('include_match');
 
         // Define the root element describing the ivs instance.
         $ivs = new backup_nested_element('ivs', array('id'), array(
@@ -70,7 +55,7 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
                 'match_config'
         ));
 
-        $ivs_videocomments = new backup_nested_element('videocomments');
+        $ivsvideocomments = new backup_nested_element('videocomments');
 
         $videocomment = new backup_nested_element('ivs_videocomment', array('id'), array(
                 'body',
@@ -87,10 +72,10 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
                 'is_student'
         ));
 
-        //Backup Match Questions
-        $ivs_matchquestions = new backup_nested_element('matchquestions');
+        // Backup Match Questions.
+        $ivsmatchquestions = new backup_nested_element('matchquestions');
 
-        $match_questions = new backup_nested_element('ivs_matchquestion', array('id'), array(
+        $matchquestions = new backup_nested_element('ivs_matchquestion', array('id'), array(
                 'type',
                 'title',
                 'time_stamp',
@@ -104,10 +89,10 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
                 'timemodified',
         ));
 
-        //Backup Match Questions
-        $ivs_matchtakes = new backup_nested_element('matchtakes');
+        // Backup Match Questions.
+        $ivsmatchtakes = new backup_nested_element('matchtakes');
 
-        $match_takes = new backup_nested_element('ivs_matchtake', array('id'), array(
+        $matchtakes = new backup_nested_element('ivs_matchtake', array('id'), array(
                 'video_id',
                 'context_id',
                 'user_id',
@@ -119,10 +104,10 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
                 'timecompleted'
         ));
 
-        //Backup Match Answers
-        $ivs_matchanswers = new backup_nested_element('matchanswers');
+        // Backup Match Answers.
+        $ivsmatchanswers = new backup_nested_element('matchanswers');
 
-        $match_answers = new backup_nested_element('ivs_matchanswer', array('id'), array(
+        $matchanswers = new backup_nested_element('ivs_matchanswer', array('id'), array(
                 'question_id',
                 'take_id',
                 'user_id',
@@ -134,10 +119,10 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
                 'score'
         ));
 
-        //Backup Player Settings
-        $ivs_settings = new backup_nested_element('playersettings');
+        // Backup Player Settings.
+        $ivssettings = new backup_nested_element('playersettings');
 
-        $player_settings = new backup_nested_element('ivs_settings', array('id'), array(
+        $playersettings = new backup_nested_element('ivs_settings', array('id'), array(
                 'target_id',
                 'target_type',
                 'name',
@@ -145,18 +130,18 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
                 'locked'
         ));
 
-        //Build the tree
-        $ivs->add_child($ivs_videocomments);
-        $ivs->add_child($ivs_matchquestions);
-        $ivs->add_child($ivs_matchtakes);
-        $ivs->add_child($ivs_matchanswers);
-        $ivs->add_child($ivs_settings);
+        // Build the tree.
+        $ivs->add_child($ivsvideocomments);
+        $ivs->add_child($ivsmatchquestions);
+        $ivs->add_child($ivsmatchtakes);
+        $ivs->add_child($ivsmatchanswers);
+        $ivs->add_child($ivssettings);
 
-        $ivs_videocomments->add_child($videocomment);
-        $ivs_matchquestions->add_child($match_questions);
-        $ivs_matchtakes->add_child($match_takes);
-        $ivs_matchanswers->add_child($match_answers);
-        $ivs_settings->add_child($player_settings);
+        $ivsvideocomments->add_child($videocomment);
+        $ivsmatchquestions->add_child($matchquestions);
+        $ivsmatchtakes->add_child($matchtakes);
+        $ivsmatchanswers->add_child($matchanswers);
+        $ivssettings->add_child($playersettings);
 
         // Define data sources.
         $ivs->set_source_table('ivs', array('id' => backup::VAR_ACTIVITYID));
@@ -191,14 +176,14 @@ WHERE video_id = ?;',
                     array(backup::VAR_ACTIVITYID));
         }
 
-        $match_questions->set_source_sql('
+        $matchquestions->set_source_sql('
             SELECT *
               FROM {ivs_matchquestion}
              WHERE video_id = ?',
                 array(backup::VAR_ACTIVITYID));
 
         if ($anonymize) {
-            $match_takes->set_source_sql('
+            $matchtakes->set_source_sql('
         SELECT id,
          video_id ,
          context_id ,
@@ -212,7 +197,7 @@ WHERE video_id = ?;',
         WHERE video_id = ?',
                     array(backup::VAR_ACTIVITYID));
         } else {
-            $match_takes->set_source_sql('
+            $matchtakes->set_source_sql('
             SELECT *
               FROM {ivs_matchtake}
              WHERE video_id = ?',
@@ -220,7 +205,7 @@ WHERE video_id = ?;',
         }
 
         if ($anonymize) {
-            $match_answers->set_source_sql('
+            $matchanswers->set_source_sql('
            SELECT mqa.id, mqa.question_id, mqa.take_id, mqa.data, mqa.correct, mqa.timecreated, mqa.timemodified, mqa.evaluated, mqa.score
             FROM {ivs_matchanswer} mqa
             INNER JOIN {ivs_matchquestion} mq
@@ -228,7 +213,7 @@ WHERE video_id = ?;',
             WHERE mq.video_id = ?',
                     array(backup::VAR_ACTIVITYID));
         } else {
-            $match_answers->set_source_sql('
+            $matchanswers->set_source_sql('
            SELECT mqa.*
             FROM {ivs_matchanswer} mqa
             INNER JOIN {ivs_matchquestion} mq
@@ -237,18 +222,18 @@ WHERE video_id = ?;',
                     array(backup::VAR_ACTIVITYID));
         }
 
-        //Player settings activity
-        $player_settings->set_source_sql('
+        // Player settings activity.
+        $playersettings->set_source_sql('
             SELECT *
               FROM {ivs_settings}
              WHERE target_id = ? AND target_type = \'activity\'',
                 array(backup::VAR_ACTIVITYID));
 
-        // Define id annotations
+        // Define id annotations.
         $videocomment->annotate_ids('user', 'user_id');
-        $match_questions->annotate_ids('user', 'user_id');
-        $match_takes->annotate_ids('user', 'user_id');
-        $match_answers->annotate_ids('user', 'user_id');
+        $matchquestions->annotate_ids('user', 'user_id');
+        $matchtakes->annotate_ids('user', 'user_id');
+        $matchanswers->annotate_ids('user', 'user_id');
 
         // Define file annotations (we do not use itemid in this example).
         $ivs->annotate_files('mod_ivs', 'videos', null);

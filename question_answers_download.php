@@ -1,9 +1,24 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Created by PhpStorm.
- * User: Ghostthinker
- * Date: 03.12.2018
- * Time: 12:45
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 require_once('../../config.php');
@@ -14,10 +29,10 @@ use mod_ivs\CourseService;
 
 $dataformat = optional_param('download', '', PARAM_ALPHA);
 
-$question_id = optional_param('question_id', '', PARAM_ALPHANUM);
+$questionid = optional_param('question_id', '', PARAM_ALPHANUM);
 $cmid = optional_param('cmid', '', PARAM_INT);
 $instance_id = optional_param('instance_id', '', PARAM_ALPHANUM);
-$total_count = optional_param('total_count', '', PARAM_ALPHANUM);
+$totalcount = optional_param('total_count', '', PARAM_ALPHANUM);
 
 $cm = get_coursemodule_from_id('ivs', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -26,31 +41,31 @@ require_login($course, true, $cm);
 
 $courseService = new CourseService();
 $roleStudent = $DB->get_record('role', array('shortname' => 'student'));
-$course_students = $courseService->getCourseMembersbyRole($course->id, $roleStudent->id);
+$coursestudents = $courseService->get_course_membersby_role($course->id, $roleStudent->id);
 
 $controller = new MoodleMatchController();
 
 $userAnswers = [];
-foreach ($course_students as $user) {
-    $userAnswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($question_id, $user->id);
+foreach ($coursestudents as $user) {
+    $userAnswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($questionid, $user->id);
 }
 
 $questions = $controller->match_questions_get_by_video_db_order($instance_id);
 
-$answers_data = $controller->getQuestionAnswersData(array_values($userAnswers), $questions, $cmid, $instance_id, $course_students,
-        $total_count, null);
+$answersdata = $controller->get_question_answers_data(array_values($userAnswers), $questions, $cmid, $instance_id, $coursestudents,
+        $totalcount, null);
 
 $columns = array(
-        'col_1' => get_string("ivs_match_question_header_id_label", 'ivs') . $answers_data->id,
-        'col_2' => get_string("ivs_match_question_header_type_label", 'ivs') . $answers_data->question_type,
-        'col_3' => get_string("ivs_match_question_header_title_label", 'ivs') . $answers_data->label
+        'col_1' => get_string("ivs_match_question_header_id_label", 'ivs') . $answersdata->id,
+        'col_2' => get_string("ivs_match_question_header_type_label", 'ivs') . $answersdata->question_type,
+        'col_3' => get_string("ivs_match_question_header_title_label", 'ivs') . $answersdata->label
 );
 
 $data[] = array(
-        'col_1' => get_string("ivs_match_question_header_question_label", 'ivs') . $answers_data->question,
+        'col_1' => get_string("ivs_match_question_header_question_label", 'ivs') . $answersdata->question,
 );
 
-switch ($answers_data->question_type) {
+switch ($answersdata->question_type) {
     case get_string('ivs_match_question_summary_question_type_single', 'ivs'):
 
         $data[] = array(
@@ -71,17 +86,17 @@ switch ($answers_data->question_type) {
                 'col_6' => '',
         );
 
-        foreach ($answers_data->answers as $answer) {
+        foreach ($answersdata->answers as $answer) {
 
-            $answer_details = $controller->getQuestionAnswersDataSingleChoiceQuestion($answer->answer, $answer->course_user);
+            $answerdetails = $controller->get_question_answers_data_single_choice_question($answer->answer, $answer->course_user);
 
             $data[] = array(
-                    'col_1' => $answer_details->fullname,
-                    'col_2' => $answer_details->id,
-                    'col_3' => $answer_details->correct,
-                    'col_4' => $answer_details->selected_answer,
-                    'col_5' => $answer_details->retries,
-                    'col_6' => $answer_details->last,
+                    'col_1' => $answerdetails->fullname,
+                    'col_2' => $answerdetails->id,
+                    'col_3' => $answerdetails->correct,
+                    'col_4' => $answerdetails->selected_answer,
+                    'col_5' => $answerdetails->retries,
+                    'col_6' => $answerdetails->last,
             );
         }
 
@@ -96,16 +111,16 @@ switch ($answers_data->question_type) {
                 'col_5' => get_string("ivs_match_question_answer_menu_label_last_click_answer", 'ivs'),
         );
 
-        foreach ($answers_data->answers as $answer) {
+        foreach ($answersdata->answers as $answer) {
 
-            $answer_details = $controller->getQuestionAnswersDataClickQuestion($answer->answer, $answer->course_user);
+            $answerdetails = $controller->get_question_answers_data_click_question($answer->answer, $answer->course_user);
 
             $data[] = array(
-                    'col_1' => $answer_details->fullname,
-                    'col_2' => $answer_details->id,
-                    'col_3' => $answer_details->first,
-                    'col_4' => $answer_details->retries,
-                    'col_5' => $answer_details->last,
+                    'col_1' => $answerdetails->fullname,
+                    'col_2' => $answerdetails->id,
+                    'col_3' => $answerdetails->first,
+                    'col_4' => $answerdetails->retries,
+                    'col_5' => $answerdetails->last,
             );
         }
 
@@ -119,20 +134,20 @@ switch ($answers_data->question_type) {
                 'col_4' => get_string("ivs_match_question_answer_menu_label_last_text_answer", 'ivs'),
         );
 
-        foreach ($answers_data->answers as $answer) {
+        foreach ($answersdata->answers as $answer) {
 
-            $answer_details = $controller->getQuestionAnswersDataTextQuestion($answer->answer, $answer->course_user);
+            $answerdetails = $controller->get_question_answers_data_text_question($answer->answer, $answer->course_user);
 
             $data[] = array(
-                    'col_1' => $answer_details->fullname,
-                    'col_2' => $answer_details->id,
-                    'col_3' => $answer_details->first,
-                    'col_4' => $answer_details->last,
+                    'col_1' => $answerdetails->fullname,
+                    'col_2' => $answerdetails->id,
+                    'col_3' => $answerdetails->first,
+                    'col_4' => $answerdetails->last,
             );
         }
         break;
 }
 
-$filename = clean_filename($course->shortname . get_string('ivs_match_question_export_question_filename', 'ivs') . $question_id);
+$filename = clean_filename($course->shortname . get_string('ivs_match_question_export_question_filename', 'ivs') . $questionid);
 
 download_as_dataformat($filename, $dataformat, $columns, $data);

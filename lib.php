@@ -1,36 +1,24 @@
 <?php
-/*************************************************************************
- *
- * GHOSTTHINKER CONFIDENTIAL
- * __________________
- *
- *  2006 - 2017 Ghostthinker GmbH
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of Ghostthinker GmbH and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to Ghostthinker GmbH
- * and its suppliers and may be covered by German and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Ghostthinker GmbH.
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of interface functions and constants for module ivs
- *
- * All the core Moodle functions, neeeded to allow the module to work
- * integrated in Moodle should be placed here.
- *
- * All the ivs specific functions, needed to implement all the module
- * logic, should go to locallib.php. This will help to save some memory when
- * Moodle is performing actions across all modules.
- *
- * @package    mod_ivs
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -100,13 +88,13 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     }
     $DB->update_record('ivs', $ivs);
 
-    $video_host = \mod_ivs\upload\VideoHostFactory::create(null, $ivs);
+    $videohost = \mod_ivs\upload\VideoHostFactory::create(null, $ivs);
 
-    $video_host->saveVideo(null);
+    $videohost->save_video(null);
 
-    //save settings
+    // Save settings.
     $settingsController = new \mod_ivs\settings\SettingsService();
-    $settingsController->processActivitySettingsForm($ivs);
+    $settingsController->process_activity_settings_form($ivs);
 
     return $ivs->id;
 }
@@ -138,13 +126,13 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     $result = $DB->update_record('ivs', $ivs);
 
-    $video_host = \mod_ivs\upload\VideoHostFactory::create(null, $ivs);
+    $videohost = \mod_ivs\upload\VideoHostFactory::create(null, $ivs);
 
-    $video_host->saveVideo(null);
+    $videohost->save_video(null);
 
-    //save settings
+    // Save settings.
     $settingsController = new \mod_ivs\settings\SettingsService();
-    $settingsController->processActivitySettingsForm($ivs);
+    $settingsController->process_activity_settings_form($ivs);
 
     return $result;
 }
@@ -172,11 +160,6 @@ function ivs_refresh_events($courseid = 0) {
         }
     }
 
-    foreach ($ivss as $ivs) {
-        // Create a function such as the one below to deal with updating calendar events.
-        // ivs_update_events($ivs);
-    }
-
     return true;
 }
 
@@ -193,36 +176,35 @@ function ivs_refresh_events($courseid = 0) {
 function ivs_delete_instance($id) {
     global $DB;
 
-    //$cm         = get_coursemodule_from_id('ivs', $id, 0, false, MUST_EXIST);
     $ivs = $DB->get_record('ivs', array('id' => $id), '*', MUST_EXIST);
 
     if (!$ivs) {
         return false;
     }
 
-    //Delete related video annotations access
+    // Delete related video annotations access.
     $annotations = $DB->get_records('ivs_videocomment', array('video_id' => $id));
 
     foreach ($annotations as $annotation) {
         $DB->delete_records('ivs_vc_access', array('annotation_id' => $annotation->id));
     }
 
-    //Delete related video annotations
+    // Delete related video annotations.
     $DB->delete_records('ivs_videocomment', array('video_id' => $id));
 
-    //Delete related edubreak match questions
-    $match_questions = $DB->get_records('ivs_matchquestion', array('video_id' => $id));
+    // Delete related edubreak match questions.
+    $matchquestions = $DB->get_records('ivs_matchquestion', array('video_id' => $id));
 
     $matchController = new \mod_ivs\MoodleMatchController();
 
-    foreach ($match_questions as $match_question) {
+    foreach ($matchquestions as $match_question) {
         $matchController->match_question_delete_db($match_question->id);
     }
 
-    //Delete ivs settings
+    // Delete ivs settings.
     $DB->delete_records('ivs_settings', array('target_id' => $id, 'target_type' => 'activity'));
 
-    //Delete related takes
+    // Delete related takes.
     $DB->delete_records('ivs_matchtake', array('video_id' => $id));
 
     // Delete any dependent records here.
@@ -395,17 +377,9 @@ function ivs_get_file_info($browser, $areas, $course, $cm, $context, $filearea, 
 function ivs_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
     global $DB, $CFG;
 
-    /*
-    if ($context->contextlevel != CONTEXT_MODULE) {
-      send_file_not_found();
-    }
-    */
 
     require_login($course, true, $cm);
 
-    // send_file_not_found();
-
-    //send_stored_file($file);
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
@@ -499,24 +473,24 @@ function ivs_annotation_event_message_send($event) {
 
     /** @var \mod_ivs\annotation $annotation */
     $annotation = \mod_ivs\annotation::retrieve_from_db($event->objectid, true);
-    $cm = get_coursemodule_from_instance('ivs', $annotation->getVideoId(), 0, false, MUST_EXIST);
-    $course_context = context_course::instance($cm->course);
+    $cm = get_coursemodule_from_instance('ivs', $annotation->get_videoid(), 0, false, MUST_EXIST);
+    $coursecontext = context_course::instance($cm->course);
     $ivs = $DB->get_record('ivs', array('id' => $cm->instance), '*', MUST_EXIST);
-    $access = json_decode(json_encode($annotation->getAccessView()), true);
+    $access = json_decode(json_encode($annotation->get_accessview()), true);
     $course = $DB->get_record('course', array('id' => $ivs->course), '*', MUST_EXIST);
 
-    //no notifacions by private realms
+    // No notifacions by private realms.
     if ($access['realm'] == 'private') {
         return;
     }
 
-    //Send Message by creating an annotation (not reply)
-    if (empty($annotation->getParentId())) {
+    // Send Message by creating an annotation (not reply).
+    if (empty($annotation->get_parentid())) {
         switch ($access['realm']) {
 
             case 'member':
 
-                //Send message to users by memberselection
+                // Send message to users by memberselection.
                 $provider = 'ivs_annotation_direct_mention';
                 if (!empty($access['gids'])) {
                     foreach ($access['gids'] as $uid) {
@@ -527,19 +501,19 @@ function ivs_annotation_event_message_send($event) {
 
             case 'course':
 
-                //Send message to users in course
+                // Send message to users in course.
                 $provider = 'ivs_annotation_indirect_mention';
-                $receivers = get_enrolled_users($course_context, '', 0, 'u.*');
+                $receivers = get_enrolled_users($coursecontext, '', 0, 'u.*');
 
                 break;
 
             case 'role':
 
-                //Send message to users by roleselection
+                // Send message to users by roleselection.
                 $provider = 'ivs_annotation_indirect_mention';
                 if (!empty($access['gids'])) {
                     foreach ($access['gids'] as $rid) {
-                        $role_users = $courseService->getCourseMembersbyRole($course->id, $rid);
+                        $role_users = $courseService->get_course_membersby_role($course->id, $rid);
                         foreach ($role_users as $role_user) {
                             $receivers[$role_user->id] = $role_user;
                         }
@@ -549,11 +523,11 @@ function ivs_annotation_event_message_send($event) {
                 break;
             case 'group':
 
-                //Send message to users by groupselection
+                // Send message to users by groupselection.
                 $provider = 'ivs_annotation_indirect_mention';
                 if (!empty($access['gids'])) {
                     foreach ($access['gids'] as $gid) {
-                        $group_users = get_enrolled_users($course_context, '', $gid, 'u.*');
+                        $group_users = get_enrolled_users($coursecontext, '', $gid, 'u.*');
                         foreach ($group_users as $group_user) {
                             $receivers[$group_user->id] = $group_user;
                         }
@@ -566,23 +540,23 @@ function ivs_annotation_event_message_send($event) {
 
     } else {
 
-        //Send Messages by creating a reply
+        // Send Messages by creating a reply.
         /** @var \mod_ivs\annotation $parent_annotation */
-        $parent_annotation = \mod_ivs\annotation::retrieve_from_db($annotation->getParentId(), false);
+        $parent_annotation = \mod_ivs\annotation::retrieve_from_db($annotation->get_parentid(), false);
 
-        //Reply
-        //Send notification to parent annotation author
+        // Reply.
+        // Send notification to parent annotation author.
         $provider = 'ivs_annotation_reply';
         $receivers = array(
-                $DB->get_record('user', array('id' => $parent_annotation->getUserId()))
+                $DB->get_record('user', array('id' => $parent_annotation->get_userid()))
         );
 
         ivs_annotation_event_process_message_send($provider, $receivers, $course, $annotation);
 
-        //Conversation
-        //Send notification to everyone, who replied to the parent annotation
+        // Conversation.
+        // Send notification to everyone, who replied to the parent annotation.
         $provider = 'ivs_annotation_conversation';
-        $receivers = $parent_annotation->getReplyUsers();
+        $receivers = $parent_annotation->get_reply_users();
 
         ivs_annotation_event_process_message_send($provider, $receivers, $course, $annotation);
     }
@@ -605,39 +579,39 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
 
         foreach ($receivers as $account) {
 
-            //never send a message to the acting user
+            // Never send a message to the acting user.
             if ($account->id == $USER->id) {
                 continue;
             }
 
-            //message details
+            // Message details.
             switch ($provider) {
                 case 'ivs_annotation_direct_mention':
                 case 'ivs_annotation_indirect_mention':
-                    $annotation_subject = 'annotation_direct_mention_subject';
-                    $annotation_fullmessage = 'annotation_direct_mention_fullmessage';
-                    $annotation_smallmessage = 'annotation_direct_mention_smallmessage';
+                    $annotationsubject = 'annotation_direct_mention_subject';
+                    $annotationfullmessage = 'annotation_direct_mention_fullmessage';
+                    $annotationsmallmessage = 'annotation_direct_mention_smallmessage';
                     break;
                 case 'ivs_annotation_reply':
-                    $annotation_subject = 'annotation_reply_subject';
-                    $annotation_fullmessage = 'annotation_reply_fullmessage';
-                    $annotation_smallmessage = 'annotation_reply_smallmessage';
+                    $annotationsubject = 'annotation_reply_subject';
+                    $annotationfullmessage = 'annotation_reply_fullmessage';
+                    $annotationsmallmessage = 'annotation_reply_smallmessage';
                     break;
                 case 'ivs_annotation_conversation':
-                    $annotation_subject = 'annotation_conversation_subject';
-                    $annotation_fullmessage = 'annotation_conversation_fullmessage';
-                    $annotation_smallmessage = 'annotation_conversation_smallmessage';
+                    $annotationsubject = 'annotation_conversation_subject';
+                    $annotationfullmessage = 'annotation_conversation_fullmessage';
+                    $annotationsmallmessage = 'annotation_conversation_smallmessage';
                     break;
             }
 
-            $url = $annotation->getAnnotationPlayerUrl()->out(false);
-            $subject = get_string($annotation_subject, 'mod_ivs',
+            $url = $annotation->get_annotation_player_url()->out(false);
+            $subject = get_string($annotationsubject, 'mod_ivs',
                     ['userfromfirstname' => $USER->firstname, 'userfromlastname' => $USER->lastname]);
-            $fullmessage = get_string($annotation_fullmessage, 'mod_ivs',
+            $fullmessage = get_string($annotationfullmessage, 'mod_ivs',
                     ['usertofirstname' => $account->firstname, 'usertolastname' => $account->lastname,
                             'userfromfirstname' => $USER->firstname, 'userfromlastname' => $USER->lastname,
-                            'annotation' => $annotation->getBody(), 'course_name' => $course->fullname, 'annotation_url' => $url]);
-            $smallmessage = get_string($annotation_smallmessage, 'mod_ivs');
+                            'annotation' => $annotation->get_body(), 'course_name' => $course->fullname, 'annotation_url' => $url]);
+            $smallmessage = get_string($annotationsmallmessage, 'mod_ivs');
 
             $message = new \core\message\message();
             $message->component = 'mod_ivs';
@@ -661,21 +635,21 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
 
 function ivs_extend_navigation_course($navigation, $course, $context) {
 
-    //IVS Annotations
+    // IVS Annotations.
     if (has_capability('mod/ivs:access_reports', $context)) {
 
-        $url_annotations = new moodle_url('/mod/ivs/cockpit.php', array('id' => $course->id));
+        $urlannotations = new moodle_url('/mod/ivs/cockpit.php', array('id' => $course->id));
 
-        $navigation->add(get_string('annotation_overview_menu_item', 'mod_ivs'), $url_annotations,
+        $navigation->add(get_string('annotation_overview_menu_item', 'mod_ivs'), $urlannotations,
                 navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 
-    //IVS Settings
+    // IVS Settings.
     if (has_capability('mod/ivs:access_course_settings', $context)) {
 
-        $url_settings = new moodle_url('/mod/ivs/settings_course.php', array('id' => $course->id));
+        $urlsettings = new moodle_url('/mod/ivs/settings_course.php', array('id' => $course->id));
 
-        $navigation->add(get_string('ivs_settings_title', 'mod_ivs'), $url_settings,
+        $navigation->add(get_string('ivs_settings_title', 'mod_ivs'), $urlsettings,
                 navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
     }
 

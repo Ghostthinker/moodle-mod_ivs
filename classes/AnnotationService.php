@@ -1,4 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package mod_ivs
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
+ */
 
 namespace mod_ivs;
 
@@ -14,28 +35,28 @@ class AnnotationService {
     /**
      * Get all annotations by course with filters
      *
-     * @param $courseId
-     * @param bool $skipAccessCheck
+     * @param $courseid
+     * @param bool $skipaccesscheck
      * @param array $options
-     * @param bool $count_total
-     * @param null $user_id
+     * @param bool $counttotal
+     * @param null $userid
      * @return array|mixed
      * @throws \Exception
      * @throws \dml_missing_record_exception
      * @throws \dml_multiple_records_exception
      */
-    public function getAnnotationsByCourse($courseId, $skipAccessCheck = false, $options = array(), $count_total = false,
-            $user_id = null) {
-        if (empty($courseId)) {
+    public function get_annotations_by_course($courseid, $skipaccesscheck = false, $options = array(), $counttotal = false,
+            $userid = null) {
+        if (empty($courseid)) {
             throw new Exception("no course id set");
         }
 
-        //set default options
+        // Set default options.
 
-        $default_options = array(
-                'sortkey' => "timecreated", //time_stamp
+        $defaultoptions = array(
+                'sortkey' => "timecreated", // Time_stamp.
                 'sortorder' => 'DESC',
-                'grouping' => 'none', //'user', 'rating', 'video'
+                'grouping' => 'none', // ... 'user', 'rating', 'video'.
                 'offset' => 0,
                 'limit' => null,
                 'filter_users' => null,
@@ -45,22 +66,19 @@ class AnnotationService {
                 'rating' => null
         );
 
-        $options = array_replace_recursive($default_options, $options);
+        $options = array_replace_recursive($defaultoptions, $options);
 
         global $DB;
 
-        if ($user_id == null) {
+        if ($userid == null) {
             global $USER;
-            $user_id = $USER->id;
+            $userid = $USER->id;
         };
 
         $annotations = array();
 
-        //build the  base query
-        //$query = "SELECT DISTINCT vc.id, vc.* FROM {ivs_videocomment} vc WHERE parent_id IS NULL";
 
-        //if we wanr the count only
-        if ($count_total) {
+        if ($counttotal) {
             $query = "SELECT DISTINCT COUNT(vc.id) as total";
         } else {
             $query = "SELECT DISTINCT
@@ -76,76 +94,65 @@ class AnnotationService {
                   ON cm.module = m.id
                      AND m.name = 'ivs'
               WHERE parent_id IS NULL AND cm.course=? ";
-        //$query = "SELECT DISTINCT vc.id, vc.* FROM {ivs_videocomment} vc INNER JOIN {ivs} eb ON vc.video_id = eb.id WHERE parent_id IS NULL";
-        $parameters = array($courseId);
+       $parameters = array($courseid);
 
-        //ADD FILTER QUERY
-        list($filter_query, $filter_parameters) = $this->createFilterQuery($courseId, $options);
+        // ADD FILTER QUERY.
+        list($filterquery, $filterparameters) = $this->create_filter_query($courseid, $options);
 
-        if (!empty($filter_query)) {
-            $query .= " AND " . $filter_query;
-            $parameters = array_merge($parameters, $filter_parameters);
+        if (!empty($filterquery)) {
+            $query .= " AND " . $filterquery;
+            $parameters = array_merge($parameters, $filterparameters);
         }
 
-        //ADD ACCESS QUERY
-        if (!$skipAccessCheck) {
-            $grants = \mod_ivs\annotation::get_user_grants($user_id, $courseId);
+        // ADD ACCESS QUERY.
+        if (!$skipaccesscheck) {
+            $grants = \mod_ivs\annotation::get_user_grants($userid, $courseid);
 
-            list($access_query, $access_parameters) =
+            list($accessquery, $accessparameters) =
                     \mod_ivs\annotation::get_user_grants_query($grants['user'], $grants['course'], $grants['group'],
                             $grants['role']);
 
-            if (!empty($access_query)) {
-                $query .= " AND " . $access_query;
-                $parameters = array_merge($parameters, $access_parameters);
+            if (!empty($accessquery)) {
+                $query .= " AND " . $accessquery;
+                $parameters = array_merge($parameters, $accessparameters);
             }
         }
 
-        /*
-        //GROUPING
-        if (!$count_total) {
-          if ($options['grouping'] == "user") {
-            $query .= " GROUP BY vc.user_id ";
-          }
-          elseif ($options['grouping'] == "video") {
-            $query .= " GROUP BY vc.video_id ";
-          }
-        }
-        */
 
-        $group_sort = "";
-        if (!$count_total) {
+
+        $groupsort = "";
+        if (!$counttotal) {
             if ($options['grouping'] == "user") {
-                $group_sort = " vc.user_id, ";
+                $groupsort = " vc.user_id, ";
             } else if ($options['grouping'] == "video") {
-                $group_sort = " vc.video_id, ";
+                $groupsort = " vc.video_id, ";
             }
         }
 
-        if (!$count_total) {
-            //SORTING
+        if (!$counttotal) {
+            // SORTING.
             $sortOrder = $options['sortorder'] == "DESC" ? "DESC" : "ASC";
 
             if ($options['sortkey'] == 'timestamp') {
-                $query .= " Order by $group_sort vc.time_stamp $sortOrder, vc.timecreated $sortOrder ";
+                $query .= " Order by $groupsort vc.time_stamp $sortOrder, vc.timecreated $sortOrder ";
             } else {
-                $query .= " Order by $group_sort vc.timecreated $sortOrder, vc.time_stamp $sortOrder";
+                $query .= " Order by $groupsort vc.timecreated $sortOrder, vc.time_stamp $sortOrder";
             }
         }
 
         $offset = 0;
         $perpage = 0;
 
-        //limit
-        if (!empty($options['limit']) && !$count_total) {
+        // Limit.
+        if (!empty($options['limit']) && !$counttotal) {
             $offset = $options['offset'];
             $perpage = $options['limit'];
-            //   $query .= " LIMIT $offset, $perpage";
+
         }
 
-        //END QUERY BUILDING
+        // END QUERY BUILDING.
 
-        if ($count_total) {
+        if ($counttotal) {
             return $DB->get_record_sql($query, $parameters);
 
         } else {
@@ -163,29 +170,29 @@ class AnnotationService {
 
     }
 
-    protected function createFilterQuery($courseID, $options) {
+    protected function create_filter_query($courseID, $options) {
 
-        $query_parts = array();
+        $queryparts = array();
         $parameters = array();
 
-        //USER
+        // USER.
         if (!empty($options['filter_users'])) {
             $uid = $options['filter_users'];
-            $query_parts[] = " vc.user_id = ? ";
+            $queryparts[] = " vc.user_id = ? ";
             $parameters = array($uid);
         }
 
-        //DRAWING_DATA
-        //This field is serialized, so we not to do some magic here...
+        // DRAWING_DATA.
+        // This field is serialized, so we not to do some magic here...
         if ($options['filter_has_drawing'] === 'no') {
-            $query_parts[] = " vc.additional_data LIKE '%drawing_data\";O:8:\"stdClass\":2:{s:4:\"json\";s:58:\"{\"objects\":[]%' ";
+            $queryparts[] = " vc.additional_data LIKE '%drawing_data\";O:8:\"stdClass\":2:{s:4:\"json\";s:58:\"{\"objects\":[]%' ";
         } else if ($options['filter_has_drawing'] === 'yes') {
-            $query_parts[] =
+            $queryparts[] =
                     " vc.additional_data NOT LIKE '%drawing_data\";O:8:\"stdClass\":2:{s:4:\"json\";s:58:\"{\"objects\":[]%' ";
         }
 
-        //RATING
-        //rating";i:100
+        // RATING.
+        // Rating";i:100.
         if (!empty($options['filter_rating'])) {
 
             switch ($options['filter_rating']) {
@@ -199,28 +206,28 @@ class AnnotationService {
                     $rating = 100;
                     break;
             }
-            $query_parts[] = " vc.additional_data LIKE '%rating\";i:$rating;%'";
+            $queryparts[] = " vc.additional_data LIKE '%rating\";i:$rating;%'";
         }
 
-        //ACCESS
-        //This field is serialized, so we not to do some magic here...
-        //s:5:"realm";s:6:"member"
+        // ACCESS.
+        // This field is serialized, so we not to do some magic here...
+        // S:5:"realm";s:6:"member".
         if (!empty($options['filter_access'])) {
 
             $realm = $options['filter_access'];
-            $realm_length = strlen($realm);
-            $query_parts[] = " vc.additional_data LIKE '%s:5:\"realm\";s:$realm_length:\"$realm\"%' ";
+            $realmlength = strlen($realm);
+            $queryparts[] = " vc.additional_data LIKE '%s:5:\"realm\";s:$realmlength:\"$realm\"%' ";
         }
 
-        //CREATed DATE
+        // CREATed DATE.
         if ($options['filter_timecreated_min'] !== null) {
 
-            $filter_timecreated_min = $options['filter_timecreated_min'];
-            $query_parts[] = " vc.timecreated > ? ";
-            $parameters[] = $filter_timecreated_min;
+            $filtertimecreatedmin = $options['filter_timecreated_min'];
+            $queryparts[] = " vc.timecreated > ? ";
+            $parameters[] = $filtertimecreatedmin;
         }
 
-        $query = implode(" AND ", $query_parts);
+        $query = implode(" AND ", $queryparts);
 
         return array("$query", $parameters);
     }
