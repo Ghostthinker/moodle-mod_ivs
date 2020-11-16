@@ -37,6 +37,15 @@ class SettingsService {
                 true);
 
         $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_PLAYER_PLAYBACKRATE,
+                get_string('ivs_setting_playbackrate_enabled', 'ivs'),
+                'ivs_setting_playbackrate_enabled',
+                'checkbox',
+                0,
+                true,
+                true);
+
+        $settings[] = new SettingsDefinition(
                 SettingsDefinition::SETTING_PLAYBACKCOMMANDS_ENABLED,
                 get_string('ivs_setting_playbackcommands', 'ivs'),
                 'ivs_setting_playbackcommands',

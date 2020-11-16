@@ -33,6 +33,7 @@ class SettingsDefinition {
     const SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT = 'default_random_question';
     const SETTING_PLAYER_AUTOHIDE_CONTROLBAR = 'hide_when_inactive';
     const SETTING_PLAYER_ACCESSIBILITY = 'accessibility_enabled';
+    const SETTING_PLAYER_PLAYBACKRATE = 'playbackrate_enabled';
 
     public $name;
     public $title;

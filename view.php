@@ -403,7 +403,11 @@ if (empty($embedded)) {
                 $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
                         false);
 
-        $playerconfig['playbackrate_enabled'] = false;
+      $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
+
+
+
+        $playerconfig['playbackrate_enabled'] = (int) $activitysettings['playbackrate_enabled']->value;
         $playerconfig['settings_button_enabled'] = false;
 
         $playerconfig['plugins']['edubreak_match'] = array(

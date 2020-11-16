@@ -309,3 +309,6 @@ $string['ivs_changed_player_successfully'] = 'Die Player Version wurde geändert
 $string['ivs_actual_player_version'] = 'Aktuelle Player Version: ';
 $string['ivs_course_license_core_offline'] = 'Der Lizenzserver konnte nicht erreicht werden. Bitte laden Sie die Seite neu und versuchen Sie es erneut.';
 $string['ivs_disabled_saving_match_result'] = 'Match Ergebnisse werden nicht gespeichert.';
+$string['ivs_disabled_create_comments'] = 'Kommentare können nicht erstellt werden.';
+$string['ivs_setting_playbackrate_enabled'] = 'Wiedergabegeschwindigkeit ändern';
+$string['ivs_setting_playbackrate_enabled_help'] = 'Ist diese Einstellung gesetzt, kann die Wiedergabegeschwindigkeit des Videos verändert werden.';

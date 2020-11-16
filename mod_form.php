@@ -27,6 +27,8 @@ use \mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\settings\SettingsService;
 use \tool_opencast\local\api;
 
+
+global $CFG;
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 /**
@@ -43,6 +45,9 @@ class mod_ivs_mod_form extends moodleform_mod {
      */
     public function definition() {
         global $CFG;
+
+        global $PAGE;
+        $PAGE->requires->js_call_amd('mod_ivs/ivs_activity_settings_page', 'init', []);
 
         $mform = $this->_form;
 
@@ -108,7 +113,6 @@ class mod_ivs_mod_form extends moodleform_mod {
 
         /** @var \mod_ivs\settings\SettingsDefinition $settingsdefinition */
         foreach ($settingsdefinitions as $settingsdefinition) {
-
             switch ($settingsdefinition->type) {
                 case 'checkbox':
                     $settingsController::add_vis_setting_to_form($parentsettings, $settingsdefinition, $mform, false);
@@ -134,7 +138,7 @@ class mod_ivs_mod_form extends moodleform_mod {
             }
         }
 
-        $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_match_config_video_test', 'ivs'));
+        $mform->addElement('header', 'mod_ivs/match_config_video_test', get_string('ivs_match_config_video_test', 'ivs'));
 
         // Assessment Mode.
         $attemptoptions = array(
