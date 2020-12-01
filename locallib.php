@@ -61,8 +61,11 @@ function ivs_ep5_get_js_and_css_dependencies() {
             $cssfiles[] = $core_url . $css_item;
         }
 
-        $lng = current_language();
-        $langfile = $core_url . ((array) $licensecdn->lang)[$lng];
+        $currentlanguage  = substr(current_language(), 0, 2);
+        $langfiles = (array) $licensecdn->lang;
+        $lng = !empty($langfiles[$currentlanguage ]) ? $currentlanguage  : 'en';
+
+        $langfile = $core_url . $langfiles[$lng];
 
         $jsfiles[] = $langfile;
     }
