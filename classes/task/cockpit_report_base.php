@@ -48,14 +48,14 @@ abstract class cockpit_report_base extends \core\task\scheduled_task {
             // Get Support User as userFrom.
             $userfrom = \core_user::get_support_user();
 
-            $userto = $DB->get_record('user', array('id' => $report->getUserId()), '*', MUST_EXIST);
+            $userto = $DB->get_record('user', array('id' => $report->get_userid()), '*', MUST_EXIST);
 
             try {
-                $course = $DB->get_record('course', array('id' => $report->getCourseId()), '*', MUST_EXIST);
+                $course = $DB->get_record('course', array('id' => $report->get_courseid()), '*', MUST_EXIST);
             } catch (\dml_exception $e) {
                 return;
             }
-            $url = new \moodle_url('/mod/ivs/cockpit.php', array('id' => $report->getCourseId()));
+            $url = new \moodle_url('/mod/ivs/cockpit.php', array('id' => $report->get_courseid()));
 
             $body = get_string_manager()->get_string('cockpit_report_mail_body_header', 'mod_ivs', [
                             'usertofirstname' => $userto->firstname,
