@@ -143,12 +143,12 @@ class cockpit_report_form {
                 }
 
                 if (!empty($report->get_filter()['filter_access'])) {
-                    $out .= "<div>" . get_string("filter_label_access", 'interactive_video_suite') . ": " .
+                    $out .= "<div>" . get_string("filter_label_access", 'ivs') . ": " .
                             get_string('ivs:acc_label:' . $report->get_filter()['filter_access'], 'ivs') . "</div>";
                 }
 
                 if (!empty($report->get_filter()['grouping'])) {
-                    $out .= "<div>" . get_string("block_grouping_title", 'interactive_video_suite') . ": " .
+                    $out .= "<div>" . get_string("block_grouping_title", 'ivs') . ": " .
                             get_string('ivs:acc_label:group_' . $report->get_filter()['grouping'], 'ivs') . "</div>";
                 }
 
@@ -218,7 +218,7 @@ class cockpit_report_form {
                 "</label><select name=\"report_rotation\">" . $optionsout . "</select></div>";
         $out .= "<input type='submit' name='submit' value='" . get_string("save_report", 'ivs') . "'>";
 
-        return "<form class='annotation-filter-form' method='post' action='" . $action . "'>$out</form>";
+        return "<form class='ivs-annotation-filter-form' method='post' action='" . $action . "'>$out</form>";
     }
 
     function render_listing() {
@@ -251,9 +251,9 @@ class cockpit_report_form {
             $datestring = date_format_string($report->get_startdate(), "%d %h %Y");
 
             $out .= get_string('block_report_title_single', 'ivs') . ", " .
-                    get_string('report_rotation_' . $report->get_rotation(), 'interactive_video_suite') . ", " . $datestring .
+                    get_string('report_rotation_' . $report->get_rotation(), 'ivs') . ", " . $datestring .
                     " <div class='form-item-report'> <a href='" . $editurl . "'>" .
-                    get_string("report_edit", 'interactive_video_suite') . "</a> <a href='" . $deleteurl . "'>" .
+                    get_string("report_edit", 'ivs') . "</a> <a href='" . $deleteurl . "'>" .
                     get_string("report_delete", 'ivs') . "</a></div><br>";
         }
         $out .= "<br><a href=$actioncreatelink><input type=\"button\" value='" . get_string("create_report", 'ivs') . "' /></a>";

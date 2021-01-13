@@ -155,13 +155,13 @@ $string['ivs_setting_annotation_buttons_help'] =
 $string['ivs_setting_annotation_readmore'] = 'Kommentare kürzen';
 $string['ivs_setting_annotation_readmore_help'] =
         'Kommentare, die über drei Zeilen lang sind, werden automatisch gekürzt angezeigt. Sie können via Aufklapp-Icon bei Bedarf vollständig angezeigt werden.';
-$string['ivs_setting_switchcast_external_files_title'] = 'Switch Cast Video Upload';
-$string['ivs_setting_switchcast_external_files_help'] = 'Beim Video Upload können Videos von Switch Cast ausgewählt werden.';
-$string['ivs_setting_switchcast_internal_files_title'] = 'Interner Video Upload';
-$string['ivs_setting_switchcast_internal_files_help'] = 'Beim Video Upload können Videos von internen Quellen ausgewählt werden.';
-$string['ivs_setting_switchcast_menu_title'] = 'Switch Cast Video';
+$string['ivs_setting_opencast_external_files_title'] = 'Open Cast Video Upload';
+$string['ivs_setting_opencast_external_files_help'] = 'Beim Video Upload können Videos von Open Cast ausgewählt werden.';
+$string['ivs_setting_opencast_internal_files_title'] = 'Interner Video Upload';
+$string['ivs_setting_opencast_internal_files_help'] = 'Beim Video Upload können Videos von internen Quellen ausgewählt werden.';
+$string['ivs_setting_opencast_menu_title'] = 'Open Cast Video';
 $string['ivs_video_config_error'] = 'Keine Video ausgewählt.';
-$string['ivs_switchcast_video_chooser'] = '-keine-';
+$string['ivs_opencast_video_chooser'] = '-keine-';
 $string['ivs_setting_playbackcommands'] = 'Anweisungen aktivieren';
 $string['ivs_setting_playbackcommands_help'] =
         'Mit Hilfe von Anweisungen, wie Zeichnungen, Abspielgeschwindigkeit, Ausschnitt können Sie das Video an Ihre Bedürfnisse anpassen. Dabei können alle Änderungen bei Bedarf auch wieder schnell rückgängig gemacht werden.';

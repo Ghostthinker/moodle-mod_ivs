@@ -22,6 +22,9 @@ Enrich your videos by the powerful features of the social video player. Create p
 # Changelog
 
 
+### v1.5
+* Refactoring and fixes for Moodle Directory listing
+
 ### v1.4
 * Fixed cron report
 

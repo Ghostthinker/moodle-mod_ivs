@@ -79,8 +79,8 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     $DB->set_field('course_modules', 'instance', $ivs->id, array('id' => $ivs->coursemodule));
 
-    if (!empty($ivs->switchcast_video)) {
-        $ivs->videourl = "SwitchCastFileVideoHost://" . $ivs->switchcast_video;
+    if (!empty($ivs->opencast_video)) {
+        $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (!empty($ivs->sample_video)) {
         $ivs->videourl = 'TestingFileVideoHost://' . $ivs->id;
     } else {
@@ -116,8 +116,8 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $ivs->timemodified = time();
     $ivs->id = $ivs->instance;
 
-    if (!empty($ivs->switchcast_video)) {
-        $ivs->videourl = "SwitchCastFileVideoHost://" . $ivs->switchcast_video;
+    if (!empty($ivs->opencast_video)) {
+        $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost'))) {
         $ivs->videourl = $mform->get_current()->videourl;
     } else {

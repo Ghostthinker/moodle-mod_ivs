@@ -271,7 +271,7 @@ class SettingsService {
         $availablefromgroup = array();
         $availablefromgroup[] = &$mform->createElement('checkbox', 'value', '', $defaultinfo, $attributes);
 
-        $attributes = array('class' => 'setting-locked-checkbox');
+        $attributes = array('class' => 'ivs-setting-locked-checkbox');
         if ($globalsettings[$settingdefinition->name]->locked) {
             $attributes['disabled'] = 'disabled';
         }

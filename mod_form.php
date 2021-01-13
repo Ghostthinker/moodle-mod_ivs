@@ -72,21 +72,21 @@ class mod_ivs_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        if ((int) $CFG->ivs_switchcast_external_files_enabled) {
+        if ((int) $CFG->ivs_opencast_external_files_enabled) {
 
             try {
-                $switchcast_videos = $this->get_videos_for_select();
-                if ($switchcast_videos && count($switchcast_videos) > 0) {
+                $opencast_videos = $this->get_videos_for_select();
+                if ($opencast_videos && count($opencast_videos) > 0) {
                     $select =
-                            $mform->addElement('select', 'switchcast_video', get_string('ivs_setting_switchcast_menu_title', 'ivs'),
-                                    $switchcast_videos);
+                            $mform->addElement('select', 'opencast_video', get_string('ivs_setting_opencast_menu_title', 'ivs'),
+                                    $opencast_videos);
                 }
 
             } catch (Exception $e) {
             }
         }
 
-        if ((int) $CFG->ivs_switchcast_internal_files_enabled) {
+        if ((int) $CFG->ivs_opencast_internal_files_enabled) {
             $mform->addElement('filepicker', 'video_file', get_string('file'), null,
                     array(
                             'subdirs' => 0,
@@ -178,9 +178,9 @@ class mod_ivs_mod_form extends moodleform_mod {
         if (!empty($defaultvalues['videourl'])) {
 
             $parts = explode("://", $defaultvalues['videourl']);
-            if ($parts[0] == "SwitchCastFileVideoHost") {
+            if ($parts[0] == "OpenCastFileVideoHost") {
 
-                $defaultvalues['switchcast_video'] = $parts[1];
+                $defaultvalues['opencast_video'] = $parts[1];
             }
         }
 
@@ -192,7 +192,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         $publishedvideos = array();
 
         if (!class_exists('\\tool_opencast\\seriesmapping') || !class_exists('\\tool_opencast\\local\\api')) {
-            return array(get_string('ivs_switchcast_video_chooser', 'ivs'));
+            return array(get_string('ivs_opencast_video_chooser', 'ivs'));
         }
         $mapping = \tool_opencast\seriesmapping::get_record(array('courseid' => $COURSE->id));
         if (!is_object($mapping)) {
@@ -207,7 +207,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         $videos = $api->oc_get($query);
         $videos = json_decode($videos);
 
-        $publishedvideos = array(get_string('ivs_switchcast_video_chooser', 'ivs'));
+        $publishedvideos = array(get_string('ivs_opencast_video_chooser', 'ivs'));
 
         if (empty($videos)) {
             return $publishedvideos;
@@ -216,7 +216,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         foreach ($videos as $video) {
 
 
-            if (in_array('switchcast-api', $video->publication_status)) {
+            if (in_array('opencast-api', $video->publication_status)) {
                 $publishedvideos[$video->identifier] = $video->title;
             }
         }

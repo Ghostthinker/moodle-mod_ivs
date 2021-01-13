@@ -37,13 +37,13 @@ if ($ADMIN->fulltree) {
     // IVS-Settings.
     $settings->add(new admin_setting_heading('mod_ivs/ivssettings', get_string('ivs_settings', 'ivs'), ''));
 
-    $settings->add(new admin_setting_configcheckbox('ivs_switchcast_external_files_enabled',
-            get_string('ivs_setting_switchcast_external_files_title', 'ivs'),
-            get_string('ivs_setting_switchcast_external_files_help', 'ivs'), 1));
+    $settings->add(new admin_setting_configcheckbox('ivs_opencast_external_files_enabled',
+            get_string('ivs_setting_opencast_external_files_title', 'ivs'),
+            get_string('ivs_setting_opencast_external_files_help', 'ivs'), 1));
 
-    $settings->add(new admin_setting_configcheckbox('ivs_switchcast_internal_files_enabled',
-            get_string('ivs_setting_switchcast_internal_files_title', 'ivs'),
-            get_string('ivs_setting_switchcast_internal_files_help', 'ivs'), 1));
+    $settings->add(new admin_setting_configcheckbox('ivs_opencast_internal_files_enabled',
+            get_string('ivs_setting_opencast_internal_files_title', 'ivs'),
+            get_string('ivs_setting_opencast_internal_files_help', 'ivs'), 1));
 
     // Player-Settings.
 

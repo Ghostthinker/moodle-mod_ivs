@@ -101,7 +101,7 @@ class cockpit_filter_form
         }
 
         $out .= "<input type='submit' value='" . get_string("apply_filter", 'ivs') . "'>";
-        return "<form class='annotation-filter-form' method='get' action='" . $action . "'>$out</form>";
+        return "<form class='ivs-annotation-filter-form' method='get' action='" . $action . "'>$out</form>";
     }
 
     /**

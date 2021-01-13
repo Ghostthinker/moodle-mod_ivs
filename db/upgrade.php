@@ -33,6 +33,21 @@ use mod_ivs\MoodleLicenseController;
  */
 function xmldb_ivs_upgrade($oldversion) {
     global $DB;
+
+  if ($oldversion < 2020050524) {
+    $switchcastexternalfilesenabled =
+      get_config('mod_ivs', 'ivs_switchcast_external_files_enabled');
+    $ivsswitchcastinternalfilesenabled =
+      get_config('mod_ivs', 'ivs_switchcast_internal_files_enabled');
+
+    set_config('ivs_switchcast_external_files_enabled',
+      $switchcastexternalfilesenabled, 'mod_ivs');
+    set_config('ivs_switchcast_internal_files_enabled',
+      $ivsswitchcastinternalfilesenabled, 'mod_ivs');
+
+    upgrade_mod_savepoint(TRUE, 2020050524, 'ivs');
+  }
+
     if($oldversion < 2020050524){
         $enablecommentsbyroleconfigexists = get_config('mod_ivs', 'enable_comments_by_role');
         if(!$enablecommentsbyroleconfigexists){

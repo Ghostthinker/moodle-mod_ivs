@@ -99,7 +99,22 @@ $reportaction = optional_param('report_action',null,PARAM_ALPHANUMEXT);
 
 
 // Filter form is required by filter but alos for options in reptz form.
-$filterform = new \mod_ivs\cockpit_filter_form($PAGE, $course, $context, $_GET);
+
+$rawparameter = [
+  'page' => optional_param('page','0',PARAM_ALPHANUM),
+  'perpage' => optional_param('perpage','20',PARAM_ALPHANUM),
+  'sortkey' => optional_param('sortkey','timecreated',PARAM_ALPHANUM),
+  'sortorder' => optional_param('sortorder','DESC',PARAM_ALPHANUM),
+  'contextid' => optional_param('contextid','0',PARAM_ALPHANUM),
+  'id' => optional_param('id','0',PARAM_ALPHANUM),
+  'filter_users' => optional_param('filter_users','0',PARAM_ALPHANUM),
+  'filter_has_drawing' => optional_param('filter_has_drawing','',PARAM_ALPHANUM),
+  'filter_rating' => optional_param('filter_rating','',PARAM_ALPHANUM),
+  'filter_access' => optional_param('filter_access','',PARAM_ALPHANUM),
+  'grouping' => optional_param('grouping','',PARAM_ALPHANUM),
+];
+
+$filterform = new \mod_ivs\cockpit_filter_form($PAGE, $course, $context, $rawparameter);
 
 if (empty($reportaction)) {
     // Region Sort BLOCK.
@@ -109,7 +124,7 @@ if (empty($reportaction)) {
             get_string('block_filter_timecreated_alt_asc', 'ivs'),
             '',
             array(
-                    'class' => $sortkey == 'timecreated' && $sortorder == 'ASC' ? 'sorticon active' : 'sorticon'
+                    'class' => $sortkey == 'timecreated' && $sortorder == 'ASC' ? 'ivs-sorticon active' : 'sorticon'
             )
     );
 
@@ -118,7 +133,7 @@ if (empty($reportaction)) {
             get_string('block_filter_timecreated_alt_desc', 'ivs'),
             '',
             array(
-                    'class' => $sortkey == 'timecreated' && $sortorder == 'DESC' ? 'sorticon active' : 'sorticon'
+                    'class' => $sortkey == 'timecreated' && $sortorder == 'DESC' ? 'ivs-sorticon active' : 'sorticon'
             )
     );
 
@@ -139,7 +154,7 @@ if (empty($reportaction)) {
             get_string('block_filter_timestamp_alt_asc', 'ivs'),
             '',
             array(
-                    'class' => $sortkey == 'timestamp' && $sortorder == 'ASC' ? 'sorticon active' : 'sorticon'
+                    'class' => $sortkey == 'timestamp' && $sortorder == 'ASC' ? 'ivs-sorticon active' : 'sorticon'
             )
     );
 
@@ -148,7 +163,7 @@ if (empty($reportaction)) {
             get_string('block_filter_timestamp_alt_desc', 'ivs'),
             '',
             array(
-                    'class' => $sortkey == 'timestamp' && $sortorder == 'DESC' ? 'sorticon active' : 'sorticon'
+                    'class' => $sortkey == 'timestamp' && $sortorder == 'DESC' ? 'ivs-sorticon active' : 'sorticon'
             )
     );
 
@@ -230,17 +245,29 @@ $options = array(
 
 if ($accessreports) {
 
-    $reportform = new \mod_ivs\cockpit_report_form($PAGE, $course, $context, $_POST, $reportservice);
+    $rawpostparameter = [
+      'perpage' => optional_param('grouping','20',PARAM_ALPHANUM),
+      'sortkey' => optional_param('sortkey','',PARAM_ALPHANUM),
+      'sortoder' => optional_param('sortoder','',PARAM_ALPHANUM),
+      'contextid' => optional_param('contextid','',PARAM_ALPHANUM),
+      'id' => optional_param('id','',PARAM_ALPHANUM),
+      'filter_users' => optional_param('filter_users','',PARAM_ALPHANUM),
+      'filter_has_drawing' => optional_param('filter_has_drawing','',PARAM_ALPHANUM),
+      'filter_rating' => optional_param('filter_rating','',PARAM_ALPHANUM),
+      'filter_access' => optional_param('filter_access','',PARAM_ALPHANUM),
+      'grouping' => optional_param('grouping','',PARAM_ALPHANUM),
+      'report_start_date' => optional_param('report_start_date','',PARAM_ALPHANUM),
+      'report_rotation' => optional_param('report_rotation','',PARAM_ALPHANUM),
+      'submit' => optional_param('submit','',PARAM_ALPHANUM),
+    ];
+
+    $reportform = new \mod_ivs\cockpit_report_form($PAGE, $course, $context, $rawpostparameter, $reportservice);
 
     $outreport = "";
-    $rawuserpost['submit'] = optional_param('submit', '', PARAM_ALPHANUMEXT);
 
-    if (isset($rawuserpost['submit'])) {
-        $rawuserpost['report_start_date'] = optional_param('report_start_date', '', PARAM_ALPHANUMEXT);
-        $rawuserpost['report_rotation'] = optional_param('report_rotation', '', PARAM_ALPHANUMEXT);
-        $rawuserpost['report_id'] = optional_param('report_id', '', PARAM_ALPHANUMEXT);
+    if (!empty($rawpostparameter['submit'])) {
 
-        $reportform->process_form($courseid, $rawuserpost, $options, $USER->id);
+        $reportform->process_form($courseid, $rawpostparameter, $options, $USER->id);
     }
 
     $bc = new block_contents();

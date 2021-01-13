@@ -85,3 +85,13 @@
 #id_ivs_player_version_1{
     margin-left: 150px;
 }
+
+#id_ivs_testsystem_submitbutton
+{
+    margin-left: 56%;
+    width: 110%;
+}
+
+#region-main{
+    overflow:hidden;
+}

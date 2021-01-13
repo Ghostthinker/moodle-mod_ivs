@@ -36,8 +36,8 @@ class VideoHostFactory {
         switch ($parts[0]) {
             case 'MoodleFileVideoHost':
                 return new MoodleFileVideoHost($cm, $ivs);
-            case 'SwitchCastFileVideoHost':
-                return new SwitchCastFileVideoHost($cm, $ivs);
+            case 'OpenCastFileVideoHost':
+                return new OpenCastFileVideoHost($cm, $ivs);
             case 'TestingFileVideoHost':
                 return new TestingFileVideoHost($cm, $ivs);
         }
