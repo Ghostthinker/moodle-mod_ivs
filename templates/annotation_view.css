@@ -66,14 +66,18 @@
 .ivs-annotations .field-ivs-annotation-preview img,
 .ivs-annotations .field-ivs-annotation-preview video {
     position: absolute;
-    width: 100%;
     background: transparent url(../pix/ebvs.png) no-repeat;
     background-size: contain;
+    max-height: 250px;
+    width: unset;
+
 }
 
 .ivs-annotations .field-ivs-annotation-preview svg {
     position: absolute;
     display: none;
+    max-height: 250px;
+    width: unset;
 }
 
 
