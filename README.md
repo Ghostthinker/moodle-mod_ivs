@@ -25,6 +25,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 ### v1.5
 * Refactoring and fixes for Moodle Directory listing
 * Fix 4:3 thumbnail preview image layout
+* Fix report edit, delete and start date
 
 ### v1.4
 * Fixed cron report
