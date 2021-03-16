@@ -256,7 +256,7 @@ if ($accessreports) {
       'filter_rating' => optional_param('filter_rating','',PARAM_ALPHANUM),
       'filter_access' => optional_param('filter_access','',PARAM_ALPHANUM),
       'grouping' => optional_param('grouping','',PARAM_ALPHANUM),
-      'report_start_date' => optional_param('report_start_date','',PARAM_ALPHANUM),
+      'report_start_date' => optional_param('report_start_date','',PARAM_TEXT),
       'report_rotation' => optional_param('report_rotation','',PARAM_ALPHANUM),
       'submit' => optional_param('submit','',PARAM_ALPHANUM),
     ];

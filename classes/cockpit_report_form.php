@@ -320,8 +320,7 @@ class cockpit_report_form {
 
     public function process_form($courseid, $rawuserpost, $options, $userid) {
 
-        $startdate = $rawuserpost['report_start_date'] ? $startdate = strtotime($rawuserpost['report_start_date']) :
-                $startdate = time();
+        $startdate = $rawuserpost['report_start_date'] ? strtotime($rawuserpost['report_start_date']) : time();
 
         // Check rotation.
         $rotationoptions = $this->get_rotation_options();

@@ -36,7 +36,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 * Added setting to enable video playback rate for MATCH videos
 
 ### v1.1
-* Updated Constants
+* Updated constants
 
 ### v1.0
 * Initial public release
