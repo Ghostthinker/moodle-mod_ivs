@@ -186,10 +186,10 @@ class cockpit_report_form {
         $startdate = date_create();
 
         if ($report) {
-            $out .= '<input type="hidden" name="report_id" value="' . $report->getId() . '" />';
-            $valuerotation = $report->getRotation();
+            $out .= '<input type="hidden" name="report_id" value="' . $report->get_id() . '" />';
+            $valuerotation = $report->get_rotation();
 
-            date_timestamp_set($startdate, date($report->getStartDate()));
+            date_timestamp_set($startdate, date($report->get_startdate()));
             $startdate = date_format($startdate, 'd.m.Y');
         } else {
             date_timestamp_set($startdate, time());
