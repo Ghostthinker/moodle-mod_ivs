@@ -865,6 +865,13 @@ class annotation {
     function get_body() {
         return $this->body;
     }
+    /**
+     * @return mixed
+     */
+    public
+    function get_rendered_body() {
+        return format_text($this->body, FORMAT_MARKDOWN);
+    }
 
     /**
      * @param mixed $body

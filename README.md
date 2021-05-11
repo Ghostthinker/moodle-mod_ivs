@@ -21,23 +21,36 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.6
+* Fixed license issues
+* Added Bulk operations settings for comments and match
+* Videoplayer: autorending of clickable links in comments and match
+* Videoplayer: jump to active context and comment initially 
+* Videoplayer: added MathJax support
+* Videoplayer: added Markdown support
+* ``ep5 version 1.3``
 
 ### v1.5
 * Refactoring and fixes for Moodle Directory listing
 * Fix 4:3 thumbnail preview image layout
 * Fix report edit, delete and start date
+* ``ep5 version 1.2``
 
 ### v1.4
 * Fixed cron report
+* ``ep5 version 1.2``
 
 ### v1.3
 * Fixed language selection
+* ``ep5 version 1.2``
 
 ### v1.2
 * Added setting to enable video playback rate for MATCH videos
+* ``ep5 version 1.2``
 
 ### v1.1
 * Updated constants
 
 ### v1.0
 * Initial public release
+* ``ep5 version 1.0``

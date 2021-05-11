@@ -62,7 +62,7 @@ class annotation_report_view implements renderable, templatable {
         $user = IvsHelper::get_user($this->annotation->get_userid());
         $userTo = $this->userTo;
 
-        $data->comment_body = $this->annotation->get_body();
+        $data->comment_body = $this->annotation->get_rendered_body();
         $data->comment_author_link = $user['fullname'];
         $data->comment_created = userdate($this->annotation->get_timecreated());
         $data->comment_timestamp = $this->annotation->get_timestamp() / 1000;

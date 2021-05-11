@@ -35,8 +35,9 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
  * Module instance settings form
  *
  * @package    mod_ivs
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 class mod_ivs_mod_form extends moodleform_mod {
 

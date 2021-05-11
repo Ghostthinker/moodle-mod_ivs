@@ -28,8 +28,9 @@ defined('MOODLE_INTERNAL') || die;
  *
  * @package   mod_ivs
  * @category  backup
- * @copyright 2017 Ghostthinker GmbH <info@ghostthinker.de>
- * @license   All Rights Reserved.
+ * @author Ghostthinker GmbH <info@interactive-video-suite.de>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 class backup_course_ivs_settings_step extends backup_activity_structure_step {
 

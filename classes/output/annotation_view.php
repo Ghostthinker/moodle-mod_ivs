@@ -74,7 +74,7 @@ class annotation_view implements renderable, templatable {
             $data->user_picture = (string) new \moodle_url('/user/pix.php');
         }
 
-        $data->comment_body = $this->annotation->get_body();
+        $data->comment_body = $this->annotation->get_rendered_body();
         $data->id = $this->annotation->get_id();
 
         $data->comment_created = userdate($this->annotation->get_timecreated());

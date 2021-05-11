@@ -34,11 +34,11 @@ require_once('../../config.php');
 require_once('./lib.php');
 require_once('./locallib.php');
 
-global $USER,$DB;
+global $USER, $DB;
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n = optional_param('n', 0, PARAM_INT);  // ... ivs instance ID - it should be named as the first character of the module.
-$cid = optional_param('cid', null, PARAM_INT);  // The  comment id to jump to.
+$cid = optional_param('cid', null, PARAM_TEXT);  // The  comment id to jump to.
 $embedded = optional_param('embedded', null, PARAM_INT);  // The  comment id to jump to.
 $course = $DB->get_record('course', array('id'=>optional_param('courseid', SITEID, PARAM_INT)), '*', MUST_EXIST);
 
@@ -70,6 +70,36 @@ $matchenabled = $activitysettings['match_question_enabled']->value;
 require_login($course, true, $cm);
 $context = context_course::instance($course->id);
 $userroles = get_user_roles($context, $USER->id);
+
+$is_admin = false;
+$is_teacher = false;
+$is_student = false;
+
+
+// admin
+$admins = get_admins();
+$isadmin = false;
+foreach($admins as $admin) {
+    if ($USER->id == $admin->id) {
+        $is_admin = true;
+        break;
+    }
+}
+
+// student
+if (user_has_role_assignment($USER->id, 5)) {
+    $is_student = true;
+}
+
+// at least teacher > editingteacher/manager
+if (user_has_role_assignment($USER->id, 4)
+        || user_has_role_assignment($USER->id, 3)
+        || user_has_role_assignment($USER->id, 2)
+        || user_has_role_assignment($USER->id, 1)
+) {
+    $is_teacher = true;
+}
+
 if (empty($embedded)) {
     $event = \mod_ivs\event\course_module_viewed::create(array(
             'objectid' => $PAGE->cm->instance,
@@ -103,10 +133,8 @@ if (empty($embedded)) {
     $activelicense = $lc->get_active_license(['course' => $course]);
 
 
-    $context = context_course::instance($COURSE->id);
-    $roles = get_user_roles($context, $USER->id);
     $roleid = 0;
-    foreach ($roles as $role) {
+    foreach ($userroles as $role) {
         $roleid = $role->roleid;
     }
 
@@ -114,20 +142,20 @@ if (empty($embedded)) {
         $usage = $activelicense->spots_in_use / $activelicense->spots;
         if ($activelicense->usage == 'spots_nearly_full') {
             \core\notification::info(get_string('ivs_usage_info', 'ivs',
-                    ['name' => $COURSE->fullname, 'usage' => round($usage * 100)]));
+                    ['name' => $course->fullname, 'usage' => round($usage * 100)]));
         } else if ($activelicense->usage == 'spots_full') {
             \core\notification::warning(get_string('ivs_usage_warning', 'ivs',
-                    ['name' => $COURSE->fullname, 'usage' => round($usage * 100)]));
+                    ['name' => $course->fullname, 'usage' => round($usage * 100)]));
         } else if ($activelicense->usage == 'spots_overbooked') {
             \core\notification::error(get_string('ivs_usage_error', 'ivs',
-                    ['name' => $COURSE->fullname, 'usage' => round($usage * 100)]));
+                    ['name' => $course->fullname, 'usage' => round($usage * 100)]));
         }
         $time = strtotime(date("Y-m-d H:i:s"));
         $resttime = strtotime($activelicense->expires_at) - $time;
         $resttime = round($resttime / 86400);
         if ($activelicense->runtime == 'duration_nearly_end') {
             \core\notification::warning(get_string('ivs_duration_warning', 'ivs',
-                    ['name' => $COURSE->fullname, 'resttime' => $resttime]));
+                    ['name' => $course->fullname, 'resttime' => $resttime]));
         }
     }
 
@@ -344,6 +372,7 @@ if (empty($embedded)) {
                             'default_cid' => $cid,
                             'permission_create_comment' => $permissioncreatecomment,
                             'video_id' => $cm->instance,
+                            'annotation_bulk_operations_enabled' => ($is_admin || $is_teacher),
                             'current_userdata' => array(
                                     'name' => $USER->firstname . ' ' . $USER->lastname,
                                     'picture' => $userpictureurl,
@@ -416,6 +445,7 @@ if (empty($embedded)) {
                 'take_id' => null,
                 'full_screen_start' => true,
                 'may_edit' => ivs_may_edit_match_questions($activitycontext),
+                'match_bulk_operations_enabled' => ($is_admin || $is_teacher),
                 'active_context' => $cm->instance,
                 'assessment_config' => $assessmentconfig,
                 'sounds' => [

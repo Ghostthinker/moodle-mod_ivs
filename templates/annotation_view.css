@@ -69,6 +69,7 @@
     background: transparent url(../pix/ebvs.png) no-repeat;
     background-size: contain;
     max-height: 250px;
+    max-width: 100%;
     width: unset;
 
 }
@@ -78,6 +79,7 @@
     display: none;
     max-height: 250px;
     width: unset;
+    max-width: 100%;
 }
 
 

@@ -1,5 +1,6 @@
 #id_switchcast_video {
     width: 250px;
+    max-width: 100%;
 }
 
 #page-admin-setting-modsettingivs .adminsettingsflags {

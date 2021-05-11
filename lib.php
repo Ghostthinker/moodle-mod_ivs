@@ -610,7 +610,7 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
             $fullmessage = get_string($annotationfullmessage, 'mod_ivs',
                     ['usertofirstname' => $account->firstname, 'usertolastname' => $account->lastname,
                             'userfromfirstname' => $USER->firstname, 'userfromlastname' => $USER->lastname,
-                            'annotation' => $annotation->get_body(), 'course_name' => $course->fullname, 'annotation_url' => $url]);
+                            'annotation' => $annotation->get_rendered_body(), 'course_name' => $course->fullname, 'annotation_url' => $url]);
             $smallmessage = get_string($annotationsmallmessage, 'mod_ivs');
 
             $message = new \core\message\message();
