@@ -214,13 +214,14 @@ class mod_ivs_mod_form extends moodleform_mod {
             return $publishedvideos;
         }
 
-        foreach ($videos as $video) {
-
-
+         foreach ($videos as $video) {
             if (in_array('opencast-api', $video->publication_status)) {
+                $publishedvideos[$video->identifier] = $video->title;
+            }elseif (in_array('switchcast-api', $video->publication_status)) {
                 $publishedvideos[$video->identifier] = $video->title;
             }
         }
+
 
         return $publishedvideos;
     }
