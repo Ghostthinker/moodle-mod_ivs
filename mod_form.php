@@ -179,7 +179,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         if (!empty($defaultvalues['videourl'])) {
 
             $parts = explode("://", $defaultvalues['videourl']);
-            if ($parts[0] == "OpenCastFileVideoHost") {
+           if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
 
                 $defaultvalues['opencast_video'] = $parts[1];
             }
