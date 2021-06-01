@@ -28,6 +28,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 * Videoplayer: jump to active context and comment initially 
 * Videoplayer: added MathJax support
 * Videoplayer: added Markdown support
+* Fixed switchcast interface
 * ``ep5 version 1.3``
 
 ### v1.5
