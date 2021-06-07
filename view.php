@@ -484,8 +484,7 @@ if (empty($embedded)) {
     <head>
         <title><?php echo $ivs->name ?></title>
         <!-- resources -->
-
-        <?php
+       <?php
 
         $includefiles = ivs_ep5_get_js_and_css_dependencies();
         $jsfiles = $includefiles['js'];

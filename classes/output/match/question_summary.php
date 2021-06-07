@@ -37,6 +37,7 @@ class question_summary implements renderable, templatable {
     private $ivs;
 
     public function __construct($ivs, $questions, $module, $offset, $perpage, $courseStudents) {
+
         $this->questions = $questions;
         $this->module = $module;
         $this->offset = $offset;
@@ -65,8 +66,12 @@ class question_summary implements renderable, templatable {
                 break;
             }
             $renderable = new question_summary_view($this->questions[$i], $this->course_students);
+            $renderable->question['question_body'] = format_text($renderable->question['question_body'], FORMAT_MARKDOWN);
+            $renderable->question['title'] = format_text($renderable->question['title'], FORMAT_MARKDOWN);
             $data->questions[] = $output->render($renderable);
         }
+
+
 
         // Render Pager Options in Dropdown.
         $pagerurl = new moodle_url('/mod/ivs/questions.php?id=' . $this->module->id . '&question-summary');

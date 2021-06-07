@@ -43,9 +43,9 @@ class question_overview implements renderable, templatable {
         $data = new stdClass();
 
         $data->id = $this->question['nid'];
-        $data->question = $this->question['question_body'];
+        $data->question = format_text($this->question['question_body'], FORMAT_MARKDOWN);
         if (strlen($this->question['title']) > 0) {
-            $data->question = $this->question['title'] . ': ' . $data->question;
+            $data->question = format_text($this->question['title'] . ': ' . $this->question['question_body'], FORMAT_MARKDOWN);
         }
 
         $data->link = new \moodle_url('/mod/ivs/question_answers.php',

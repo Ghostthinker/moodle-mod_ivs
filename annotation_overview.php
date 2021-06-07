@@ -64,7 +64,6 @@ echo '<div class="ivs-annotations">';
 
 /** @var \mod_ivs\annotation $comment */
 foreach ($comments as $comment) {
-
     $renderable = new \mod_ivs\output\annotation_view($comment, $ivs, $cm);
     echo $renderer->render($renderable);
 }

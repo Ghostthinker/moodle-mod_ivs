@@ -20,3 +20,7 @@
 .ivs-questions .question-summary-details-download {
     float: right;
 }
+
+.ivs-questions .MathJax_Display{
+    display: inline !important;
+}
