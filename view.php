@@ -71,33 +71,16 @@ require_login($course, true, $cm);
 $context = context_course::instance($course->id);
 $userroles = get_user_roles($context, $USER->id);
 
-$is_admin = false;
-$is_teacher = false;
-$is_student = false;
-
+$isadmin = false;
+$isteacher = false;
 
 // admin
-$admins = get_admins();
-$isadmin = false;
-foreach($admins as $admin) {
-    if ($USER->id == $admin->id) {
-        $is_admin = true;
-        break;
-    }
-}
-
-// student
-if (user_has_role_assignment($USER->id, 5)) {
-    $is_student = true;
-}
+$isadmin = is_siteadmin();
 
 // at least teacher > editingteacher/manager
-if (user_has_role_assignment($USER->id, 4)
-        || user_has_role_assignment($USER->id, 3)
-        || user_has_role_assignment($USER->id, 2)
-        || user_has_role_assignment($USER->id, 1)
+if (has_capability('mod/ivs:access_reports', $context)
 ) {
-    $is_teacher = true;
+    $isteacher = $activitycontext;
 }
 
 if (empty($embedded)) {
@@ -372,7 +355,7 @@ if (empty($embedded)) {
                             'default_cid' => $cid,
                             'permission_create_comment' => $permissioncreatecomment,
                             'video_id' => $cm->instance,
-                            'annotation_bulk_operations_enabled' => ($is_admin || $is_teacher),
+                            'annotation_bulk_operations_enabled' => ($isadmin || $isteacher),
                             'current_userdata' => array(
                                     'name' => $USER->firstname . ' ' . $USER->lastname,
                                     'picture' => $userpictureurl,
@@ -445,7 +428,7 @@ if (empty($embedded)) {
                 'take_id' => null,
                 'full_screen_start' => true,
                 'may_edit' => ivs_may_edit_match_questions($activitycontext),
-                'match_bulk_operations_enabled' => ($is_admin || $is_teacher),
+                'match_bulk_operations_enabled' => ($isadmin || $isteacher),
                 'active_context' => $cm->instance,
                 'assessment_config' => $assessmentconfig,
                 'sounds' => [
