@@ -551,7 +551,6 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 'question_data' => is_array($record['data']) ? $record['data'] : unserialize($record['data']),
                 'question_id' => $record['question_id'],
                 'created' => $record['timecreated'],
-
         ];
     }
 
@@ -1062,6 +1061,25 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         return $data;
     }
 
+    public function ivs_prepare_latex_for_rendering($text,$only_inline = FALSE){
+        if($only_inline){
+            $text = str_replace('$$','$',$text);
+            $text = str_replace('$','$$',$text);
+            $text = str_replace('\[','$$',$text);
+            $text = str_replace('\]','$$',$text);
+            $text = str_replace('\(', '$$', $text);
+            $text = str_replace('\)', '$$', $text);
+        }
+        else {
+            $text = str_replace('\[', '$$', $text);
+            $text = str_replace('\]', '$$', $text);
+            $text = str_replace('\(', '$', $text);
+            $text = str_replace('\)', '$', $text);
+        }
+        $text = format_text($text,FORMAT_MARKDOWN);
+        return $text;
+    }
+
     public function get_question_answers_data($detailarray, $questions, $cmid, $videoid, $courseusers, $totalcount, $output) {
         $data = new \stdClass;
 
@@ -1069,13 +1087,14 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
         $data->id = $detailarray[0]['question']['nid'];
         $data->label = $controller->get_match_question_title($detailarray[0]['question']);
+        $data->label = $this->ivs_prepare_latex_for_rendering($data->label,TRUE);
         $data->question = $detailarray[0]['question']['question_body'];
         if (strlen($detailarray[0]['question']['title']) > 0) {
             $data->question = $detailarray[0]['question']['title'] . ': ' . $data->question;
         } else {
             $data->question = $data->question;
         }
-
+        $data->question = $this->ivs_prepare_latex_for_rendering($data->question,TRUE);
         $data->answers = [];
 
         // Pager.
@@ -1145,6 +1164,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 $questionurl = new moodle_url('/mod/ivs/question_answers.php?id=' . $cmid . '&vid=' . $videoid . '&qid=' .
                         $question['nid'] . '&perpage=10');
                 $selected = required_param('qid', PARAM_INT) == $question['nid'] ? 'selected' : '';
+               # $label = $this->ivs_prepare_latex_for_rendering($label);
+              #  $label = format_text("$$ f(x)$$",FORMAT_MARKDOWN);
                 $data->dropdown_options[] = '<option value="' . $questionurl . '" ' . $selected . '>' . $label . '</option>';
             }
 
@@ -1267,6 +1288,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             }
         }
 
+        $data->first = $this->ivs_prepare_latex_for_rendering($data->first);
+        $data->last = $this->ivs_prepare_latex_for_rendering($data->last);
         return $data;
     }
 

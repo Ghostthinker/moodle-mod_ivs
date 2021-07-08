@@ -41,11 +41,25 @@ class question_overview implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-
         $data->id = $this->question['nid'];
+        $this->question['question_body'] = str_replace('\[','$$',$this->question['question_body']);
+        $this->question['question_body'] = str_replace('\]','$$',$this->question['question_body']);
+        $this->question['question_body'] = str_replace('\(','$',$this->question['question_body']);
+        $this->question['question_body'] = str_replace('\)','$',$this->question['question_body']);
+        $this->question['title'] = str_replace('\[','$$',$this->question['title']);
+        $this->question['title'] = str_replace('\]','$$',$this->question['title']);
+        $this->question['title'] = str_replace('\(','$',$this->question['title']);
+        $this->question['title'] = str_replace('\)','$',$this->question['title']);
+        // We need this, because he dont apply mathjax when no $$ exists.
+        if(!strpos($this->question['question_body'],'$$')){
+            $this->question['question_body'] .= ' $$ $$';
+        }
+        if(!strpos($this->question['title'],'$$')){
+            $this->question['title'] .= ' $$ $$';
+        }
         $data->question = format_text($this->question['question_body'], FORMAT_MARKDOWN);
         if (strlen($this->question['title']) > 0) {
-            $data->question = format_text($this->question['title'] . ': ' . $this->question['question_body'], FORMAT_MARKDOWN);
+            $data->question = '<div style="display:flex;    align-items: baseline;">'.format_text($this->question['title'], FORMAT_MARKDOWN) . ': &nbsp;&nbsp;' . format_text($this->question['question_body'], FORMAT_MARKDOWN) . '</div>';
         }
 
         $data->link = new \moodle_url('/mod/ivs/question_answers.php',

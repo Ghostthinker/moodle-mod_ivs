@@ -66,6 +66,23 @@ class question_summary implements renderable, templatable {
                 break;
             }
             $renderable = new question_summary_view($this->questions[$i], $this->course_students);
+            $renderable->question['question_body'] = str_replace('\[','$$',$renderable->question['question_body']);
+            $renderable->question['question_body'] = str_replace('\]','$$',$renderable->question['question_body']);
+            $renderable->question['question_body'] = str_replace('\(','$',$renderable->question['question_body']);
+            $renderable->question['question_body'] = str_replace('\)','$',$renderable->question['question_body']);
+            $renderable->question['title'] = str_replace('$$','$',$renderable->question['title']);
+            $renderable->question['title'] = str_replace('$','$$',$renderable->question['title']);
+            $renderable->question['title'] = str_replace('\[','$$',$renderable->question['title']);
+            $renderable->question['title'] = str_replace('\]','$$',$renderable->question['title']);
+            $renderable->question['title'] = str_replace('\(','$$',$renderable->question['title']);
+            $renderable->question['title'] = str_replace('\)','$$',$renderable->question['title']);
+            // We need this, because he dont apply mathjax when no $$ exists.
+            if(!strpos($renderable->question['question_body'],'$$')){
+                $renderable->question['question_body'] .= ' $$ $$';
+            }
+            if(!strpos($renderable->question['title'],'$$')){
+                $renderable->question['title'] .= ' $$ $$';
+            }
             $renderable->question['question_body'] = format_text($renderable->question['question_body'], FORMAT_MARKDOWN);
             $renderable->question['title'] = format_text($renderable->question['title'], FORMAT_MARKDOWN);
             $data->questions[] = $output->render($renderable);

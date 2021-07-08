@@ -870,6 +870,10 @@ class annotation {
      */
     public
     function get_rendered_body() {
+        $this->body = str_replace('\[','$$',$this->body);
+        $this->body = str_replace('\]','$$',$this->body);
+        $this->body = str_replace('\(','$',$this->body);
+        $this->body = str_replace('\)','$',$this->body);
         return format_text($this->body, FORMAT_MARKDOWN);
     }
 

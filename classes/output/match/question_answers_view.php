@@ -63,6 +63,8 @@ class question_answers_view implements renderable, templatable {
                 'question_answers_download.php', 'download',
                 array('question_id' => $qid, 'cmid' => $this->cmid, 'instance_id' => $instance,
                         'total_count' => $this->totalcount));
+
+
         return $data;
     }
 }

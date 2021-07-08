@@ -24,3 +24,15 @@ table th.text-center, table td.text-center {
     justify-content: space-between;
     flex-wrap: wrap;
 }
+
+.answers-header-details .MathJax_Display{
+    display: inline !important;
+}
+
+.answers-header-details .filter_mathjaxloader_equation p{
+display: inline !important;
+}
+
+.answers-header-details p{
+    display: inline !important;
+}
