@@ -38,7 +38,7 @@ $PAGE->set_url('/mod/ivs/settings_course.php', array('id' => $courseid));
 if ($contextid) {
     $context = context::instance_by_id($contextid, MUST_EXIST);
     if ($context->contextlevel != CONTEXT_COURSE) {
-        print_error('invalidcontext');
+        throw new moodle_exception('invalidcontext');
     }
     $course = $DB->get_record('course', array('id' => $context->instanceid), '*', MUST_EXIST);
 } else {
@@ -64,10 +64,7 @@ $mform = new SettingsCourseForm($CFG->wwwroot . '/mod/ivs/settings_course.php?id
 $settingscontroller = new \mod_ivs\settings\SettingsService();
 $globalsettings = $settingscontroller->get_settings_global();
 
-// Form processing and displaying is done here.
-if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form.
-} else if ($fromform = $mform->get_data()) {
+if ($fromform = $mform->get_data()) {
     // In this case you process validated data. $mform->get_data() returns data posted in form.
 
     foreach ((array) $fromform as $key => $vals) {

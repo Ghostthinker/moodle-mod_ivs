@@ -23,9 +23,9 @@
 
 require_once('../../config.php');
 
-define('DEFAULT_PAGE_SIZE', 10); //TODO INCREASE THIS
+define('DEFAULT_PAGE_SIZE', 10); // TODO INCREASE THIS.
 
-//pager, sort and settings
+// Pager, sort and settings.
 $page = optional_param('page', 0, PARAM_INT); // Which page to show.
 $perpage = required_param('perpage', PARAM_INT);
 
@@ -44,7 +44,7 @@ require_login($course, true, $cm);
 
 // Only allow if permission is correct.
 if (!has_capability('mod/ivs:access_match_reports', $context)) {
-    print_error('accessdenied', 'admin');
+    throw new moodle_exception('accessdenied', 'admin');
 }
 
 $PAGE->set_url('/mod/ivs/question_answers.php',
@@ -59,9 +59,9 @@ $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/que
 $PAGE->requires->jquery();
 
 $controller = new \mod_ivs\MoodleMatchController();
-$courseService = new \mod_ivs\CourseService();
-$roleStudent = $DB->get_record('role', array('shortname' => 'student'));
-$courseStudents = $courseService->get_course_membersby_role($course->id, $roleStudent->id);
+$courseservice = new \mod_ivs\CourseService();
+$rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+$coursestudents = $courseservice->get_course_membersby_role($course->id, $rolestudent->id);
 
 // Breadcrumb.
 $PAGE->navbar->add(get_string('ivs:view:question_overview', 'ivs'), new moodle_url('/mod/ivs/questions.php?id=' . $cm->id));
@@ -78,12 +78,12 @@ $renderer = $PAGE->get_renderer('ivs');
 echo '<div class="ivs-questions">';
 echo '<h3>' . $heading . '</h3>';
 
-$userAnswers = [];
-foreach ($courseStudents as $user) {
-    $userAnswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($qid, $user->id);
+$useranswers = [];
+foreach ($coursestudents as $user) {
+    $useranswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($qid, $user->id);
 }
 
-$totalcount = count($courseStudents);
+$totalcount = count($coursestudents);
 
 $questions = $controller->match_questions_get_by_video_db($cm->instance);
 ?>
@@ -91,8 +91,8 @@ $questions = $controller->match_questions_get_by_video_db($cm->instance);
         <div class="tab-pane active" id="question-summary" role="tabpanel">
             <?php
             $renderable =
-                    new \mod_ivs\output\match\question_answers_view(array_values($userAnswers), $questions, $cm->id, $cm->instance,
-                            $courseStudents, $totalcount);
+                    new \mod_ivs\output\match\question_answers_view(array_values($useranswers), $questions, $cm->id, $cm->instance,
+                            $coursestudents, $totalcount);
             echo $renderer->render($renderable);
             ?>
         </div>

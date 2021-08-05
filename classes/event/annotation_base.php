@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 abstract class annotation_base extends \core\event\base {
 
     protected function init() {
-        $this->data['crud'] = 'c'; // 1. c(reate), r(ead), u(pdate), d(elete).
+        $this->data['crud'] = 'c'; // Different crud operations which are possible 1. c(reate), r(ead), u(pdate), d(elete).
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'ivs_videocomment';
     }

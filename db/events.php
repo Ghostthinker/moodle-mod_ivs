@@ -21,6 +21,8 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $observers = array(
 
     // Annotation created.

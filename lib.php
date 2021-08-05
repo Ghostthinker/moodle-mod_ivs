@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Example constant, you probably want to remove this :-)
  */
-define('ivs_ULTIMATE_ANSWER', 42);
+define('IVS_ULTIMATE_ANSWER', 42);
 
 /* Moodle core API */
 
@@ -93,8 +93,8 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $videohost->save_video(null);
 
     // Save settings.
-    $settingsController = new \mod_ivs\settings\SettingsService();
-    $settingsController->process_activity_settings_form($ivs);
+    $settingscontroller = new \mod_ivs\settings\SettingsService();
+    $settingscontroller->process_activity_settings_form($ivs);
 
     return $ivs->id;
 }
@@ -131,8 +131,8 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $videohost->save_video(null);
 
     // Save settings.
-    $settingsController = new \mod_ivs\settings\SettingsService();
-    $settingsController->process_activity_settings_form($ivs);
+    $settingscontroller = new \mod_ivs\settings\SettingsService();
+    $settingscontroller->process_activity_settings_form($ivs);
 
     return $result;
 }
@@ -195,10 +195,10 @@ function ivs_delete_instance($id) {
     // Delete related edubreak match questions.
     $matchquestions = $DB->get_records('ivs_matchquestion', array('video_id' => $id));
 
-    $matchController = new \mod_ivs\MoodleMatchController();
+    $matchcontroller = new \mod_ivs\MoodleMatchController();
 
-    foreach ($matchquestions as $match_question) {
-        $matchController->match_question_delete_db($match_question->id);
+    foreach ($matchquestions as $matchqquestion) {
+        $matchcontroller->match_question_delete_db($matchqquestion->id);
     }
 
     // Delete ivs settings.
@@ -377,9 +377,7 @@ function ivs_get_file_info($browser, $areas, $course, $cm, $context, $filearea, 
 function ivs_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
     global $DB, $CFG;
 
-
     require_login($course, true, $cm);
-
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
@@ -391,7 +389,7 @@ function ivs_pluginfile($course, $cm, $context, $filearea, array $args, $forcedo
     }
 
     // Default cache lifetime is 86400s.
-    send_stored_file($file);//, 86400, 0, $forcedownload, $options);
+    send_stored_file($file); // Possible options for the file are 86400, 0, $forcedownload, $options);.
     return true;
 }
 
@@ -469,7 +467,7 @@ function ivs_annotation_event_deleted(\mod_ivs\event\annotation_deleted $event) 
 function ivs_annotation_event_message_send($event) {
 
     global $DB, $USER;
-    $courseService = new \mod_ivs\CourseService();
+    $courseservice = new \mod_ivs\CourseService();
 
     /** @var \mod_ivs\annotation $annotation */
     $annotation = \mod_ivs\annotation::retrieve_from_db($event->objectid, true);
@@ -513,9 +511,9 @@ function ivs_annotation_event_message_send($event) {
                 $provider = 'ivs_annotation_indirect_mention';
                 if (!empty($access['gids'])) {
                     foreach ($access['gids'] as $rid) {
-                        $role_users = $courseService->get_course_membersby_role($course->id, $rid);
-                        foreach ($role_users as $role_user) {
-                            $receivers[$role_user->id] = $role_user;
+                        $roleusers = $courseservice->get_course_membersby_role($course->id, $rid);
+                        foreach ($roleusers as $roleuser) {
+                            $receivers[$roleuser->id] = $roleuser;
                         }
                     }
                 }
@@ -527,9 +525,9 @@ function ivs_annotation_event_message_send($event) {
                 $provider = 'ivs_annotation_indirect_mention';
                 if (!empty($access['gids'])) {
                     foreach ($access['gids'] as $gid) {
-                        $group_users = get_enrolled_users($coursecontext, '', $gid, 'u.*');
-                        foreach ($group_users as $group_user) {
-                            $receivers[$group_user->id] = $group_user;
+                        $groupusers = get_enrolled_users($coursecontext, '', $gid, 'u.*');
+                        foreach ($groupusers as $groupuser) {
+                            $receivers[$groupuser->id] = $groupuser;
                         }
                     }
                 }
@@ -541,14 +539,14 @@ function ivs_annotation_event_message_send($event) {
     } else {
 
         // Send Messages by creating a reply.
-        /** @var \mod_ivs\annotation $parent_annotation */
-        $parent_annotation = \mod_ivs\annotation::retrieve_from_db($annotation->get_parentid(), false);
+        /** @var \mod_ivs\annotation $parentannotation */
+        $parentannotation = \mod_ivs\annotation::retrieve_from_db($annotation->get_parentid(), false);
 
         // Reply.
         // Send notification to parent annotation author.
         $provider = 'ivs_annotation_reply';
         $receivers = array(
-                $DB->get_record('user', array('id' => $parent_annotation->get_userid()))
+                $DB->get_record('user', array('id' => $parentannotation->get_userid()))
         );
 
         ivs_annotation_event_process_message_send($provider, $receivers, $course, $annotation);
@@ -556,7 +554,7 @@ function ivs_annotation_event_message_send($event) {
         // Conversation.
         // Send notification to everyone, who replied to the parent annotation.
         $provider = 'ivs_annotation_conversation';
-        $receivers = $parent_annotation->get_reply_users();
+        $receivers = $parentannotation->get_reply_users();
 
         ivs_annotation_event_process_message_send($provider, $receivers, $course, $annotation);
     }
@@ -610,7 +608,8 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
             $fullmessage = get_string($annotationfullmessage, 'mod_ivs',
                     ['usertofirstname' => $account->firstname, 'usertolastname' => $account->lastname,
                             'userfromfirstname' => $USER->firstname, 'userfromlastname' => $USER->lastname,
-                            'annotation' => $annotation->get_rendered_body(), 'course_name' => $course->fullname, 'annotation_url' => $url]);
+                            'annotation' => $annotation->get_rendered_body(),
+                      'course_name' => $course->fullname, 'annotation_url' => $url]);
             $smallmessage = get_string($annotationsmallmessage, 'mod_ivs');
 
             $message = new \core\message\message();

@@ -27,33 +27,32 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
-//require_once('../../../config.php');
-
 class ReportService {
 
     /**
-     * @param $course_id
+     * @param $courseid
      * @param $startdate
      * @param $rotation
      * @param array $filter
-     * @param null $user_id
+     * @param null $userid
+     *
      * @return \mod_ivs\Report
      * @throws \Exception
      */
-    public function createReport($course_id, $startdate, $rotation, $filter = array(), $user_id = null) {
+    public function create_report($courseid, $startdate, $rotation, $filter = array(), $userid = null) {
 
-        if ($user_id == null) {
+        if ($userid == null) {
             global $USER;
-            $user_id = $USER->id;
+            $userid = $USER->id;
         }
 
         $report = new Report();
         $report->set_timecreated(time());
-        $report->set_courseid($course_id);
+        $report->set_courseid($courseid);
         $report->set_startdate($startdate);
         $report->set_rotation($rotation);
         $report->set_filter($filter);
-        $report->set_userid($user_id);
+        $report->set_userid($userid);
 
         $success = $this->save_to_db($report);
 
@@ -72,7 +71,7 @@ class ReportService {
      * @param Report $report
      * @return bool
      */
-    function access_check($op, Report $report) {
+    public function access_check($op, Report $report) {
 
         global $USER;
 
@@ -86,19 +85,19 @@ class ReportService {
         return false;
     }
 
-    function save_to_db(Report $report) {
+    public function save_to_db(Report $report) {
         global $DB;
         $report->set_timemodified(time());
 
-        $db_record = $report->get_record();
+        $dbrecord = $report->get_record();
 
-        $db_record['filter'] = serialize($db_record['filter']);
+        $dbrecord['filter'] = serialize($dbrecord['filter']);
 
         $save = false;
         if ($report->get_id() !== null) {
-            $save = $DB->update_record('ivs_report', $db_record);
+            $save = $DB->update_record('ivs_report', $dbrecord);
         } else {
-            if ($id = $DB->insert_record('ivs_report', $db_record)) {
+            if ($id = $DB->insert_record('ivs_report', $dbrecord)) {
                 $report->set_id($id);
                 $save = true;
             }
@@ -107,19 +106,19 @@ class ReportService {
         return $save;
     }
 
-    function delete_from_db($id) {
+    public function delete_from_db($id) {
         global $DB;
         return $DB->delete_records('ivs_report', array("id" => $id));
 
     }
 
-    function retrieve_from_db($id) {
+    public function retrieve_from_db($id) {
         global $DB;
 
-        $db_record = $DB->get_record('ivs_report', array('id' => $id));
+        $dbrecord = $DB->get_record('ivs_report', array('id' => $id));
 
-        if (is_object($db_record)) {
-            $report = new Report($db_record);
+        if (is_object($dbrecord)) {
+            $report = new Report($dbrecord);
             return $report;
         }
         return null;
@@ -128,26 +127,27 @@ class ReportService {
     /**
      * Get Array with Reports by course and user
      *
-     * @param $course_id
-     * @param null $user_id
+     * @param $courseid
+     * @param null $userid
+     *
      * @return array
      */
-    public function getReportsByCourse($course_id, $user_id = null) {
+    public function get_reports_by_course($courseid, $userid = null) {
 
         global $DB;
         $reports = array();
 
         $query = 'SELECT * FROM {ivs_report} WHERE course_id = ?';
-        $parameters = array($course_id);
+        $parameters = array($courseid);
 
-        if ($user_id) {
+        if ($userid) {
             $query .= ' AND user_id = ?';
-            $parameters[] = $user_id;
+            $parameters[] = $userid;
         }
 
-        $db_records = $DB->get_records_sql($query, $parameters, 0, 0);
+        $dbrecords = $DB->get_records_sql($query, $parameters, 0, 0);
 
-        foreach ($db_records as $record) {
+        foreach ($dbrecords as $record) {
             $reports[$record->id] = new \mod_ivs\Report($record);
         }
 
@@ -160,7 +160,7 @@ class ReportService {
      * @param $rotation
      * @return array
      */
-    public function getReportsByRotation($rotation, $from_start_date = null) {
+    public function get_reports_by_rotation($rotation, $fromstartdate = null) {
 
         global $DB;
         $reports = array();
@@ -168,15 +168,15 @@ class ReportService {
         $query = 'SELECT * FROM {ivs_report} WHERE rotation = ?';
         $parameters = array($rotation);
 
-        //check if startdate exists
-        if ($from_start_date !== null) {
+        // Check if startdate exists.
+        if ($fromstartdate !== null) {
             $query .= ' AND start_date  <= ?';
-            $parameters[] = $from_start_date;
+            $parameters[] = $fromstartdate;
         }
 
-        $db_records = $DB->get_records_sql($query, $parameters, 0, 0);
+        $dbrecords = $DB->get_records_sql($query, $parameters, 0, 0);
 
-        foreach ($db_records as $record) {
+        foreach ($dbrecords as $record) {
             $reports[$record->id] = new \mod_ivs\Report($record);
         }
 
@@ -186,42 +186,42 @@ class ReportService {
     /**
      * @param $report
      */
-    public function getAnnotationsByReport(Report $report, AnnotationService $annotationService) {
+    public function get_annotations_by_report(Report $report, AnnotationService $annotationservice) {
 
-        //get the options and unset the limit and offset. we want all
+        // Get the options and unset the limit and offset. we want all.
         $options = $report->get_filter();
         unset($options['offset']);
         unset($options['limit']);
 
         $context = \context_course::instance($report->get_courseid());
 
-        //check if the report user has the globaly skip access permission
-        $SKIP_ACCESS_CHECK = has_capability('mod/ivs:view_any_comment', $context, $report->get_userid());
+        // Check if the report user has the globaly skip access permission.
+        $skipaccesscheck = has_capability('mod/ivs:view_any_comment', $context, $report->get_userid());
 
-        $filter_timecreated_min = null;
+        $filtertimecreatedmin = null;
 
         switch ($report->get_rotation()) {
             case REPORT::ROTATION_DAY:
-                $filter_timecreated_min = strtotime("-1 day");
+                $filtertimecreatedmin = strtotime("-1 day");
                 break;
             case REPORT::ROTATION_WEEK:
-                $filter_timecreated_min = strtotime("-1 week");
+                $filtertimecreatedmin = strtotime("-1 week");
                 break;
             case REPORT::ROTATION_MONTH:
-                $filter_timecreated_min = strtotime("-1 month");
+                $filtertimecreatedmin = strtotime("-1 month");
                 break;
 
         }
 
-        $options['filter_timecreated_min'] = (int) $filter_timecreated_min;
+        $options['filter_timecreated_min'] = (int) $filtertimecreatedmin;
 
-        $annotations = $annotationService->get_annotations_by_course($report->get_courseid(), $SKIP_ACCESS_CHECK, $options, false,
+        $annotations = $annotationservice->get_annotations_by_course($report->get_courseid(), $skipaccesscheck, $options, false,
                 $report->get_userid());
 
         return $annotations;
     }
 
-    public function renderMailReport(Report $report, AnnotationService $annotationService, $userTo) {
+    public function render_mail_report(Report $report, AnnotationService $annotationservice, $userto) {
 
         global $DB, $PAGE;
 
@@ -229,10 +229,10 @@ class ReportService {
 
         $out = "";
 
-        $annotations = $this->getAnnotationsByReport($report, $annotationService);
+        $annotations = $this->get_annotations_by_report($report, $annotationservice);
 
-        $video_cache = array();
-        $account_cache = array();
+        $videocache = array();
+        $accountcache = array();
 
         $grouping = $report->get_filter()['grouping'];
 
@@ -243,38 +243,38 @@ class ReportService {
         /** @var \mod_ivs\annotation $comment */
         foreach ($annotations as $comment) {
 
-            $video_id = $comment->get_videoid();
-            $user_id = $comment->get_userid();
+            $videoid = $comment->get_videoid();
+            $userid = $comment->get_userid();
 
-            if (empty($video_cache[$video_id])) {
+            if (empty($videocache[$videoid])) {
 
-                $course_module = get_coursemodule_from_instance('ivs', $comment->get_videoid(), 0, false, MUST_EXIST);
-                $cm = \context_module::instance($course_module->id);
+                $coursemodule = get_coursemodule_from_instance('ivs', $comment->get_videoid(), 0, false, MUST_EXIST);
+                $cm = \context_module::instance($coursemodule->id);
                 $ivs = $DB->get_record('ivs', array('id' => $comment->get_videoid()), '*', MUST_EXIST);
 
-                $video_cache[$video_id] = array(
+                $videocache[$videoid] = array(
                         'cm' => $cm,
-                        'course_module' => $course_module,
+                        'course_module' => $coursemodule,
                         'ivs' => $ivs,
                 );
 
                 if ($grouping == "video") {
-                    $video_link = new \moodle_url('/mod/ivs/view.php', array('id' => $video_id));
-                    $out .= "<h2><a href='" . $video_link . "'>" . $ivs->name . "</a></h2>";
+                    $videolink = new \moodle_url('/mod/ivs/view.php', array('id' => $videoid));
+                    $out .= "<h2><a href='" . $videolink . "'>" . $ivs->name . "</a></h2>";
                 }
             }
 
-            if (empty($account_cache[$user_id])) {
-                $account_cache[$user_id] = IvsHelper::get_user($comment->get_userid());
+            if (empty($accountcache[$userid])) {
+                $accountcache[$userid] = IvsHelper::get_user($comment->get_userid());
 
                 if ($grouping == "user") {
-                    $user_link = new \moodle_url('/user/profile.php', array('id' => $user_id));
-                    $out .= "<h2><a href='" . $user_link . "'>" . $account_cache[$user_id]['fullname'] . "</a></h2>";
+                    $userlink = new \moodle_url('/user/profile.php', array('id' => $userid));
+                    $out .= "<h2><a href='" . $userlink . "'>" . $accountcache[$userid]['fullname'] . "</a></h2>";
                 }
             }
 
-            $renderable = new \mod_ivs\output\annotation_report_view($comment, $video_cache[$video_id]['ivs'],
-                    $video_cache[$video_id]['course_module'], $userTo);
+            $renderable = new \mod_ivs\output\annotation_report_view($comment, $videocache[$videoid]['ivs'],
+                    $videocache[$videoid]['course_module'], $userto);
             $out .= $renderer->render($renderable);
         }
 

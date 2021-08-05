@@ -32,10 +32,9 @@ use stdClass;
 
 class annotation_reply_view implements renderable, templatable {
 
-    /** @var \mod_ivs\annotation */
-    var $annotation = null;
-    var $ivs = null;
-    var $module;
+    public $annotation = null;
+    public $ivs = null;
+    public $module;
 
     /**
      * annotation_reply_view constructor.

@@ -24,11 +24,4 @@
 namespace mod_ivs\ivs_match\exception;
 
 class MatchQuestionAccessDeniedException extends MatchQuestionException {
-
-    /**
-     * MatchQuestionAccessDeniedException constructor.
-     */
-    public function __construct($object, $message) {
-        parent::__construct($object, $message);
-    }
 }

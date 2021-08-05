@@ -39,7 +39,6 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
         // Get anonymize setting.
         $anonymize = $this->get_setting_value('anonymize');
 
-
         // Define the root element describing the ivs instance.
         $ivs = new backup_nested_element('ivs', array('id'), array(
                 'name',
@@ -147,7 +146,8 @@ class backup_ivs_activity_structure_step extends backup_activity_structure_step 
         $ivs->set_source_table('ivs', array('id' => backup::VAR_ACTIVITYID));
 
         if ($anonymize) {
-            $videocomment->set_source_sql('SELECT DISTINCT(vc.id),vc.body,vc.video_id,vc.parent_id,vc.time_stamp,vc.duration,vc.thumbnail,vc.timecreated,vc.timemodified,vc.additional_data,vc.access_view,
+            $videocomment->set_source_sql('SELECT DISTINCT(vc.id),vc.body,vc.video_id,vc.parent_id,vc.time_stamp,
+                vc.duration,vc.thumbnail,vc.timecreated,vc.timemodified,vc.additional_data,vc.access_view,
   (SELECT count(*)
   FROM {role_assignments} ra
   INNER JOIN {role} r on ra.roleid = r.id
@@ -161,7 +161,8 @@ FROM {ivs_videocomment} vc
 WHERE video_id = ?;',
                     array(backup::VAR_ACTIVITYID));
         } else if ($userinfo) {
-            $videocomment->set_source_sql('SELECT DISTINCT(vc.id),vc.user_id, vc.body,vc.video_id,vc.parent_id,vc.time_stamp,vc.duration,vc.thumbnail,vc.timecreated,vc.timemodified,vc.additional_data,vc.access_view,
+            $videocomment->set_source_sql('SELECT DISTINCT(vc.id),vc.user_id, vc.body,vc.video_id,vc.parent_id,vc.time_stamp,
+                vc.duration,vc.thumbnail,vc.timecreated,vc.timemodified,vc.additional_data,vc.access_view,
  (SELECT count(*)
   FROM {role_assignments} ra
   INNER JOIN {role} r on ra.roleid = r.id
@@ -206,7 +207,8 @@ WHERE video_id = ?;',
 
         if ($anonymize) {
             $matchanswers->set_source_sql('
-           SELECT mqa.id, mqa.question_id, mqa.take_id, mqa.data, mqa.correct, mqa.timecreated, mqa.timemodified, mqa.evaluated, mqa.score
+           SELECT mqa.id, mqa.question_id, mqa.take_id, mqa.data, mqa.correct,
+                  mqa.timecreated, mqa.timemodified, mqa.evaluated, mqa.score
             FROM {ivs_matchanswer} mqa
             INNER JOIN {ivs_matchquestion} mq
             ON mqa.question_id = mq.id

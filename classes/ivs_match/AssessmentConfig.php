@@ -32,8 +32,8 @@ class AssessmentConfig {
     const NO_TAKES_LEFT_COMPLETED_SUCCESS = 'NO_TAKES_LEFT_COMPLETED_SUCCESS';
     const NO_TAKES_LEFT_COMPLETED_FAILED = 'NO_TAKES_LEFT_COMPLETED_FAILED';
 
-    const ASSESSMENT_TYPE_TAKES = 'TAKES';   //multiple takes, takes count as score unit, one take at a time
-    const ASSESSMENT_TYPE_FORMATIVE = 'FORMATIVE'; //no takes, a formative training
+    const ASSESSMENT_TYPE_TAKES = 'TAKES';      // Multiple takes, takes count as score unit, one take at a time.
+    const ASSESSMENT_TYPE_FORMATIVE = 'FORMATIVE'; // No takes, a formative training.
 
     public $context_id;
     public $context_label;

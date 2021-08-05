@@ -40,7 +40,7 @@ function ivs_ep5_get_js_and_css_dependencies() {
     $cssfiles = [];
     $jsfiles = [];
 
-    $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
+    $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 
     $activelicense = null;
     if ($id) {
@@ -53,19 +53,19 @@ function ivs_ep5_get_js_and_css_dependencies() {
 
     if ($activelicense) {
         $licensecdn = $lc->get_cdn_source($activelicense->id);
-        $core_url = $lc->get_core_url();
-        foreach ($licensecdn->js as $js_item) {
-            $jsfiles[] = $core_url . $js_item;
+        $coreurl = $lc->get_core_url();
+        foreach ($licensecdn->js as $jsitem) {
+            $jsfiles[] = $coreurl . $jsitem;
         }
-        foreach ($licensecdn->css as $css_item) {
-            $cssfiles[] = $core_url . $css_item;
+        foreach ($licensecdn->css as $cssitem) {
+            $cssfiles[] = $coreurl . $cssitem;
         }
 
         $currentlanguage  = substr(current_language(), 0, 2);
         $langfiles = (array) $licensecdn->lang;
-        $lng = !empty($langfiles[$currentlanguage ]) ? $currentlanguage  : 'en';
+        $lng = !empty($langfiles[$currentlanguage ]) ? $currentlanguage : 'en';
 
-        $langfile = $core_url . $langfiles[$lng];
+        $langfile = $coreurl . $langfiles[$lng];
 
         $jsfiles[] = $langfile;
     }
@@ -77,24 +77,20 @@ function ivs_ep5_get_js_and_css_dependencies() {
 /**
  * Returns True if user has permission to edit playbackcommands in the activity context
  *
- * @param $activity_context
+ * @param $activitycontext
  * @return mixed
  */
-function ivs_may_edit_playbackcommands($activity_context) {
-    return has_capability('mod/ivs:edit_playbackcommands', $activity_context);
+function ivs_may_edit_playbackcommands($activitycontext) {
+    return has_capability('mod/ivs:edit_playbackcommands', $activitycontext);
 }
 
-;
 
 /**
  * Returns True if user has permission to edit match questions in the activity context
  *
- * @param $activity_context
+ * @param $activitycontext
  * @return mixed
  */
-function ivs_may_edit_match_questions($activity_context) {
-    return has_capability('mod/ivs:edit_match_questions', $activity_context);
+function ivs_may_edit_match_questions($activitycontext) {
+    return has_capability('mod/ivs:edit_match_questions', $activitycontext);
 }
-
-;
-

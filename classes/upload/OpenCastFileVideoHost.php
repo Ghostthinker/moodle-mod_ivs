@@ -71,7 +71,7 @@ class OpenCastFileVideoHost implements IVideoHost {
         return $url;
     }
 
-    public function save_video($form_values) {
+    public function save_video($formvalues) {
 
     }
 

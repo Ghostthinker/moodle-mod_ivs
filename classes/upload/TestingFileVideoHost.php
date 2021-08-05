@@ -26,7 +26,7 @@ namespace mod_ivs\upload;
 class TestingFileVideoHost implements IVideoHost {
 
     protected $ivs;
-    protected $course_module;
+    protected $coursemodule;
 
     /**
      * TestingFileVideoHost constructor.

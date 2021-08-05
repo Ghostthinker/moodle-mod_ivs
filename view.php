@@ -40,9 +40,9 @@ $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n = optional_param('n', 0, PARAM_INT);  // ... ivs instance ID - it should be named as the first character of the module.
 $cid = optional_param('cid', null, PARAM_TEXT);  // The  comment id to jump to.
 $embedded = optional_param('embedded', null, PARAM_INT);  // The  comment id to jump to.
-$course = $DB->get_record('course', array('id'=>optional_param('courseid', SITEID, PARAM_INT)), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => optional_param('courseid', SITEID, PARAM_INT)), '*', MUST_EXIST);
 
-require_login($course,false);
+require_login($course, false);
 
 if ($id) {
     $cm = get_coursemodule_from_id('ivs', $id, 0, false, MUST_EXIST);
@@ -66,6 +66,7 @@ $videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs);
 $videourl = $videohost->get_video();
 
 $matchenabled = $activitysettings['match_question_enabled']->value;
+$annotationsenabled = $activitysettings['annotations_enabled']->value;
 
 require_login($course, true, $cm);
 $context = context_course::instance($course->id);
@@ -74,10 +75,10 @@ $userroles = get_user_roles($context, $USER->id);
 $isadmin = false;
 $isteacher = false;
 
-// admin
+// Admin.
 $isadmin = is_siteadmin();
 
-// at least teacher > editingteacher/manager
+// At least teacher > editingteacher/manager.
 if (has_capability('mod/ivs:access_reports', $context)
 ) {
     $isteacher = $activitycontext;
@@ -191,7 +192,6 @@ if (empty($embedded)) {
                 <?php print get_string('ivs:view:comment_overview', 'ivs'); ?></a>
         </div>
 
-
         <?php if ($matchenabled && has_capability('mod/ivs:access_match_reports', $activitycontext)): ?>
 
             <!-- Questions URL -->
@@ -238,15 +238,24 @@ if (empty($embedded)) {
             'label' => get_string('ivs:acc_label:course', 'ivs'),
     );
 
-    // Swap annotation visibility if setting default is set to "course".
-    if ((int) $activitysettings['annotation_realm_default_enabled']->value) {
-        $arraytmp = $accessrealms;
-        $accessrealms[0] = $arraytmp[1];
-        $accessrealms[1] = $arraytmp[0];
+    $defaultrealm = null;
+    $lockrealm = null;
+    // set realm default setting - and lock if necessary
+    if ($activitysettings['lock_realm_enabled']->value && $activitysettings['lock_realm_enabled']->value != 'none') {
+        $realmval = strstr($activitysettings['lock_realm_enabled']->value, 'role_') ? 'role' : $activitysettings['lock_realm_enabled']->value;
+        $values = [];
+        if($realmval == 'role') {
+            $rolekey = str_replace('role_', '', $activitysettings['lock_realm_enabled']->value);
+            $values[] = ['key' => $rolekey, 'label' => 'role'];
+        }
+
+        $defaultrealm = ['key' => $realmval, 'values' => $values];
+        $lockrealm = true;
+    } else if ((int) $activitysettings['annotation_realm_default_enabled']->value) {
+        $defaultrealm = ['key' => 'course', 'values' => []];
     }
 
     // Member realm.
-
     if (!empty($members)) {
 
         $values = array();
@@ -263,6 +272,8 @@ if (empty($embedded)) {
         $accessmembers['icon'] = 'icon-user';
         $accessrealms[] = $accessmembers;
     }
+
+
 
     // Group realm.
     $values = array();
@@ -302,7 +313,7 @@ if (empty($embedded)) {
 
     $permissioncreatecomment = has_capability('mod/ivs:create_comment', $activitycontext);
 
-    // enable accessibility options
+    // Enable accessibility options.
     $accessbilityenabled = (int) $activitysettings['accessibility_enabled']->value;
 
     $ratingoptions = [];
@@ -380,11 +391,13 @@ if (empty($embedded)) {
                     ),
                     'edubreak_annotations_access' => array(
                             'realms' => $accessrealms,
+                            'default_realm' => $defaultrealm,
+                            'locked_realm' => $lockrealm,
                             'inline_edit_allowed' => $maylockannotationaccess
                     ),
             )
     );
-    // extend accessibility options, if available
+    // Extend accessibility options, if available.
     $playerconfig['plugins']['edubreak_annotations_rating'] += $ratingoptions;
 
     $playbackcommandservice = new \mod_ivs\PlaybackcommandService();
@@ -412,10 +425,10 @@ if (empty($embedded)) {
         }
 
         $assessmentconfig =
-                $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
-                        false);
+            $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
+                false);
 
-      $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
+        $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
 
 
 
@@ -453,6 +466,11 @@ if (empty($embedded)) {
                 'feedabck_enabled' => true
         );
     }
+
+    if (!$annotationsenabled){
+        unset($playerconfig['plugins']['edubreak_annotations']);
+    }
+
 
     $conf = get_config('mod_ivs');
 

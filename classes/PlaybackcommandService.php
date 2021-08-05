@@ -27,8 +27,7 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
-
-//TODO create interface
+// TODO create interface.
 class PlaybackcommandService {
     public function from_json() {
 
@@ -80,8 +79,6 @@ class PlaybackcommandService {
                 $command['zoom_transform'] = $postdata->zoomdata;
                 break;
             case "audio":
-                // TODO.
-                // ... $command['audio'] = clean_param($post_data->audio);
                 break;
             case "drawing":
                 $command['drawing_data'] = $postdata->drawing_data;
@@ -90,7 +87,7 @@ class PlaybackcommandService {
                 $command['drawing_data'] = $postdata->drawing_data;
                 break;
             case "textoverlay":
-                //not used 19.12.2016 - 17:00 - SH - but kinda working
+                // Not used 19.12.2016 - 17:00 - SH - but kinda working.
                 $command['body'] = clean_param($postdata->body, PARAM_TEXT);
                 $command['position'] = $postdata->position;
                 break;
@@ -153,7 +150,6 @@ class PlaybackcommandService {
      */
     public function delete($playbackcommandid, $activityid) {
 
-
         if (!$this->has_edit_access($activityid)) {
             throw new Exception("Access denied");
         }
@@ -170,7 +166,6 @@ class PlaybackcommandService {
         global $DB;
         $ivs = $this->load_video_by_activity_id($activityid);
         $ivs->playbackcommands = json_encode(array_values($commands));
-
 
         $DB->update_record('ivs', $ivs);
     }

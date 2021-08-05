@@ -26,6 +26,7 @@ use mod_ivs\MoodleMatchController;
 define('AJAX_SCRIPT', true);
 
 require('../../config.php');
+require_login(null, false);
 
 $action = optional_param('action', false, PARAM_ALPHA);
 $view = optional_param('view', false, PARAM_ALPHA);
@@ -38,13 +39,25 @@ error_reporting(error_reporting() & ~E_NOTICE);
 ini_set('display_errors', true);
 ini_set('display_startup_errors', true);
 
-$www_root = $CFG->wwwroot;
+$wwwroot = $CFG->wwwroot;
 
-$pathendpoint = $www_root . "/mod/ivs/backend.php/";
+$pathendpoint = $wwwroot . "/mod/ivs/backend.php/";
 
+$httpschema = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+
+if (!isset($_SERVER['HTTP_HOST'])) {
+    ivs_backend_error_exit();
+}
+$httphost = $_SERVER['HTTP_HOST'];
+
+if (!isset($_SERVER['REQUEST_URI'])) {
+    ivs_backend_error_exit();
+}
 $requesturi = strtok($_SERVER["REQUEST_URI"], '?');
 
-$actualurl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$requesturi}";
+$actualurl = $httpschema . '://' . $httphost . $requesturi;
+
+
 $url = str_replace($pathendpoint, "", $actualurl);
 
 $args = explode("/", $url);
@@ -58,18 +71,24 @@ if (!\mod_ivs\IvsHelper::access_player($videoid)) {
     ivs_backend_error_exit();
 }
 
+if (!isset($_SERVER['REQUEST_METHOD'])) {
+    ivs_backend_error_exit();
+}
+
+$requestmethod = $_SERVER['REQUEST_METHOD'];
+
 switch ($endpoint) {
     case 'comments':
         if ($requestbody = file_get_contents('php://input')) {
             $postdata = json_decode($requestbody);
         }
-        ivs_backend_comments($args, $postdata);
+        ivs_backend_comments($args, $postdata, $requestmethod);
         break;
     case 'playbackcommands':
         if ($requestbody = file_get_contents('php://input')) {
             $postdata = json_decode($requestbody);
         }
-        ivs_backend_playbackcommands($args, $postdata);
+        ivs_backend_playbackcommands($args, $postdata, $requestmethod);
         break;
     case 'match_questions':
     case 'match_answers':
@@ -79,17 +98,17 @@ switch ($endpoint) {
         if ($requestbody = file_get_contents('php://input')) {
             $postdata = json_decode($requestbody, true);
         }
-        $mc->handle_request($endpoint, $args, $_SERVER['REQUEST_METHOD'], $postdata);
+        $mc->handle_request($endpoint, $args, $requestmethod, $postdata);
         break;
 
 }
 
-function ivs_backend_comments($args, $postdata) {
+function ivs_backend_comments($args, $postdata, $requestmethod) {
     $videoid = $args[1];
 
     $parentid = null;
 
-    switch ($_SERVER['REQUEST_METHOD']) {
+    switch ($requestmethod) {
         case 'GET':
             $annotations = \mod_ivs\annotation::retrieve_from_db_by_video($videoid);
 
@@ -99,16 +118,15 @@ function ivs_backend_comments($args, $postdata) {
             foreach ($annotations as $annotation) {
                 $data[] = $annotation->to_player_comment();
             }
-            print json_encode($data);
+            ivs_backend_exit($data);
 
-            die();
         case 'POST':
             if (!empty($args[2]) && $args[2] == 'reply') {
                 $parentid = $args[3];
-                //Todo: check
+                // Todo: check.
             }
 
-            //check access
+            // Check access.
             $annotation = new \mod_ivs\annotation();
 
             $annotation->from_request_body($postdata, $parentid);
@@ -119,10 +137,8 @@ function ivs_backend_comments($args, $postdata) {
 
             $annotation->from_request_body($postdata, $parentid);
 
-            print json_encode($annotation->to_player_comment());
-
-            die();
-
+            $playercomment = $annotation->to_player_comment();
+            ivs_backend_exit($playercomment);
         case 'PUT':
             $annotationid = $args[2];
 
@@ -141,12 +157,9 @@ function ivs_backend_comments($args, $postdata) {
                         $annotation->lock_access($value);
                     }
                 }
-
-                print json_encode($annotation->to_player_comment());
-                exit;
+                $playercomment = $annotation->to_player_comment();
+                ivs_backend_exit($playercomment);
             }
-
-            /** @var \mod_ivs\annotation $an */
 
             if (!empty($args[2]) && $args[2] == 'reply') {
                 $annotationid = $args[4];
@@ -158,8 +171,8 @@ function ivs_backend_comments($args, $postdata) {
             }
             $annotation->from_request_body($postdata);
 
-            print json_encode($annotation->to_player_comment());
-            die();
+            $playercomment = $annotation->to_player_comment();
+            ivs_backend_exit($playercomment);
         case 'DELETE':
             $annotationid = $args[2];
 
@@ -170,29 +183,27 @@ function ivs_backend_comments($args, $postdata) {
             $an = \mod_ivs\annotation::retrieve_from_db($annotationid);
 
             if (!$an->access("delete")) {
-                print_r($an->get_record());
                 ivs_backend_error_exit();
             }
             $an->delete_from_db($an);
 
-            die("ok");
+            ivs_backend_exit('ok');
     }
 }
 
-function ivs_backend_playbackcommands($args, $postdata) {
+function ivs_backend_playbackcommands($args, $postdata, $requestmethod) {
     $videonid = $args[1];
 
     $coursemodule = get_coursemodule_from_instance('ivs', $videonid, 0, false, MUST_EXIST);
     $activity = \context_module::instance($coursemodule->id);
-    $playbackcommandService = new \mod_ivs\PlaybackcommandService();
+    $playbackcommandservice = new \mod_ivs\PlaybackcommandService();
     $activityid = $activity->instanceid;
 
-    switch ($_SERVER['REQUEST_METHOD']) {
+    switch ($requestmethod) {
         case 'GET':
             try {
-                $playbackcommands = $playbackcommandService->retrieve($activityid);
-                print json_encode($playbackcommands);
-                exit;
+                $playbackcommands = $playbackcommandservice->retrieve($activityid);
+                ivs_backend_exit($playbackcommands);
             } catch (Exception $e) {
                 ivs_backend_error_exit($e->getMessage());
             }
@@ -201,9 +212,8 @@ function ivs_backend_playbackcommands($args, $postdata) {
         case 'POST':
         case 'PUT':
             try {
-                $playbackcommand = $playbackcommandService->save($postdata, $activityid);
-                print json_encode($playbackcommand);
-                exit;
+                $playbackcommand = $playbackcommandservice->save($postdata, $activityid);
+                ivs_backend_exit($playbackcommand);
             } catch (Exception $e) {
                 ivs_backend_error_exit($e->getMessage());
             }
@@ -211,9 +221,8 @@ function ivs_backend_playbackcommands($args, $postdata) {
         case 'DELETE':
             $playbackcommandid = $args[2];
             try {
-                $playbackcommandService->delete($playbackcommandid, $activityid);
-                print "ok";
-                exit;
+                $playbackcommandservice->delete($playbackcommandid, $activityid);
+                ivs_backend_exit('ok');
             } catch (Exception $e) {
                 ivs_backend_error_exit($e->getMessage());
             }
@@ -224,11 +233,26 @@ function ivs_backend_playbackcommands($args, $postdata) {
 
 /**
  * @param string $data
- * @param int $status_code
+ * @param int $statuscode
  */
-function ivs_backend_error_exit($data = "access denied", $status_code = 403) {
-    http_response_code($status_code);
+function ivs_backend_error_exit($data = "access denied", $statuscode = 403) {
+    http_response_code($statuscode);
     json_encode($data);
+    exit;
+}
+
+/**
+ * Exit call when successfully ended tasks
+ * @param $data
+ * @param int $statuscode
+ */
+function ivs_backend_exit($data, $statuscode = 200) {
+    http_response_code($statuscode);
+    if (is_string($data)) {
+        print $data;
+    } else {
+        print json_encode($data);
+    }
     exit;
 }
 

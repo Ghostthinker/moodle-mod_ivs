@@ -26,7 +26,7 @@ use mod_ivs\annotation;
 
 class restore_ivs_activity_structure_step extends restore_activity_structure_step {
 
-    protected $videocomment_cache;
+    protected $videocommentcache;
 
     /**
      * Defines structure of path elements to be processed during the restore
@@ -129,7 +129,7 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
                 $data->video_id = $newactivityid;
 
                 if (!empty($data->parent_id)) {
-                    $this->videocomment_cache[$oldid] = $data;
+                    $this->videocommentcache[$oldid] = $data;
                     return;
                 }
 
@@ -256,11 +256,11 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
     protected function after_restore() {
         global $DB;
 
-        if (empty($this->videocomment_cache)) {
+        if (empty($this->videocommentcache)) {
             return;
         }
 
-        foreach ($this->videocomment_cache as $oldid => $data) {
+        foreach ($this->videocommentcache as $oldid => $data) {
             $oldparentid = $data->parent_id;
             $newparentid = $this->get_mapping('videocomment', $oldparentid);
             $data->parent_id = $newparentid->newitemid;

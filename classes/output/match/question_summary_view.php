@@ -33,8 +33,8 @@ use stdClass;
 
 class question_summary_view implements renderable, templatable {
 
-    var $question = null;
-    var $coursestudents = null;
+    public $question = null;
+    public $coursestudents = null;
 
     public function __construct($question, $coursestudents) {
         $this->question = $question;

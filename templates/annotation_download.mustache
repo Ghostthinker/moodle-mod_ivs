@@ -1,0 +1,17 @@
+    <div class="ivs-comments-footer">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="items-per-page" class="">{{elements}}</label>
+
+                <select id="items-per-page" class="form-control"
+                        onchange="location = this.value;">
+                    {{#pager_options}}
+                        {{{.}}}
+                    {{/pager_options}}
+                </select>
+            </div>
+        </form>
+        <div class="question-download">
+            {{{download_options}}}
+        </div>
+    </div>

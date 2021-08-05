@@ -47,8 +47,7 @@ define('IVS_ACTION_PLAYERVERSION', 'player');
 class MoodleLicenseController implements ILicenseController
 {
 
-    public function generate_instance_id()
-    {
+    public function generate_instance_id() {
 
         // Prevent overriding existing instance id.
         $instanceid = get_config('mod_ivs', 'ivs_instance_id');
@@ -72,8 +71,7 @@ class MoodleLicenseController implements ILicenseController
      * @return bool|string
      * @throws \dml_exception
      */
-    public function core_register($instanceid)
-    {
+    public function core_register($instanceid) {
         global $CFG;
 
         $requestdata = [
@@ -96,8 +94,7 @@ class MoodleLicenseController implements ILicenseController
      * @return mixed
      * @throws \dml_exception
      */
-    public function get_instance_id()
-    {
+    public function get_instance_id() {
         $instanceid = get_config('mod_ivs', 'ivs_instance_id');
         if (empty($instanceid)) {
             $instanceid = $this->generate_instance_id();
@@ -113,8 +110,7 @@ class MoodleLicenseController implements ILicenseController
      * @return mixed|null
      * @throws \dml_exception
      */
-    public function get_active_license($context = null)
-    {
+    public function get_active_license($context = null) {
         // Check licenses.
 
         // 1)   do we have course licenses?
@@ -151,8 +147,7 @@ class MoodleLicenseController implements ILicenseController
      * @return bool
      * @throws \dml_exception
      */
-    public function has_active_license($context = null)
-    {
+    public function has_active_license($context = null) {
         // Check licenses.
         $status = $this->get_status();
         if ($this->cron_runtime_too_old()) {
@@ -173,8 +168,7 @@ class MoodleLicenseController implements ILicenseController
      * @return mixed
      * @throws \dml_exception
      */
-    public function get_status($reset = false)
-    {
+    public function get_status($reset = false) {
         global $CFG;
         static $status;
         if (!$reset && !empty($status)) {
@@ -199,8 +193,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return mixed
      */
-    public function get_license_type($status)
-    {
+    public function get_license_type($status) {
         return $status['type'];
     }
 
@@ -208,8 +201,7 @@ class MoodleLicenseController implements ILicenseController
      * @return array|bool|string
      * @throws \dml_exception
      */
-    public function get_cdn_source($licenseid)
-    {
+    public function get_cdn_source($licenseid) {
 
         $instanceid = $this->get_instance_id();
 
@@ -226,8 +218,7 @@ class MoodleLicenseController implements ILicenseController
     /**
      * @return bool
      */
-    public function check_is_online()
-    {
+    public function check_is_online() {
         $domain = $this->get_core_url(true);
         $curlinit = curl_init($domain);
         curl_setopt($curlinit, CURLOPT_CONNECTTIMEOUT, 10);
@@ -253,8 +244,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return bool|string
      */
-    protected function send_curl_request($path, $method = "POST", $requestdata)
-    {
+    protected function send_curl_request($path, $method = "POST", $requestdata) {
 
         $coreurl = $this->get_core_url(true);
         $url = $coreurl . IVS_CORE_API_PREFIX . $path;
@@ -322,8 +312,7 @@ class MoodleLicenseController implements ILicenseController
      * @return bool|string
      * @throws \dml_exception
      */
-    public function activate_course_license($courseid, $licenseid)
-    {
+    public function activate_course_license($courseid, $licenseid) {
 
         $requestdata = [
                 "instance_id" => $this->get_instance_id(),
@@ -341,8 +330,7 @@ class MoodleLicenseController implements ILicenseController
      * @return bool|string
      * @throws \dml_exception
      */
-    public function release_course_license($courseid, $licenseid)
-    {
+    public function release_course_license($courseid, $licenseid) {
 
         $requestdata = [
                 "instance_id" => $this->get_instance_id(),
@@ -358,8 +346,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return array
      */
-    public function get_course_licenses($licensestatus, $reset = false)
-    {
+    public function get_course_licenses($licensestatus, $reset = false) {
         $courselicenses = $this->get_instance_licenses_by_type('course', $licensestatus, $reset);
 
         return $courselicenses;
@@ -370,8 +357,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return array
      */
-    public function get_instance_licenses($licensestatus, $reset = false)
-    {
+    public function get_instance_licenses($licensestatus, $reset = false) {
         $instancelicenses = $this->get_instance_licenses_by_type('instance', $licensestatus, $reset);
 
         return $instancelicenses;
@@ -385,8 +371,7 @@ class MoodleLicenseController implements ILicenseController
      * @return array
      * @throws \dml_exception
      */
-    public function get_instance_licenses_by_type($type, $licensestatus, $reset = false)
-    {
+    public function get_instance_licenses_by_type($type, $licensestatus, $reset = false) {
         $status = $this->get_status($reset);
         $licenses = [];
 
@@ -428,8 +413,7 @@ class MoodleLicenseController implements ILicenseController
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function get_settings_license_none_data()
-    {
+    public function get_settings_license_none_data() {
         $data = new \stdClass;
 
         $data->current_package_label = get_string('ivs_package_label', 'ivs');
@@ -442,8 +426,7 @@ class MoodleLicenseController implements ILicenseController
     /**
      * @return string
      */
-    public function get_core_url($internal = false)
-    {
+    public function get_core_url($internal = false) {
         global $CFG;
 
         // Overriden CORE URL.
@@ -464,8 +447,7 @@ class MoodleLicenseController implements ILicenseController
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function get_settings_license_course_data($courselicenses, $instancelicenses, $output)
-    {
+    public function get_settings_license_course_data($courselicenses, $instancelicenses, $output) {
         global $CFG;
         $data = new \stdClass;
 
@@ -523,8 +505,7 @@ class MoodleLicenseController implements ILicenseController
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function get_settings_overbooked_license_data($courselicenses, $instancelicences, $output)
-    {
+    public function get_settings_overbooked_license_data($courselicenses, $instancelicences, $output) {
         global $CFG;
         $data = new \stdClass;
 
@@ -569,8 +550,7 @@ class MoodleLicenseController implements ILicenseController
         return $data;
     }
 
-    public function get_settings_expired_license_data($courselicenses, $instancelicences, $output)
-    {
+    public function get_settings_expired_license_data($courselicenses, $instancelicences, $output) {
         global $CFG;
         $data = new \stdClass;
 
@@ -627,8 +607,7 @@ class MoodleLicenseController implements ILicenseController
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function get_settings_license_instance_data($license)
-    {
+    public function get_settings_license_instance_data($license) {
         $data = new \stdClass;
         $lc = $this;
 
@@ -649,8 +628,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return array
      */
-    public function get_current_license_package_info($courselicenses)
-    {
+    public function get_current_license_package_info($courselicenses) {
         $assignedcourselicenses = 0;
         $maxcourselicenses = 0;
 
@@ -671,8 +649,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return array
      */
-    public function get_license_instance_view_data($license)
-    {
+    public function get_license_instance_view_data($license) {
         $createdat = strtotime($license->created_at);
         $expiresat = strtotime($license->expires_at);
         $datenow = time();
@@ -704,8 +681,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return array
      */
-    public function get_course_license_options($courselicenses)
-    {
+    public function get_course_license_options($courselicenses) {
         $courselicenseoptions = [];
 
         $dateformat = get_string('strftimedatefullshort', 'langconfig');
@@ -720,8 +696,7 @@ class MoodleLicenseController implements ILicenseController
         return $courselicenseoptions;
     }
 
-    public function get_all_user_from_instance()
-    {
+    public function get_all_user_from_instance() {
         global $DB;
         $sql = "SELECT * FROM {user} WHERE suspended = 0";
         $users = $DB->get_records_sql($sql);
@@ -729,14 +704,13 @@ class MoodleLicenseController implements ILicenseController
         return $users;
     }
 
-    public function get_user_from_course($courseid)
-    {
+    public function get_user_from_course($courseid) {
         global $DB;
         $sql = 'SELECT u.id FROM {user} u'
                 . ' JOIN {user_enrolments} ue ON u.id = ue.userid'
                 . ' JOIN {enrol} e ON e.id = ue.enrolid'
                 . ' WHERE suspended = 0 AND e.courseid = ?';
-        $user = $DB->get_records_sql($sql ,[$courseid]);
+        $user = $DB->get_records_sql($sql, [$courseid]);
         return $user;
     }
 
@@ -745,8 +719,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @throws \dml_exception
      */
-    public function send_usage()
-    {
+    public function send_usage() {
         $instanceid = $this->get_instance_id();
 
         $response = false;
@@ -812,8 +785,7 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return array
      */
-    public function get_num_course_members($courseid, $allreadygotenusers = [])
-    {
+    public function get_num_course_members($courseid, $allreadygotenusers = []) {
         $users = $this->get_user_from_course($courseid);
 
         foreach ($users as $key => $value) {
@@ -829,13 +801,11 @@ class MoodleLicenseController implements ILicenseController
      *
      * @return int
      */
-    public function get_num_instance_members()
-    {
+    public function get_num_instance_members() {
         return count($this->get_all_user_from_instance());
     }
 
-    public function send_request($type, $requestdata)
-    {
+    public function send_request($type, $requestdata) {
         $pathavailable = [
                 "usage" => IVS_CORE_API_CALLBACK_USAGE,
                 "coreRegister" => IVS_CORE_API_CALLBACK_REGISTER,
@@ -853,8 +823,7 @@ class MoodleLicenseController implements ILicenseController
         return $this->send_curl_request($path, "POST", $requestdata);
     }
 
-    public function cron_runtime_too_old()
-    {
+    public function cron_runtime_too_old() {
         $lastrun = strtotime('NOW') - strtotime(get_config('mod_ivs', 'ivs_schedule_task'));
         $maxtime = IVS_CORE_CRON_WAITING_TIME;
         if ($lastrun > $maxtime) {
@@ -863,8 +832,7 @@ class MoodleLicenseController implements ILicenseController
         return false;
     }
 
-    public function set_last_runtime()
-    {
+    public function set_last_runtime() {
         set_config('ivs_schedule_task', date('Y-m-d H:i:s', time()), 'mod_ivs');
     }
 
@@ -873,8 +841,7 @@ class MoodleLicenseController implements ILicenseController
      * @return bool|string
      * @throws \dml_exception
      */
-    final public function set_testsystem_instance_id($testsysteminstanceid)
-    {
+    final public function set_testsystem_instance_id($testsysteminstanceid) {
         $requestdata = [
                 'instance_id' => $this->get_instance_id(),
                 'testsystem_instance_id' => $testsysteminstanceid,
@@ -883,8 +850,7 @@ class MoodleLicenseController implements ILicenseController
         return $this->send_request("instance", $requestdata);
     }
 
-    public function set_player_version($playerversion)
-    {
+    public function set_player_version($playerversion) {
         $requestdata = [
                 'instance_id' => $this->get_instance_id(),
                 'player_version' => $playerversion,

@@ -40,7 +40,6 @@ class MoodleFileVideoHost implements IVideoHost {
 
     public function get_video() {
 
-
         $cm = get_coursemodule_from_instance('ivs', $this->ivs->id, $this->ivs->course, false, MUST_EXIST);
 
         $context = context_module::instance($cm->id);
@@ -71,7 +70,7 @@ class MoodleFileVideoHost implements IVideoHost {
         return $url;
     }
 
-    public function save_video($form_values) {
+    public function save_video($formvalues) {
 
         if (empty($this->ivs->video_file)) {
             return;

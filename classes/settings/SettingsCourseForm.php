@@ -23,6 +23,8 @@
 
 namespace mod_ivs\settings;
 
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
@@ -39,33 +41,37 @@ class SettingsCourseForm extends moodleform {
         $courseid = $this->_customdata['course_id'];
 
         $settingsdefinitions = \mod_ivs\settings\SettingsService::get_settings_definitions();
-        $settingsController = new SettingsService();
-        $globalsettings = $settingsController->get_settings_global();
-        $coursesettings = $settingsController->load_settings($courseid, 'course');
+        $settingscontroller = new SettingsService();
+        $globalsettings = $settingscontroller->get_settings_global();
+        $coursesettings = $settingscontroller->load_settings($courseid, 'course');
 
-        /** @var \mod_ivs\settings\SettingsDefinition $settings_definition */
-        foreach ($settingsdefinitions as $settings_definition) {
+        $lockreadaccessoptions = SettingsService::get_ivs_read_access_options();
 
-            switch ($settings_definition->type) {
-                case 'checkbox':
+        /** @var \mod_ivs\settings\SettingsDefinition $settingsdefinition */
+        foreach ($settingsdefinitions as $settingsdefinition) {
 
-                    $settingsController::add_vis_setting_to_form($globalsettings, $settings_definition, $mform, true);
+            $settingscontroller::add_vis_setting_to_form($settingsdefinition->type, $globalsettings, $settingsdefinition, $mform,
+                    true, $lockreadaccessoptions);
 
-                    if (isset($coursesettings[$settings_definition->name])) {
-                        if (!$globalsettings[$settings_definition->name]->locked) {
-                            $mform->setDefault($settings_definition->name . "[value]",
-                                    $coursesettings[$settings_definition->name]->value);
-                            $mform->setDefault($settings_definition->name . "[locked]",
-                                    $coursesettings[$settings_definition->name]->locked);
-                        } else {
-                            $mform->setDefault($settings_definition->name . "[value]",
-                                    $globalsettings[$settings_definition->name]->value);
-                            $mform->setDefault($settings_definition->name . "[locked]",
-                                    $globalsettings[$settings_definition->name]->locked);
-                        }
-                    }
-                    break;
+            if (isset($coursesettings[$settingsdefinition->name])) {
+                if (!$globalsettings[$settingsdefinition->name]->locked) {
+                    $mform->setDefault($settingsdefinition->name . "[value]",
+                            $coursesettings[$settingsdefinition->name]->value);
+                    $mform->setDefault($settingsdefinition->name . "[locked]",
+                            $coursesettings[$settingsdefinition->name]->locked);
+                } else {
+                    $mform->setDefault($settingsdefinition->name . "[value]",
+                            $globalsettings[$settingsdefinition->name]->value);
+                    $mform->setDefault($settingsdefinition->name . "[locked]",
+                            $globalsettings[$settingsdefinition->name]->locked);
+                }
+            } else {
+                $mform->setDefault($settingsdefinition->name . "[value]",
+                        $globalsettings[$settingsdefinition->name]->value);
+                $mform->setDefault($settingsdefinition->name . "[locked]",
+                        $globalsettings[$settingsdefinition->name]->locked);
             }
+
         }
 
         $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
@@ -73,15 +79,7 @@ class SettingsCourseForm extends moodleform {
     }
 
     // Custom validation should be added here.
-    function validation($data, $files) {
+    public function validation($data, $files) {
         return array();
     }
-
-    /**
-     * @param $global_settings
-     * @param $player_setting
-     * @param $mform
-     * @throws \coding_exception
-     */
-
 }

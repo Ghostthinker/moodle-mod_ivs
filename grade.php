@@ -21,7 +21,11 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(__DIR__ . "../../../config.php");
+
+require_login();
 
 $id = required_param('id', PARAM_INT);// Course module ID.
 // Item number may be != 0 for activities that allow more than one grade per user.

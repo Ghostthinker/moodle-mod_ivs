@@ -24,29 +24,31 @@
 // Standard GPL and phpdocs.
 namespace mod_ivs\output;
 
+use html_writer;
 use mod_ivs\IvsHelper;
+use moodle_url;
 use renderable;
 use renderer_base;
 use templatable;
 use stdClass;
+use user_picture;
 
-class annotation_report_view implements renderable, templatable {
+class annotation_download implements renderable, templatable {
 
     public $annotation = null;
     public $ivs = null;
     public $module;
 
     /**
-     * annotation_view constructor.
+     * annotation_download constructor.
      *
      * @param \mod_ivs\annotation $annotation
      * @param null $ivs
      */
-    public function __construct(\mod_ivs\annotation $annotation, $ivs, $module, $userto) {
-        $this->annotation = $annotation;
+    public function __construct($all_comments, $ivs, $cm) {
+        $this->all_comments = $all_comments;
         $this->ivs = $ivs;
-        $this->module = $module;
-        $this->userTo = $userto;
+        $this->module = $cm;
     }
 
     /**
@@ -58,23 +60,30 @@ class annotation_report_view implements renderable, templatable {
 
         $data = new stdClass();
 
-        $user = IvsHelper::get_user($this->annotation->get_userid());
-        $userto = $this->userTo;
+        // Render Pager Options in Dropdown.
+        $pagerurl = new moodle_url('/mod/ivs/annotation_overview.php?id=' . $this->module->id );
 
-        $data->comment_body = $this->annotation->get_rendered_body();
-        $data->comment_author_link = $user['fullname'];
-        $data->comment_created = userdate($this->annotation->get_timecreated());
-        $data->comment_timestamp = $this->annotation->get_timestamp() / 1000;
-        $data->timecode = $this->annotation->get_timecode(true);
-        $data->cockpit_report_mail_annotation_header_part_1 =
-                get_string_manager()->get_string('cockpit_report_mail_annotation_header_part_1', 'ivs', null, $userto->lang);
-        $data->cockpit_report_mail_annotation_header_part_2 =
-                get_string_manager()->get_string('cockpit_report_mail_annotation_header_part_2', 'ivs', null, $userto->lang);
-        $data->cockpit_report_mail_annotation_header_part_3 =
-                get_string_manager()->get_string('cockpit_report_mail_annotation_header_part_3', 'ivs', null, $userto->lang);
+        if (optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT) == 10) {
+            $data->pager_options[] = '<option selected value="' . $pagerurl . '&perpage=10">10</option>';
+            $data->pager_options[] = '<option value="' . $pagerurl . '&perpage=100">100</option>';
+        } else {
+            $data->pager_options[] = '<option value="' . $pagerurl . '&perpage=10">10</option>';
+            $data->pager_options[] = '<option selected value="' . $pagerurl . '&perpage=100">100</option>';
+        }
 
-        $data->player_link =
-                new \moodle_url('/mod/ivs/view.php', array('id' => $this->module->id, 'cid' => $this->annotation->get_id()));
+        $data->elements = get_string("ivs_videocomment_menu_label_elements_per_page", 'ivs');
+
+        $context = \context_module::instance($this->module->id);
+        if (has_capability('mod/ivs:download_annotations', $context)) {
+            $data->download_options = $output->download_dataformat_selector(get_string('ivs_match_download_summary_label',
+                'ivs'),
+                'comments_download.php', 'download',
+                [
+                    'cmid' => $this->module->id,
+                ]
+            );
+        }
+
 
         return $data;
     }

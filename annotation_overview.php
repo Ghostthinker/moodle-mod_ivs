@@ -23,7 +23,7 @@
 
 require_once('../../config.php');
 
-define('DEFAULT_PAGE_SIZE', 10); //TODO INCREASE THIS
+define('DEFAULT_PAGE_SIZE', 10); // TODO INCREASE THIS.
 define('SHOW_ALL_PAGE_SIZE', 5000);
 
 // Pager, sort and settings.
@@ -47,6 +47,7 @@ $PAGE->set_heading($heading);
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.css'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.js'));
+$PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_download.css'));
 $PAGE->requires->jquery();
 
 
@@ -60,15 +61,22 @@ $commentsforpage = [];
 
 $renderer = $PAGE->get_renderer('ivs');
 
+
 echo '<div class="ivs-annotations">';
 
+$all_rendered_comments = [];
 /** @var \mod_ivs\annotation $comment */
 foreach ($comments as $comment) {
     $renderable = new \mod_ivs\output\annotation_view($comment, $ivs, $cm);
+    $all_rendered_comments[] = $renderable;
     echo $renderer->render($renderable);
 }
 
 echo '</div>';
+
+$renderable = new \mod_ivs\output\annotation_download($all_rendered_comments,$ivs,$cm);
+echo $renderer->render($renderable);
+
 
 $totalcount = \mod_ivs\annotation::retrieve_from_db_by_video($ivs->id, null, 0, 0, true)->total;
 

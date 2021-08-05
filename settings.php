@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,7 +24,8 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/adminlib.php');
-require_login(null,false);
+require_login(null, false);
+
 $ADMIN->add('modsettings', new admin_category('interactive_video_suite_settings', get_string('modulecategory', 'ivs'),
         $module->is_enabled() === false));
 
@@ -58,11 +58,23 @@ if ($ADMIN->fulltree) {
                 if ($playersetting->lockedsite) {
                     $settings->add(new admin_setting_configcheckbox_with_lock("mod_ivs/" . $playersetting->name,
                             $playersetting->title, get_string($playersetting->description . '_help', 'ivs'),
-                            $playersetting->default));
+                            ['value' => $playersetting->default]));
                 } else {
                     $settings->add(new admin_setting_configcheckbox($playersetting->name, $playersetting->title,
-                            $playersetting->description, $playersetting->default));
+                            $playersetting->description, ['value' => $playersetting->default]));
                 }
+                break;
+            case 'select':
+                if ($playersetting->lockedsite) {
+                    $settings->add(new admin_setting_configselect_with_lock("mod_ivs/" . $playersetting->name, $playersetting->title,
+                            get_string($playersetting->description . '_help', 'ivs'), 0, $playersetting->options));
+
+                } else {
+                    $settings->add(new admin_setting_configselect("mod_ivs/" . $playersetting->name, $playersetting->name,
+                            get_string($playersetting->description . '_help', 'ivs'), 0, $playersetting->options));
+
+                }
+
                 break;
         }
     }

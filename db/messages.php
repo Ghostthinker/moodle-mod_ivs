@@ -21,6 +21,8 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $messageproviders = array(
         'ivs_annotation_direct_mention' => array(),
         'ivs_annotation_indirect_mention' => array(),
