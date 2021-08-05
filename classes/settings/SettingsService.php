@@ -23,9 +23,48 @@
 
 namespace mod_ivs\settings;
 
+use lang_string;
+
 class SettingsService {
 
+    /**
+     * @return array
+     */
+    public static function get_ivs_read_access_options() {
+        // prepare system roles
+        // see users.php
+        $lockreadaccessoptions = array();
+        $defaultteacherid = null;
+        $lockreadaccessoptions['none'] = (string)(new lang_string('ivs_setting_read_access_none', 'ivs'));
+        $lockreadaccessoptions['private'] = (string)(new lang_string('ivs_setting_read_access_private', 'ivs'));
+        $lockreadaccessoptions['course'] = (string)(new lang_string('ivs_setting_read_access_course', 'ivs'));
+
+        $roles = role_fix_names(get_all_roles(), null, ROLENAME_ORIGINALANDSHORT);
+        foreach ($roles as $role) {
+            $rolename = $role->localname;
+            switch ($role->archetype) {
+                case 'editingteacher':
+                    $defaultteacherid = isset($defaultteacherid) ? $defaultteacherid : $role->id;
+                    $lockreadaccessoptions['role_' . $role->id] = $rolename;
+                    break;
+            }
+        }
+
+        return $lockreadaccessoptions;
+    }
+
     public static function get_settings_definitions() {
+
+        $lockReadAccessOptions = self::get_ivs_read_access_options();
+
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_ANNOTATIONS_ENABLED,
+            get_string('ivs_setting_annotations_enabled', 'ivs'),
+            'ivs_setting_annotations_enabled',
+            'checkbox',
+            1,
+            true,
+            true);
 
         $settings[] = new SettingsDefinition(
                 SettingsDefinition::SETTING_MATCH_QUESTION_ENABLED,
@@ -82,6 +121,17 @@ class SettingsService {
                 true);
 
         $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_PLAYER_LOCK_REALM,
+                get_string('ivs_setting_read_access_lock', 'ivs'),
+                'ivs_setting_read_access_lock',
+                'select',
+                0,
+                true,
+                true,
+                $lockReadAccessOptions
+        );
+
+        $settings[] = new SettingsDefinition(
                 SettingsDefinition::SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT,
                 get_string('ivs_setting_single_choice_question_random_default', 'ivs'),
                 'ivs_setting_single_choice_question_random_default',
@@ -107,6 +157,7 @@ class SettingsService {
                 0,
                 true,
                 true);
+
 
         return $settings;
     }
@@ -149,7 +200,7 @@ class SettingsService {
     public function save_setting(Setting $setting) {
         global $DB;
 
-        $db_data = (object) [
+        $dbdata = (object) [
                 'target_id' => $setting->targetid,
                 'target_type' => $setting->targettype,
                 'name' => $setting->name,
@@ -160,13 +211,13 @@ class SettingsService {
         $existingsetting = $this->load_setting($setting->targetid, $setting->targettype, $setting->name);
 
         if ($existingsetting) {
-            $db_data->id = $existingsetting->id;
+            $dbdata->id = $existingsetting->id;
         }
 
-        if (isset($db_data->id)) {
-            $DB->update_record('ivs_settings', $db_data);
+        if (isset($dbdata->id)) {
+            $DB->update_record('ivs_settings', $dbdata);
         } else {
-            $DB->insert_record('ivs_settings', $db_data, true, true);
+            $DB->insert_record('ivs_settings', $dbdata, true, true);
         }
 
     }
@@ -206,8 +257,8 @@ class SettingsService {
                     $settingsfinal[$name] = $settingscourse[$name];
                     // Activity.
                     if (!$settingsfinal[$name]->locked) {
-                        if (!empty($settings_activity[$name])) {
-                            $settingsfinal[$name] = $settings_activity[$name];
+                        if (!empty($settingsactivity[$name])) {
+                            $settingsfinal[$name] = $settingsactivity[$name];
                         }
                     }
                 }
@@ -254,7 +305,8 @@ class SettingsService {
         return $settingsfinal;
     }
 
-    public static function add_vis_setting_to_form($globalsettings, SettingsDefinition $settingdefinition, $mform, $addlocked) {
+    public static function add_vis_setting_to_form($type, $globalsettings, SettingsDefinition $settingdefinition, $mform, $addlocked,
+            $options = null) {
         $attributes = array('class' => 'text-muted');
         if ($globalsettings[$settingdefinition->name]->locked) {
             $attributes['disabled'] = 'disabled';
@@ -268,8 +320,21 @@ class SettingsService {
 
         $defaultinfo = get_string('defaultsettinginfo', 'admin', $defaultinfo);
 
+        $defaultsuffix = " ";
+
         $availablefromgroup = array();
-        $availablefromgroup[] = &$mform->createElement('checkbox', 'value', '', $defaultinfo, $attributes);
+        switch ($type) {
+            case "checkbox":
+                $availablefromgroup[] = &$mform->createElement('checkbox', 'value', '', $defaultinfo, $attributes);
+                $mform->setType($settingdefinition->name . "[parent_value]", PARAM_INT);
+                break;
+            case "select":
+                $availablefromgroup[] = &$mform->createElement('select', 'value', '', $options, $attributes);
+                $mform->setType($settingdefinition->name . "[parent_value]", PARAM_TEXT);
+                $defaultsuffix = get_string('defaultsettinginfo', 'admin', $settingdefinition->options[$globalsettings[$settingdefinition->name]->value]);
+                $availablefromgroup[] = $mform->createElement('html', '<label class="text-muted">' . $defaultsuffix . '</label>');
+                break;
+        }
 
         $attributes = array('class' => 'ivs-setting-locked-checkbox');
         if ($globalsettings[$settingdefinition->name]->locked) {
@@ -283,10 +348,12 @@ class SettingsService {
 
         $availablefromgroup[] = $mform->createElement('hidden', 'parent_value', $globalsettings[$settingdefinition->name]->value);
 
+
+
         $mform->addGroup($availablefromgroup, $settingdefinition->name, $settingdefinition->title, ' ', true);
         $mform->addHelpButton($settingdefinition->name, $settingdefinition->description, 'ivs');
 
-        $mform->setType($settingdefinition->name . "[parent_value]", PARAM_INT);
+
     }
 
     public function process_activity_settings_form($ivs) {

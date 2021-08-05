@@ -27,9 +27,6 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
-//require_once('../../../config.php');
-
-//TODO create interface
 class AnnotationService {
 
     /**
@@ -56,7 +53,7 @@ class AnnotationService {
         $defaultoptions = array(
                 'sortkey' => "timecreated", // Time_stamp.
                 'sortorder' => 'DESC',
-                'grouping' => 'none', // ... 'user', 'rating', 'video'.
+                'grouping' => 'none', // ... grouping option are 'user', 'rating', 'video'.
                 'offset' => 0,
                 'limit' => null,
                 'filter_users' => null,
@@ -77,7 +74,6 @@ class AnnotationService {
 
         $annotations = array();
 
-
         if ($counttotal) {
             $query = "SELECT DISTINCT COUNT(vc.id) as total";
         } else {
@@ -94,7 +90,7 @@ class AnnotationService {
                   ON cm.module = m.id
                      AND m.name = 'ivs'
               WHERE parent_id IS NULL AND cm.course=? ";
-       $parameters = array($courseid);
+        $parameters = array($courseid);
 
         // ADD FILTER QUERY.
         list($filterquery, $filterparameters) = $this->create_filter_query($courseid, $options);
@@ -118,8 +114,6 @@ class AnnotationService {
             }
         }
 
-
-
         $groupsort = "";
         if (!$counttotal) {
             if ($options['grouping'] == "user") {
@@ -131,12 +125,12 @@ class AnnotationService {
 
         if (!$counttotal) {
             // SORTING.
-            $sortOrder = $options['sortorder'] == "DESC" ? "DESC" : "ASC";
+            $sortorder = $options['sortorder'] == "DESC" ? "DESC" : "ASC";
 
             if ($options['sortkey'] == 'timestamp') {
-                $query .= " Order by $groupsort vc.time_stamp $sortOrder, vc.timecreated $sortOrder ";
+                $query .= " Order by $groupsort vc.time_stamp $sortorder, vc.timecreated $sortorder ";
             } else {
-                $query .= " Order by $groupsort vc.timecreated $sortOrder, vc.time_stamp $sortOrder";
+                $query .= " Order by $groupsort vc.timecreated $sortorder, vc.time_stamp $sortorder";
             }
         }
 
@@ -170,7 +164,7 @@ class AnnotationService {
 
     }
 
-    protected function create_filter_query($courseID, $options) {
+    protected function create_filter_query($courseid, $options) {
 
         $queryparts = array();
         $parameters = array();

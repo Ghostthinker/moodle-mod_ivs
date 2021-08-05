@@ -27,15 +27,15 @@ require_once('../../config.php');
 require_once('./lib.php');
 require_once('./locallib.php');
 
-define('DEFAULT_PAGE_SIZE', 20); //TODO INCREASE THIS
+define('DEFAULT_PAGE_SIZE', 20); // TODO INCREASE THIS.
 define('SHOW_ALL_PAGE_SIZE', 5000);
 
-//pager, sort and settings
+// Pager, sort and settings.
 $page = optional_param('page', 0, PARAM_INT); // Which page to show.
 $perpage = optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
-$sortkey = optional_param('sortkey', null, PARAM_RAW); // sort key
-$sortorder = optional_param('sortorder', null, PARAM_RAW); // sort order
-$grouping = optional_param('grouping', null, PARAM_RAW); // sort order
+$sortkey = optional_param('sortkey', null, PARAM_RAW); // Sort key.
+$sortorder = optional_param('sortorder', null, PARAM_RAW); // Sort order.
+$grouping = optional_param('grouping', null, PARAM_RAW); // Sort order.
 $contextid = optional_param('contextid', 0, PARAM_INT); // One of this or.
 $courseid = optional_param('id', 0, PARAM_INT); // This are required.
 
@@ -43,10 +43,10 @@ global $USER;
 
 // Filters.
 
-$filterusers = optional_param('filter_users', null, PARAM_INT); // filter for drawings
-$filterhasdrawing = optional_param('filter_has_drawing', null, PARAM_RAW); // filter for drawings
-$filterrating = optional_param('filter_rating', null, PARAM_RAW); // filter for drawings
-$filteraccess = optional_param('filter_access', null, PARAM_RAW); // filter for drawings
+$filterusers = optional_param('filter_users', null, PARAM_INT); // Filter for drawings.
+$filterhasdrawing = optional_param('filter_has_drawing', null, PARAM_RAW); // Filter for drawings.
+$filterrating = optional_param('filter_rating', null, PARAM_RAW); // Filter for drawings.
+$filteraccess = optional_param('filter_access', null, PARAM_RAW); // Filter for drawings.
 
 $PAGE->set_url('/mod/ivs/cockpit.php', array(
         'page' => $page,
@@ -65,7 +65,7 @@ $PAGE->set_url('/mod/ivs/cockpit.php', array(
 if ($contextid) {
     $context = context::instance_by_id($contextid, MUST_EXIST);
     if ($context->contextlevel != CONTEXT_COURSE) {
-        print_error('invalidcontext');
+        throw new moodle_exception('invalidcontext');
     }
     $course = $DB->get_record('course', array('id' => $context->instanceid), '*', MUST_EXIST);
 } else {
@@ -95,23 +95,24 @@ $annotationservice = new \mod_ivs\AnnotationService();
 $reportservice = new \mod_ivs\ReportService();
 
 // Get Query String to hide filter blocks while editing and creating reports.
-$reportaction = optional_param('report_action',null,PARAM_ALPHANUMEXT);
+$reportaction = optional_param('report_action', null, PARAM_ALPHANUMEXT);
 
 
 // Filter form is required by filter but alos for options in reptz form.
 
 $rawparameter = [
-  'page' => optional_param('page','0',PARAM_ALPHANUM),
-  'perpage' => optional_param('perpage','20',PARAM_ALPHANUM),
-  'sortkey' => optional_param('sortkey','timecreated',PARAM_ALPHANUM),
-  'sortorder' => optional_param('sortorder','DESC',PARAM_ALPHANUM),
-  'contextid' => optional_param('contextid','0',PARAM_ALPHANUM),
-  'id' => optional_param('id','0',PARAM_ALPHANUM),
-  'filter_users' => optional_param('filter_users','0',PARAM_ALPHANUM),
-  'filter_has_drawing' => optional_param('filter_has_drawing','',PARAM_ALPHANUM),
-  'filter_rating' => optional_param('filter_rating','',PARAM_ALPHANUM),
-  'filter_access' => optional_param('filter_access','',PARAM_ALPHANUM),
-  'grouping' => optional_param('grouping','',PARAM_ALPHANUM),
+  'page' => optional_param('page', '0', PARAM_ALPHANUM),
+  'perpage' => optional_param('perpage', '20', PARAM_ALPHANUM),
+  'sortkey' => optional_param('sortkey', 'timecreated', PARAM_ALPHANUM),
+  'sortorder' => optional_param('sortorder', 'DESC', PARAM_ALPHANUM),
+  'contextid' => optional_param('contextid', '0', PARAM_ALPHANUM),
+  'id' => optional_param('id', '0', PARAM_ALPHANUM),
+  'filter_users' => optional_param('filter_users', '0', PARAM_ALPHANUM),
+  'filter_has_drawing' => optional_param('filter_has_drawing', '',
+    PARAM_ALPHANUM),
+  'filter_rating' => optional_param('filter_rating', '', PARAM_ALPHANUM),
+  'filter_access' => optional_param('filter_access', '', PARAM_ALPHANUM),
+  'grouping' => optional_param('grouping', '', PARAM_ALPHANUM),
 ];
 
 $filterform = new \mod_ivs\cockpit_filter_form($PAGE, $course, $context, $rawparameter);
@@ -246,19 +247,22 @@ $options = array(
 if ($accessreports) {
 
     $rawpostparameter = [
-      'perpage' => optional_param('grouping','20',PARAM_ALPHANUM),
-      'sortkey' => optional_param('sortkey','',PARAM_ALPHANUM),
-      'sortoder' => optional_param('sortoder','',PARAM_ALPHANUM),
-      'contextid' => optional_param('contextid','',PARAM_ALPHANUM),
-      'id' => optional_param('id','',PARAM_ALPHANUM),
-      'filter_users' => optional_param('filter_users','',PARAM_ALPHANUM),
-      'filter_has_drawing' => optional_param('filter_has_drawing','',PARAM_ALPHANUM),
-      'filter_rating' => optional_param('filter_rating','',PARAM_ALPHANUM),
-      'filter_access' => optional_param('filter_access','',PARAM_ALPHANUM),
-      'grouping' => optional_param('grouping','',PARAM_ALPHANUM),
-      'report_start_date' => optional_param('report_start_date','',PARAM_TEXT),
-      'report_rotation' => optional_param('report_rotation','',PARAM_ALPHANUM),
-      'submit' => optional_param('submit','',PARAM_ALPHANUM),
+      'perpage' => optional_param('grouping', '20', PARAM_ALPHANUM),
+      'sortkey' => optional_param('sortkey', '', PARAM_ALPHANUM),
+      'sortoder' => optional_param('sortoder', '', PARAM_ALPHANUM),
+      'contextid' => optional_param('contextid', '', PARAM_ALPHANUM),
+      'id' => optional_param('id', '', PARAM_ALPHANUM),
+      'filter_users' => optional_param('filter_users', '', PARAM_ALPHANUM),
+      'filter_has_drawing' => optional_param('filter_has_drawing', '',
+        PARAM_ALPHANUM),
+      'filter_rating' => optional_param('filter_rating', '', PARAM_ALPHANUM),
+      'filter_access' => optional_param('filter_access', '', PARAM_ALPHANUM),
+      'grouping' => optional_param('grouping', '', PARAM_ALPHANUM),
+      'report_start_date' => optional_param('report_start_date', '',
+        PARAM_TEXT),
+      'report_rotation' => optional_param('report_rotation', '',
+        PARAM_ALPHANUM),
+      'submit' => optional_param('submit', '', PARAM_ALPHANUM),
     ];
 
     $reportform = new \mod_ivs\cockpit_report_form($PAGE, $course, $context, $rawpostparameter, $reportservice);
@@ -291,8 +295,8 @@ $annotations = $annotationservice->get_annotations_by_course($courseid, $skipacc
 
 $renderer = $PAGE->get_renderer('ivs');
 
-$totalcountData = $annotationservice->get_annotations_by_course($courseid, $skipaccesscheck, $options, true);
-$totalcount = $totalcountData->total;
+$totalcountdata = $annotationservice->get_annotations_by_course($courseid, $skipaccesscheck, $options, true);
+$totalcount = $totalcountdata->total;
 
 // HEADER.
 

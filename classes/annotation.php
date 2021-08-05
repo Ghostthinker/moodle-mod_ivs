@@ -23,20 +23,18 @@
 
 namespace mod_ivs;
 
-//use \mod_ivs\exception;
-
 use html_writer;
 use \mod_ivs\service;
 use mod_ivs\settings\SettingsService;
 use user_picture;
 
-global $CFG;
-
 defined('MOODLE_INTERNAL') || die();
 
-define('MOD_ivs', 'ivs');
-define('MOD_ivs_COMMENT', 'ivs_videocomment');
-define('MOD_ivs_VC_ACCESS', 'ivs_vc_access');
+global $CFG;
+
+define('MOD_IVS', 'ivs');
+define('MOD_IVS_COMMENT', 'ivs_videocomment');
+define('MOD_IVS_VC_ACCESS', 'ivs_vc_access');
 
 class annotation {
 
@@ -55,16 +53,12 @@ class annotation {
     private $parentid;
     protected $replies;
 
-    function __construct($annotation = false) {
+    public function __construct($annotation = false) {
 
         if (is_object($annotation)) {
             $annotation->additional_data = unserialize($annotation->additional_data);
             $annotation->access_view = unserialize($annotation->access_view);
             $this->set_record($annotation);
-        } else if (is_numeric($annotation)) {
-            // Load from db.
-        } else {
-
         }
         $this->replies = array();
 
@@ -113,7 +107,6 @@ class annotation {
 
         $dbrecord['additional_data'] = serialize($dbrecord['additional_data']);
         $dbrecord['access_view'] = serialize($dbrecord['access_view']);
-
 
         $save = false;
         if (isset($this->id)) {
@@ -239,7 +232,7 @@ class annotation {
 
         // Delete all ralms prior to insert.
 
-        $DB->delete_records(MOD_ivs_VC_ACCESS, array("annotation_id" => $this->id));
+        $DB->delete_records(MOD_IVS_VC_ACCESS, array("annotation_id" => $this->id));
 
         $record = array();
         $record[] = array("annotation_id" => $this->id, "realm" => 'author', 'rid' => $this->userid);
@@ -271,7 +264,7 @@ class annotation {
         $save = true;
 
         foreach ($record as $rec) {
-            $save = $DB->insert_record(MOD_ivs_VC_ACCESS, $rec, false, true);
+            $save = $DB->insert_record(MOD_IVS_VC_ACCESS, $rec, false, true);
         }
 
         return $save;
@@ -341,7 +334,7 @@ class annotation {
      */
     protected function message_api($op, $additionaldata = null) {
 
-       $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
+        $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
         $courseid = $coursemodule->course;
         $activity = \context_module::instance($coursemodule->id);
 
@@ -433,7 +426,7 @@ class annotation {
 
         // Build the base query for access.
         $sql = ' EXISTS(
-              SELECT ac.id AS acid FROM {ivs_vc_access} ac WHERE 
+              SELECT ac.id AS acid FROM {ivs_vc_access} ac WHERE
               ac.annotation_id = vc.id AND (
               (ac.rid = ? AND ac.realm = \'course\') OR
               (ac.rid = ? AND ac.realm = \'member\') OR (ac.rid = ? AND ac.realm = \'author\')';
@@ -481,7 +474,7 @@ class annotation {
             $this->accessview = $requestbody->access_settings;
         }
 
-        $ACTION = "created";
+        $action = "created";
 
         // Pin mode.
         if (!empty($requestbody->pinmode)) {
@@ -503,13 +496,13 @@ class annotation {
                 $this->videoid = $requestbody->video_nid;
 
             } else {
-                $parentannotation = annotation::retrieve_from_db($parentid);
+                $parentannotation = self::retrieve_from_db($parentid);
                 $this->videoid = $parentannotation->get_videoid();
 
             }
         } else {
             // Edit annotation.
-            $ACTION = "updated";
+            $action = "updated";
         }
 
         $this->timemodified = time();
@@ -521,7 +514,7 @@ class annotation {
         }
 
         // Fire event Api (Generate Message).
-        $this->message_api($ACTION, $requestbody);
+        $this->message_api($action, $requestbody);
     }
 
     /**
@@ -576,7 +569,7 @@ class annotation {
      *
      * @return int
      */
-    function get_preview_id() {
+    public function get_preview_id() {
         return (int) ($this->timestamp * 1000);
     }
 
@@ -628,7 +621,6 @@ class annotation {
 
         $this->save_to_db();
 
-
     }
 
     public function get_player_user_data() {
@@ -639,7 +631,7 @@ class annotation {
         return array(
                 'update' => $this->access('edit'),
                 'delete' => $this->access('delete'),
-                'reply' =>  $this->access('create'),
+                'reply' => $this->access('create'),
                 'edit_access' => $this->access("lock_access")
         );
     }
@@ -746,7 +738,7 @@ class annotation {
                 if (is_siteadmin()) {
                     return true;
                 }
-                //instance permission
+                // Instance permission.
                 if (has_capability('mod/ivs:create_comment', $context)) {
                     return true;
                 }
@@ -827,7 +819,7 @@ class annotation {
     }
 
     public function get_timecode($millisecs = false) {
-        return annotation::format_timecode($this->timestamp, $millisecs);
+        return self::format_timecode($this->timestamp, $millisecs);
     }
 
     public static function has_capability_view_any_comment($context) {
@@ -845,171 +837,150 @@ class annotation {
     /**
      * @return mixed
      */
-    public
-    function get_id() {
+    public function get_id() {
         return $this->id;
     }
 
     /**
      * @param mixed $id
      */
-    public
-    function set_id($id) {
+    public function set_id($id) {
         $this->id = $id;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_body() {
+    public function get_body() {
         return $this->body;
     }
     /**
      * @return mixed
      */
-    public
-    function get_rendered_body() {
-        $this->body = str_replace('\[','$$',$this->body);
-        $this->body = str_replace('\]','$$',$this->body);
-        $this->body = str_replace('\(','$',$this->body);
-        $this->body = str_replace('\)','$',$this->body);
+    public function get_rendered_body() {
+        $this->body = str_replace('\[', '$$', $this->body);
+        $this->body = str_replace('\]', '$$', $this->body);
+        $this->body = str_replace('\(', '$', $this->body);
+        $this->body = str_replace('\)', '$', $this->body);
         return format_text($this->body, FORMAT_MARKDOWN);
     }
 
     /**
      * @param mixed $body
      */
-    public
-    function set_body($body) {
+    public function set_body($body) {
         $this->body = $body;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_videoid() {
+    public function get_videoid() {
         return $this->videoid;
     }
 
     /**
      * @param mixed $videoid
      */
-    public
-    function set_videoid($videoid) {
+    public function set_videoid($videoid) {
         $this->videoid = $videoid;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_timestamp() {
+    public function get_timestamp() {
         return $this->timestamp;
     }
 
     /**
      * @param mixed $timestamp
      */
-    public
-    function set_timestamp($timestamp) {
+    public function set_timestamp($timestamp) {
         $this->timestamp = $timestamp;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_duration() {
+    public function get_duration() {
         return $this->duration;
     }
 
     /**
      * @param mixed $duration
      */
-    public
-    function set_duration($duration) {
+    public function set_duration($duration) {
         $this->duration = $duration;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_thumbnail() {
+    public function get_thumbnail() {
         return $this->thumbnail;
     }
 
     /**
      * @param mixed $thumbnail
      */
-    public
-    function set_thumbnail($thumbnail) {
+    public function set_thumbnail($thumbnail) {
         $this->thumbnail = $thumbnail;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_userid() {
+    public function get_userid() {
         return $this->userid;
     }
 
     /**
      * @param mixed $userid
      */
-    public
-    function set_userid($userid) {
+    public function set_userid($userid) {
         $this->userid = $userid;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_additionaldata() {
+    public function get_additionaldata() {
         return $this->additionaldata;
     }
 
     /**
      * @param mixed $additionaldata
      */
-    public
-    function set_additionaldata($additionaldata) {
+    public function set_additionaldata($additionaldata) {
         $this->additionaldata = $additionaldata;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_timemodified() {
+    public function get_timemodified() {
         return $this->timemodified;
     }
 
     /**
      * @param mixed $timemodified
      */
-    public
-    function set_timemodified($timemodified) {
+    public function set_timemodified($timemodified) {
         $this->timemodified = $timemodified;
     }
 
     /**
      * @return mixed
      */
-    public
-    function get_timecreated() {
+    public function get_timecreated() {
         return $this->timecreated;
     }
 
     /**
      * @param mixed $timecreated
      */
-    public
-    function set_timecreated($timecreated) {
+    public function set_timecreated($timecreated) {
         $this->timecreated = $timecreated;
     }
 
@@ -1068,6 +1039,25 @@ class annotation {
         $id = $this->get_id();
 
         return new \moodle_url('/mod/ivs/annotation_overview.php', array('id' => $this->get_videoid()), 'comment-' . $id);
+    }
+
+    /**
+     * @return string
+     */
+    public function get_rating_text() {
+        if(empty($this->additionaldata['rating'])){
+            return '';
+        }
+        switch ($this->additionaldata['rating']) {
+            case 34:
+                return 'red';
+            case 67:
+                return 'yellow';
+            case 100:
+                return 'green';
+            default:
+                return 'invalid rating code';
+        }
     }
 
 }

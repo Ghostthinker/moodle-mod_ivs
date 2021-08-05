@@ -27,11 +27,11 @@
  * @see upgrade_plugins_modules()
  */
 function xmldb_ivs_install() {
-    $all_roles = get_all_roles();
-    foreach($all_roles as $role){
+    $allroles = get_all_roles();
+    foreach ($allroles as $role) {
         $roles[] = $role->id;
     }
-    $roles = implode(',',$roles);
+    $roles = implode(',', $roles);
 
     set_config('enable_comments_by_role', $roles, 'mod_ivs');
     set_config('enable_match_results_by_role', $roles, 'mod_ivs');

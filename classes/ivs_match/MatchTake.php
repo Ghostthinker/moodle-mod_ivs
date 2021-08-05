@@ -43,7 +43,7 @@ class MatchTake {
     public $changed;
     public $completed;
     public $score;
-    public $status = MatchTake::STATUS_NEW;
+    public $status = self::STATUS_NEW;
     public $evaluated = false;
 
 }

@@ -37,9 +37,9 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 
 require_login($course, true, $cm);
 
-$courseService = new CourseService();
-$roleStudent = $DB->get_record('role', array('shortname' => 'student'));
-$coursestudents = $courseService->get_course_membersby_role($course->id, $roleStudent->id);
+$courseservice = new CourseService();
+$rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+$coursestudents = $courseservice->get_course_membersby_role($course->id, $rolestudent->id);
 
 $columns = array(
         'question_id' => get_string("ivs_match_question_summary_question_id", 'ivs'),
@@ -59,9 +59,9 @@ foreach ($questions as $question) {
     $questiondata = $controller->get_question_summary_formated($question, $coursestudents);
 
     $data[] = array(
-            'question_id' => $questiondata->questionid,
-            'question_title' => $questiondata->questiontitle,
-            'question_body' => $questiondata->questionbody,
+            'question_id' => $questiondata->question_id,
+            'question_title' => $questiondata->question_title,
+            'question_body' => $questiondata->question_body,
             'question_type' => $questiondata->question_type,
             'question_first_try' => $questiondata->question_first_try,
             'question_last_try' => $questiondata->question_last_try,
@@ -71,4 +71,10 @@ foreach ($questions as $question) {
 
 $filename = clean_filename($course->shortname . get_string('ivs_match_question_export_summary_filename', 'ivs'));
 
-download_as_dataformat($filename, $dataformat, $columns, $data);
+if (class_exists ( '\core\dataformat' )) {
+    \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+} else {
+    download_as_dataformat($filename, $dataformat, $columns, $data);
+}
+
+

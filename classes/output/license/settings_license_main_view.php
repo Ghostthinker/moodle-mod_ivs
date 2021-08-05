@@ -33,7 +33,7 @@ class settings_license_main_view implements renderable, templatable {
     public function __construct() {
     }
 
-    public function export_for_template(renderer_base $output){
+    public function export_for_template(renderer_base $output) {
         $data = new \stdClass;
         $lc = ivs_get_license_controller();
         $data->instance_id_label = get_string('ivs_instance_id_label', 'ivs');

@@ -170,6 +170,12 @@
     font-size: 12px;
 }
 
+.ivs-comments-footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
 
 @media (min-width: 1200px) {
 

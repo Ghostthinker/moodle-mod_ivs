@@ -38,9 +38,9 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 
 require_login($course, true, $cm);
 
-$courseService = new CourseService();
-$roleStudent = $DB->get_record('role', array('shortname' => 'student'));
-$coursestudents = $courseService->get_course_membersby_role($course->id, $roleStudent->id);
+$courseservice = new CourseService();
+$rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+$coursestudents = $courseservice->get_course_membersby_role($course->id, $rolestudent->id);
 
 $controller = new MoodleMatchController();
 
@@ -75,7 +75,7 @@ $data[] = array(
         'col_11' => get_string("ivs_match_question_answer_menu_label_last_single_choice_selected_answer", 'ivs'),
 );
 
-$question_types = [
+$questiontypes = [
         'single_choice_question' => get_string('ivs_match_question_summary_question_type_single', 'ivs'),
         'click_question' => get_string('ivs_match_question_summary_question_type_click', 'ivs'),
         'text_question' => get_string('ivs_match_question_summary_question_type_text', 'ivs')
@@ -86,18 +86,18 @@ foreach ($questions as $question) {
 
     foreach ($coursestudents as $coursestudent) {
 
-        $userAnswers = array();
-        $userAnswers[] =
+        $useranswers = array();
+        $useranswers[] =
                 $controller->match_question_answers_get_by_question_and_user_for_reporting($question['nid'], $coursestudent->id);
 
         switch ($question['type']) {
             case 'single_choice_question':
 
-                $scanswerdetail = $controller->get_question_answers_data_single_choice_question($userAnswers, $coursestudent);
+                $scanswerdetail = $controller->get_question_answers_data_single_choice_question($useranswers, $coursestudent);
 
                 $data[] = array(
                         'col_1' => $question['nid'],
-                        'col_2' => $question_types[$question['type']],
+                        'col_2' => $questiontypes[$question['type']],
                         'col_3' => $question['question_body'],
                         'col_4' => $question['title'],
                         'col_5' => $scanswerdetail->fullname,
@@ -111,10 +111,10 @@ foreach ($questions as $question) {
                 break;
             case 'click_question':
 
-                $cqanswerdetail = $controller->get_question_answers_data_click_question($userAnswers, $coursestudent);
+                $cqanswerdetail = $controller->get_question_answers_data_click_question($useranswers, $coursestudent);
                 $data[] = array(
                         'col_1' => $question['nid'],
-                        'col_2' => $question_types[$question['type']],
+                        'col_2' => $questiontypes[$question['type']],
                         'col_3' => $question['question_body'],
                         'col_4' => $question['title'],
                         'col_5' => $cqanswerdetail->fullname,
@@ -128,10 +128,10 @@ foreach ($questions as $question) {
                 break;
             case 'text_question':
 
-                $tqanswerdetail = $controller->get_question_answers_data_text_question($userAnswers, $coursestudent);
+                $tqanswerdetail = $controller->get_question_answers_data_text_question($useranswers, $coursestudent);
                 $data[] = array(
                         'col_1' => $question['nid'],
-                        'col_2' => $question_types[$question['type']],
+                        'col_2' => $questiontypes[$question['type']],
                         'col_3' => $question['question_body'],
                         'col_4' => $question['title'],
                         'col_5' => $tqanswerdetail->fullname,
@@ -149,4 +149,8 @@ foreach ($questions as $question) {
 
 $filename = clean_filename($course->shortname . get_string('ivs_match_question_export_summary_details_filename', 'ivs'));
 
-download_as_dataformat($filename, $dataformat, $columns, $data);
+if (class_exists ( '\core\dataformat' )) {
+    \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+} else {
+    download_as_dataformat($filename, $dataformat, $columns, $data);
+}

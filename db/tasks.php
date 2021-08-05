@@ -21,6 +21,8 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $tasks = array(
         array(
                 'classname' => 'mod_ivs\task\cockpit_report_daily',

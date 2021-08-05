@@ -23,7 +23,7 @@
 
 require_once('../../config.php');
 
-define('DEFAULT_PAGE_SIZE', 10); //TODO INCREASE THIS
+define('DEFAULT_PAGE_SIZE', 10); // TODO INCREASE THIS.
 define('SHOW_ALL_PAGE_SIZE', 5000);
 
 // Pager, sort and settings.
@@ -42,7 +42,7 @@ require_login($course, true, $cm);
 
 // Only allow if permission is correct.
 if (!has_capability('mod/ivs:access_match_reports', $context)) {
-    print_error('accessdenied', 'admin');
+    throw new moodle_exception('accessdenied', 'admin');
 }
 
 $PAGE->set_url('/mod/ivs/questions.php', array('id' => $cm->id));

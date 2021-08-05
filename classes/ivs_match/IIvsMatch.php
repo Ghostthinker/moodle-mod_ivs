@@ -88,10 +88,10 @@ interface IIvsMatch {
      * @param $data
      *   Holds answer data and question_id as well as the user_id
      * @param null $userid
-     * @param bool $skip_access
+     * @param bool $skipaccess
      * @return mixed
      */
-    public function match_question_answer_insert_db($videoid, $data, $userid = null, $skip_access = false);
+    public function match_question_answer_insert_db($videoid, $data, $userid = null, $skipaccess = false);
 
     /**
      * Get a single answer by answer id
@@ -143,7 +143,7 @@ interface IIvsMatch {
     public function match_question_answer_delete_db($answerid, $skipaccess = false);
 
 
-    //new interface functions for takes
+    // New interface functions for takes.
 
     /**
      * Get the Match config by video and optional context_id

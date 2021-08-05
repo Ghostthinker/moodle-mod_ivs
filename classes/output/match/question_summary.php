@@ -32,17 +32,17 @@ use stdClass;
 
 class question_summary implements renderable, templatable {
 
-    var $question = null;
-    var $module = null;
+    public $question = null;
+    public $module = null;
     private $ivs;
 
-    public function __construct($ivs, $questions, $module, $offset, $perpage, $courseStudents) {
+    public function __construct($ivs, $questions, $module, $offset, $perpage, $coursestudents) {
 
         $this->questions = $questions;
         $this->module = $module;
         $this->offset = $offset;
         $this->perpage = $perpage;
-        $this->course_students = $courseStudents;
+        $this->course_students = $coursestudents;
         $this->ivs = $ivs;
     }
 
@@ -51,13 +51,13 @@ class question_summary implements renderable, templatable {
         $data = new stdClass();
         $data->title = get_string("ivs_match_question_summary_title", 'ivs');
 
-        $data->question_id = get_string("ivs_match_question_summary_question_id", 'ivs');#'Question ID';
-        $data->question_title = get_string("ivs_match_question_summary_question_title", 'ivs'); #'Title';
-        $data->question_body = get_string("ivs_match_question_summary_question_body", 'ivs'); #'Question';
-        $data->question_type = get_string("ivs_match_question_summary_question_type", 'ivs'); #'Question Type';
-        $data->question_first_try = get_string("ivs_match_question_summary_question_first_try", 'ivs'); #'First Try: correct';
-        $data->question_last_try = get_string("ivs_match_question_summary_question_last_try", 'ivs'); #'Last Try: correct';
-        $data->question_answered = get_string("ivs_match_question_summary_question_answered", 'ivs'); #'Participation';
+        $data->question_id = get_string("ivs_match_question_summary_question_id", 'ivs');
+        $data->question_title = get_string("ivs_match_question_summary_question_title", 'ivs');
+        $data->question_body = get_string("ivs_match_question_summary_question_body", 'ivs');
+        $data->question_type = get_string("ivs_match_question_summary_question_type", 'ivs');
+        $data->question_first_try = get_string("ivs_match_question_summary_question_first_try", 'ivs');
+        $data->question_last_try = get_string("ivs_match_question_summary_question_last_try", 'ivs');
+        $data->question_answered = get_string("ivs_match_question_summary_question_answered", 'ivs');
 
         $totalcount = count($this->questions);
 
@@ -66,29 +66,27 @@ class question_summary implements renderable, templatable {
                 break;
             }
             $renderable = new question_summary_view($this->questions[$i], $this->course_students);
-            $renderable->question['question_body'] = str_replace('\[','$$',$renderable->question['question_body']);
-            $renderable->question['question_body'] = str_replace('\]','$$',$renderable->question['question_body']);
-            $renderable->question['question_body'] = str_replace('\(','$',$renderable->question['question_body']);
-            $renderable->question['question_body'] = str_replace('\)','$',$renderable->question['question_body']);
-            $renderable->question['title'] = str_replace('$$','$',$renderable->question['title']);
-            $renderable->question['title'] = str_replace('$','$$',$renderable->question['title']);
-            $renderable->question['title'] = str_replace('\[','$$',$renderable->question['title']);
-            $renderable->question['title'] = str_replace('\]','$$',$renderable->question['title']);
-            $renderable->question['title'] = str_replace('\(','$$',$renderable->question['title']);
-            $renderable->question['title'] = str_replace('\)','$$',$renderable->question['title']);
+            $renderable->question['question_body'] = str_replace('\[', '$$', $renderable->question['question_body']);
+            $renderable->question['question_body'] = str_replace('\]', '$$', $renderable->question['question_body']);
+            $renderable->question['question_body'] = str_replace('\(', '$', $renderable->question['question_body']);
+            $renderable->question['question_body'] = str_replace('\)', '$', $renderable->question['question_body']);
+            $renderable->question['title'] = str_replace('$$', '$', $renderable->question['title']);
+            $renderable->question['title'] = str_replace('$', '$$', $renderable->question['title']);
+            $renderable->question['title'] = str_replace('\[', '$$', $renderable->question['title']);
+            $renderable->question['title'] = str_replace('\]', '$$', $renderable->question['title']);
+            $renderable->question['title'] = str_replace('\(', '$$', $renderable->question['title']);
+            $renderable->question['title'] = str_replace('\)', '$$', $renderable->question['title']);
             // We need this, because he dont apply mathjax when no $$ exists.
-            if(!strpos($renderable->question['question_body'],'$$')){
+            if (!strpos($renderable->question['question_body'], '$$')) {
                 $renderable->question['question_body'] .= ' $$ $$';
             }
-            if(!strpos($renderable->question['title'],'$$')){
+            if (!strpos($renderable->question['title'], '$$')) {
                 $renderable->question['title'] .= ' $$ $$';
             }
             $renderable->question['question_body'] = format_text($renderable->question['question_body'], FORMAT_MARKDOWN);
             $renderable->question['title'] = format_text($renderable->question['title'], FORMAT_MARKDOWN);
             $data->questions[] = $output->render($renderable);
         }
-
-
 
         // Render Pager Options in Dropdown.
         $pagerurl = new moodle_url('/mod/ivs/questions.php?id=' . $this->module->id . '&question-summary');

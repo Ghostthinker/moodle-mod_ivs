@@ -25,7 +25,7 @@ namespace mod_ivs\ivs_match;
 
 class MatchConfig {
 
-    public $assessment_type = AssessmentConfig::ASSESSMENT_TYPE_TAKES;
+    public $assessmenttype = AssessmentConfig::ASSESSMENT_TYPE_TAKES;
 
     public $rate = 100;
     public $attempts = 0;

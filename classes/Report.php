@@ -43,7 +43,7 @@ class Report {
     private $timecreated;
     private $timemodified;
 
-    function __construct($dbrecord = false) {
+    public function __construct($dbrecord = false) {
         if (is_object($dbrecord)) {
             $dbrecord->filter = unserialize($dbrecord->filter);
             $this->set_record($dbrecord);

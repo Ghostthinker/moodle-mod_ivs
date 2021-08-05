@@ -25,6 +25,7 @@ namespace mod_ivs\settings;
 
 class SettingsDefinition {
 
+    const SETTING_ANNOTATIONS_ENABLED = 'annotations_enabled';
     const SETTING_PLAYBACKCOMMANDS_ENABLED = 'playbackcommands_enabled';
     const SETTING_MATCH_QUESTION_ENABLED = 'match_question_enabled';
     const SETTING_BUTTONS_HOVER_ENABLED = 'list_item_buttons_hover_enabled';
@@ -33,6 +34,7 @@ class SettingsDefinition {
     const SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT = 'default_random_question';
     const SETTING_PLAYER_AUTOHIDE_CONTROLBAR = 'hide_when_inactive';
     const SETTING_PLAYER_ACCESSIBILITY = 'accessibility_enabled';
+    const SETTING_PLAYER_LOCK_REALM = 'lock_realm_enabled';
     const SETTING_PLAYER_PLAYBACKRATE = 'playbackrate_enabled';
 
     public $name;
@@ -42,6 +44,7 @@ class SettingsDefinition {
     public $default;
     public $lockedcourse;
     public $lockedsite;
+    public $options;
 
     /**
      * SettingsDefinition constructor.
@@ -52,14 +55,15 @@ class SettingsDefinition {
      * @param $type
      * @param $default
      */
-    public function __construct($name, $title, $description, $type, $default, $lockedcourse, $locked_site) {
+    public function __construct($name, $title, $description, $type, $default, $lockedcourse, $lockedsite, $options = null) {
         $this->name = $name;
         $this->title = $title;
         $this->description = $description;
         $this->type = $type;
         $this->default = $default;
         $this->lockedcourse = $lockedcourse;
-        $this->lockedsite = $locked_site;
+        $this->lockedsite = $lockedsite;
+        $this->options = $options;
     }
 
 }

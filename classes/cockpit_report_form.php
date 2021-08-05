@@ -26,12 +26,14 @@ namespace mod_ivs;
 use core_date;
 use DateTime;
 
-global $CFG;
 defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
 
 class cockpit_report_form {
 
-    protected $PAGE;
+    protected $page;
     protected $course;
     protected $context;
     protected $parameters;
@@ -40,27 +42,27 @@ class cockpit_report_form {
     /**
      * cockpit_filter_form constructor.
      *
-     * @param $PAGE
+     * @param $page
      * @param $course
      * @param $context
      * @param $rawparameters
      * @param \mod_ivs\ReportService $reportservice
      */
-    public function __construct($PAGE, $course, $context, $rawparameters, ReportService $reportservice) {
-        $this->PAGE = $PAGE;
+    public function __construct($page, $course, $context, $rawparameters, ReportService $reportservice) {
+        $this->page = $page;
         $this->course = $course;
         $this->context = $context;
 
         $this->reportservice = $reportservice;
 
-        $this->parameters = $this->_parse_parameters($rawparameters);
+        $this->parameters = $this->parse_parameters($rawparameters);
 
     }
 
-    function render() {
+    public function render() {
 
         global $DB;
-        $for_out = "";
+        $forout = "";
         // Build url and hidden fields.
 
         $out = "";
@@ -81,7 +83,7 @@ class cockpit_report_form {
                 // TODO check - is this my report.
 
                 // Build filter url.
-                $newupdateurl = $this->PAGE->url;
+                $newupdateurl = $this->page->url;
                 $newupdateurl->param("filter_users", $report->get_filter()['filter_users']);
                 $newupdateurl->param("grouping", $report->get_filter()['grouping']);
                 $newupdateurl->param("sortkey", $report->get_filter()['sortkey']);
@@ -162,11 +164,11 @@ class cockpit_report_form {
 
     }
 
-    function render_form($report = null) {
+    public function render_form($report = null) {
         $out = "";
         $startdate = "";
         $valuerotation = "";
-        $url = clone $this->PAGE->url;
+        $url = clone $this->page->url;
         $action = "$url";
 
         $params = $url->params();
@@ -221,14 +223,14 @@ class cockpit_report_form {
         return "<form class='ivs-annotation-filter-form' method='post' action='" . $action . "'>$out</form>";
     }
 
-    function render_listing() {
+    public function render_listing() {
 
         global $USER;
 
-        $actioncreatelink = clone $this->PAGE->url;
+        $actioncreatelink = clone $this->page->url;
         $actioncreatelink->param("report_action", "create");
 
-        $reports = $this->reportservice->getReportsByCourse($this->course->id, $USER->id);
+        $reports = $this->reportservice->get_reports_by_course($this->course->id, $USER->id);
 
         $out = "";
 
@@ -237,12 +239,12 @@ class cockpit_report_form {
 
             $filter = $report->get_filter();
 
-            $editurl = clone $this->PAGE->url;
+            $editurl = clone $this->page->url;
             $editurl->param("report_action", "update");
             $editurl->param("report_id", $report->get_id());
             $editurl->param("filter_users", $filter['filter_users']);
 
-            $deleteurl = clone $this->PAGE->url;
+            $deleteurl = clone $this->page->url;
             $deleteurl->param("report_action", "delete");
             $deleteurl->param("report_id", $report->get_id());
             $deleteurl->param("filter_users", $filter['filter_users']);
@@ -269,7 +271,7 @@ class cockpit_report_form {
      *
      * @param $rawparameters
      */
-    private function _parse_parameters($rawparameters) {
+    private function parse_parameters($rawparameters) {
 
         $parsedparameters = array();
 
@@ -301,7 +303,7 @@ class cockpit_report_form {
      * @param $rawparameters
      * @param $options
      */
-    private function _parse_simple_select_option_input($key, $rawparameters, $options) {
+    private function parse_simple_select_option_input($key, $rawparameters, $options) {
         $this->parameters[$key] = null;
 
         if (array_key_exists($key, $rawparameters)) {
@@ -331,7 +333,7 @@ class cockpit_report_form {
 
         // Update existing.
         if (empty($reportid)) {
-            $this->reportservice->createReport($courseid, $startdate, $rotation, $options, $userid);
+            $this->reportservice->create_report($courseid, $startdate, $rotation, $options, $userid);
         } else {
 
             $report = $this->reportservice->retrieve_from_db($reportid);
@@ -359,9 +361,9 @@ class cockpit_report_form {
      *
      * @throws \moodle_exception
      */
-    function redirect_to_cockpit() {
+    public function redirect_to_cockpit() {
         /** @var \moodle_url $newurl */
-        $newurl = $this->PAGE->url;
+        $newurl = $this->page->url;
         $newurl->remove_params(array("report_action", "report_id"));
         redirect($newurl);
     }

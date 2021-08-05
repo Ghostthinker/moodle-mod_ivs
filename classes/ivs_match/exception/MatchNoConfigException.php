@@ -23,11 +23,6 @@
 
 namespace mod_ivs\ivs_match\exception;
 
-use Throwable;
-
 class MatchNoConfigException extends \Exception {
-    public function __construct($message = "", $code = 0, \Throwable $previous = null) {
-        parent::__construct($message, $code, $previous);
-    }
 
 }

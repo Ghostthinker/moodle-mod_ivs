@@ -76,14 +76,15 @@ class mod_ivs_mod_form extends moodleform_mod {
         if ((int) $CFG->ivs_opencast_external_files_enabled) {
 
             try {
-                $opencast_videos = $this->get_videos_for_select();
-                if ($opencast_videos && count($opencast_videos) > 0) {
+                $opencastvideos = $this->get_videos_for_select();
+                if ($opencastvideos && count($opencastvideos) > 0) {
                     $select =
                             $mform->addElement('select', 'opencast_video', get_string('ivs_setting_opencast_menu_title', 'ivs'),
-                                    $opencast_videos);
+                                    $opencastvideos);
                 }
 
             } catch (Exception $e) {
+                \core\notification::error($e->getMessage());
             }
         }
 
@@ -105,37 +106,37 @@ class mod_ivs_mod_form extends moodleform_mod {
         $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'));
         $settingsdefinitions = \mod_ivs\settings\SettingsService::get_settings_definitions();
 
-        $settingsController = new SettingsService();
-        $parentsettings = $settingsController->get_rarent_settings_for_activity($this->_course->id);
+        $settingscontroller = new SettingsService();
+        $parentsettings = $settingscontroller->get_rarent_settings_for_activity($this->_course->id);
 
         if (!empty($this->_instance)) {
-            $activiysettings = $settingsController->load_settings($this->_instance, 'activity');
+            $activiysettings = $settingscontroller->load_settings($this->_instance, 'activity');
         }
+
+        $lockreadaccessoptions = SettingsService::get_ivs_read_access_options();
 
         /** @var \mod_ivs\settings\SettingsDefinition $settingsdefinition */
         foreach ($settingsdefinitions as $settingsdefinition) {
-            switch ($settingsdefinition->type) {
-                case 'checkbox':
-                    $settingsController::add_vis_setting_to_form($parentsettings, $settingsdefinition, $mform, false);
+            $settingscontroller::add_vis_setting_to_form($settingsdefinition->type, $parentsettings, $settingsdefinition, $mform,
+                    false, $lockreadaccessoptions);
 
-                    if (isset($activiysettings[$settingsdefinition->name])) {
-                        if (!$parentsettings[$settingsdefinition->name]->locked) {
-                            $mform->setDefault($settingsdefinition->name . "[value]",
-                                    $activiysettings[$settingsdefinition->name]->value);
-                            $mform->setDefault($settingsdefinition->name . "[locked]",
-                                    $activiysettings[$settingsdefinition->name]->locked);
-                        } else {
-                            $mform->setDefault($settingsdefinition->name . "[value]",
-                                    $parentsettings[$settingsdefinition->name]->value);
-                            $mform->setDefault($settingsdefinition->name . "[locked]",
-                                    $parentsettings[$settingsdefinition->name]->locked);
-                        }
-                    } else {
-                        $mform->setDefault($settingsdefinition->name . "[value]",
-                                $parentsettings[$settingsdefinition->name]->value);
-                        $mform->setDefault($settingsdefinition->name . "[locked]",
-                                $parentsettings[$settingsdefinition->name]->locked);
-                    }
+            if (isset($activiysettings[$settingsdefinition->name])) {
+                if (!$parentsettings[$settingsdefinition->name]->locked) {
+                    $mform->setDefault($settingsdefinition->name . "[value]",
+                            $activiysettings[$settingsdefinition->name]->value);
+                    $mform->setDefault($settingsdefinition->name . "[locked]",
+                            $activiysettings[$settingsdefinition->name]->locked);
+                } else {
+                    $mform->setDefault($settingsdefinition->name . "[value]",
+                            $parentsettings[$settingsdefinition->name]->value);
+                    $mform->setDefault($settingsdefinition->name . "[locked]",
+                            $parentsettings[$settingsdefinition->name]->locked);
+                }
+            } else {
+                $mform->setDefault($settingsdefinition->name . "[value]",
+                        $parentsettings[$settingsdefinition->name]->value);
+                $mform->setDefault($settingsdefinition->name . "[locked]",
+                        $parentsettings[$settingsdefinition->name]->locked);
             }
         }
 
@@ -157,8 +158,6 @@ class mod_ivs_mod_form extends moodleform_mod {
     }
 
     public function data_preprocessing(&$defaultvalues) {
-
-
         if ($this->current->instance) {
             $options = array(
                     'subdirs' => false,
@@ -179,15 +178,14 @@ class mod_ivs_mod_form extends moodleform_mod {
         if (!empty($defaultvalues['videourl'])) {
 
             $parts = explode("://", $defaultvalues['videourl']);
-           if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
-
+            if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
                 $defaultvalues['opencast_video'] = $parts[1];
             }
         }
 
     }
 
-    function get_videos_for_select() {
+    public function get_videos_for_select() {
 
         global $COURSE;
         $publishedvideos = array();
@@ -214,14 +212,13 @@ class mod_ivs_mod_form extends moodleform_mod {
             return $publishedvideos;
         }
 
-         foreach ($videos as $video) {
+        foreach ($videos as $video) {
             if (in_array('opencast-api', $video->publication_status)) {
                 $publishedvideos[$video->identifier] = $video->title;
-            }elseif (in_array('switchcast-api', $video->publication_status)) {
+            } else if (in_array('switchcast-api', $video->publication_status)) {
                 $publishedvideos[$video->identifier] = $video->title;
             }
         }
-
 
         return $publishedvideos;
     }

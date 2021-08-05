@@ -34,10 +34,9 @@ use user_picture;
 
 class annotation_view implements renderable, templatable {
 
-    /** @var \mod_ivs\annotation */
-    var $annotation = null;
-    var $ivs = null;
-    var $module;
+    public $annotation = null;
+    public $ivs = null;
+    public $module;
 
     /**
      * annotation_view constructor.
@@ -106,7 +105,7 @@ class annotation_view implements renderable, templatable {
         $renderer = $PAGE->get_renderer('ivs');
 
         // Render Replies.
-        /** @var \mod_ivs\annotation $comment */
+        // @var \mod_ivs\annotation $comment.
         foreach ($replies as $reply) {
             $renderable = new \mod_ivs\output\annotation_reply_view($reply);
             $data->replies .= $renderer->render($renderable);

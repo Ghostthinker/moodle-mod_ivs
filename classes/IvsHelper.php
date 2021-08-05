@@ -25,10 +25,9 @@ namespace mod_ivs;
 
 class IvsHelper {
 
-    static function get_user_data_for_player($userid) {
+    public static function get_user_data_for_player($userid) {
 
         if ($userid == null) {
-
 
             return array(
                     'name' => "Anonymous",
@@ -36,7 +35,7 @@ class IvsHelper {
             );
         }
 
-        $user = IvsHelper::get_user($userid);
+        $user = self::get_user($userid);
 
         return array(
                 'uid' => $userid,
@@ -51,7 +50,7 @@ class IvsHelper {
      * @return bool|false|mixed|null|object|\stdClass|string
      */
     public static function get_user($id) {
-        global $USER, $DB, $PAGE;;
+        global $USER, $DB, $PAGE;
 
         if (empty($id)) {
             return null;
@@ -61,7 +60,6 @@ class IvsHelper {
 
         if (!isset($usercache[$id])) {
 
-
             if ($USER->id == $id) {
                 $user = clone($USER);
             } else {
@@ -69,12 +67,15 @@ class IvsHelper {
                         'user', array('id' => $id));
             }
 
-            $userpicture = new \user_picture($user);
-            $userpictureurl = $userpicture->get_url($PAGE) . '';
+            if(!empty($user)) {
+                $userpicture = new \user_picture($user);
+                $userpictureurl = $userpicture->get_url($PAGE) . '';
 
-            $usercache[$id]['user'] = $user;
-            $usercache[$id]['fullname'] = fullname($user);
-            $usercache[$id]['picture'] = $userpictureurl;
+                $usercache[$id]['user'] = $user;
+                $usercache[$id]['fullname'] = fullname($user);
+                $usercache[$id]['picture'] = $userpictureurl;
+            }
+
 
         }
         return $usercache[$id];
@@ -87,7 +88,7 @@ class IvsHelper {
      * @param $ivsid
      * @return bool
      */
-    static function access_player($ivsid) {
+    public static function access_player($ivsid) {
         global $DB;
 
         try {

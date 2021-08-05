@@ -22,7 +22,6 @@
  */
 
 define('NO_OUTPUT_BUFFERING', true);
-defined('MOODLE_INTERNAL');
 define('IVS_LICENSE_SPOTS_NEARLY_FULL', "spots_nearly_full");
 define('IVS_LICENSE_SPOTS_FULL', "spots_full");
 define('IVS_LICENSE_SPOTS_OVERBOOKED', "spots_overbooked");
@@ -32,16 +31,16 @@ use mod_ivs\license\LicenseCourseForm;
 use mod_ivs\license\TestsystemForm;
 use mod_ivs\license\PlayerVersionForm;
 
-global $CFG, $DB;
-
 require(__DIR__ . '/../../../config.php');
+
+global $CFG, $DB;
 
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/outputcomponents.php');
 require_once($CFG->dirroot . '/mod/ivs/lib.php');
 
-require_login(null,false);
+require_login(null, false);
 admin_externalpage_setup('admin_settings_license');
 $viewmode = optional_param('view', 'default', PARAM_ALPHA);
 $heading = get_string('modulecategory', 'ivs') . ' ' . get_string('ivs_license', 'ivs');
@@ -75,7 +74,7 @@ $mform = new LicenseCourseForm($CFG->wwwroot . '/mod/ivs/admin/admin_settings_li
 $playerelectionform = new PlayerVersionForm($CFG->wwwroot . '/mod/ivs/admin/admin_settings_license.php');
 $testsystemform = new TestsystemForm($CFG->wwwroot . '/mod/ivs/admin/admin_settings_license.php');
 
-if (data_submitted() && confirm_sesskey()){
+if (data_submitted() && confirm_sesskey()) {
 
 
     if ($fromform = $mform->get_data()) {
@@ -116,29 +115,31 @@ if (data_submitted() && confirm_sesskey()){
         }
     }
 
-     if ($fromform = $playerelectionform->get_data()) {
+    if ($fromform = $playerelectionform->get_data()) {
         $status = $lc->get_status();
         $playerversion = $fromform->ivs_player_version['player_version'];
         if ($status->used_player_version == $playerversion) {
-            \core\notification::info(get_string('ivs_same_player_version', 'ivs'));
+            \core\notification::info(get_string('ivs_same_player_version',
+              'ivs'));
         } else {
             $status = $lc->set_player_version($playerversion);
 
             if (!$status) {
-                \core\notification::error(get_string('ivs_course_license_error_no_licenses_available', 'ivs'));
+                \core\notification::error(get_string('ivs_course_license_error_no_licenses_available',
+                  'ivs'));
             } else {
                 // Redirect back to the form.
                 redirect(new moodle_url('/mod/ivs/admin/admin_settings_license.php'),
-                        get_string('ivs_changed_player_successfully', 'ivs'),
-                        null, \core\output\notification::NOTIFY_SUCCESS);
+                  get_string('ivs_changed_player_successfully', 'ivs'),
+                  null, \core\output\notification::NOTIFY_SUCCESS);
             }
         }
     }
 }
 // REMOVE Action.
-$requiredcourseid = optional_param('course_id','',PARAM_ALPHANUMEXT);
-$requiredlicenseid = optional_param('license_id','',PARAM_ALPHANUMEXT);
-$requiredoperation = optional_param('remove','',PARAM_ALPHANUMEXT);
+$requiredcourseid = optional_param('course_id', '', PARAM_ALPHANUMEXT);
+$requiredlicenseid = optional_param('license_id', '', PARAM_ALPHANUMEXT);
+$requiredoperation = optional_param('remove', '', PARAM_ALPHANUMEXT);
 
 
 if (!empty($requiredcourseid) && $requiredcourseid != "" && !empty($requiredlicenseid) && $requiredoperation == true) {

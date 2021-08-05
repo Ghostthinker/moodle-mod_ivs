@@ -89,6 +89,14 @@ $capabilities = array(
                 )
         ),
 
+        'mod/ivs:download_annotations' => array(
+                'captype' => 'write',
+                'contextlevel' => CONTEXT_MODULE,
+                'archetypes' => array(
+                        'editingteacher' => CAP_ALLOW,
+                )
+        ),
+
         'mod/ivs:access_course_settings' => array(
                 'captype' => 'write',
                 'contextlevel' => CONTEXT_MODULE,

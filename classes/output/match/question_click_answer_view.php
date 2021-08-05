@@ -34,11 +34,11 @@ use tool_langimport\controller;
 
 class question_click_answer_view implements renderable, templatable {
 
-    var $answer = null;
+    public $answer = null;
 
-    public function __construct($answer, $course_user) {
+    public function __construct($answer, $courseuser) {
         $this->answer = $answer;
-        $this->course_user = $course_user;
+        $this->course_user = $courseuser;
     }
 
     public function export_for_template(renderer_base $output) {

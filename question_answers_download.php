@@ -31,7 +31,7 @@ $dataformat = optional_param('download', '', PARAM_ALPHA);
 
 $questionid = optional_param('question_id', '', PARAM_ALPHANUM);
 $cmid = optional_param('cmid', '', PARAM_INT);
-$instance_id = optional_param('instance_id', '', PARAM_ALPHANUM);
+$instanceid = optional_param('instance_id', '', PARAM_ALPHANUM);
 $totalcount = optional_param('total_count', '', PARAM_ALPHANUM);
 
 $cm = get_coursemodule_from_id('ivs', $cmid, 0, false, MUST_EXIST);
@@ -39,20 +39,20 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 
 require_login($course, true, $cm);
 
-$courseService = new CourseService();
-$roleStudent = $DB->get_record('role', array('shortname' => 'student'));
-$coursestudents = $courseService->get_course_membersby_role($course->id, $roleStudent->id);
+$courseservice = new CourseService();
+$rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+$coursestudents = $courseservice->get_course_membersby_role($course->id, $rolestudent->id);
 
 $controller = new MoodleMatchController();
 
-$userAnswers = [];
+$useranswers = [];
 foreach ($coursestudents as $user) {
-    $userAnswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($questionid, $user->id);
+    $useranswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($questionid, $user->id);
 }
 
-$questions = $controller->match_questions_get_by_video_db_order($instance_id);
+$questions = $controller->match_questions_get_by_video_db_order($instanceid);
 
-$answersdata = $controller->get_question_answers_data(array_values($userAnswers), $questions, $cmid, $instance_id, $coursestudents,
+$answersdata = $controller->get_question_answers_data(array_values($useranswers), $questions, $cmid, $instanceid, $coursestudents,
         $totalcount, null);
 
 $columns = array(
@@ -150,4 +150,8 @@ switch ($answersdata->question_type) {
 
 $filename = clean_filename($course->shortname . get_string('ivs_match_question_export_question_filename', 'ivs') . $questionid);
 
-download_as_dataformat($filename, $dataformat, $columns, $data);
+if (class_exists ( '\core\dataformat' )) {
+    \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+} else {
+    download_as_dataformat($filename, $dataformat, $columns, $data);
+}

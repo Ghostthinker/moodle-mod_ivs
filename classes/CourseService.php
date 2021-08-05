@@ -25,8 +25,6 @@ namespace mod_ivs;
 
 defined('MOODLE_INTERNAL') || die();
 
-//require_once('../../../config.php');
-
 class CourseService {
 
     public static function get_course_context($courseid) {
@@ -38,7 +36,7 @@ class CourseService {
         return \context_course::instance($courseid);
     }
 
-    public function get_course_module($courseid, $modulename = MOD_ivs_COMMENT) {
+    public function get_course_module($courseid, $modulename = MOD_IVS_COMMENT) {
         if (empty($courseid)) {
             // Get the course module id from a post or get request.
             $courseid = required_param('id', PARAM_INT);
@@ -68,13 +66,13 @@ class CourseService {
         $direction = 'DESC';
 
         $sql = "SELECT DISTINCT u.id, u.firstname,u.lastname
-        FROM {user} u 
-        JOIN {user_enrolments} ue ON (ue.userid = u.id ) 
-        JOIN {enrol} e ON (ue.enrolid = e.id ) 
+        FROM {user} u
+        JOIN {user_enrolments} ue ON (ue.userid = u.id )
+        JOIN {enrol} e ON (ue.enrolid = e.id )
         Where e.courseid= ?
          ORDER BY u.lastname, u.firstname DESC";
 
-        $users = $DB->get_records_sql($sql,[$courseid]);
+        $users = $DB->get_records_sql($sql, [$courseid]);
 
         return $users;
 
@@ -83,7 +81,7 @@ class CourseService {
         $members = array();
         foreach ($groups as $group) {
             $gm = groups_get_members($group->id);
-            if (sizeof($gm) > 0) {
+            if (count($gm) > 0) {
                 $members[] = $gm;
             }
         }
@@ -123,7 +121,6 @@ class CourseService {
      * @return array of objects with fields ->userid, ->contextid and ->roleid.
      */
     public static function get_user_course_role_assignments($courseid, $userid) {
-
 
         $coursecontext = self::get_course_context($courseid);
         return get_user_roles_with_special($coursecontext, $userid);

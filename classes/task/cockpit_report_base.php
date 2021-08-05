@@ -41,7 +41,7 @@ abstract class cockpit_report_base extends \core\task\scheduled_task {
 
         $reportsservice = new ReportService();
         $annotationservice = new AnnotationService();
-        $reports = $reportsservice->getReportsByRotation($this->reporting, time());
+        $reports = $reportsservice->get_reports_by_rotation($this->reporting, time());
 
         foreach ($reports as $report) {
 
@@ -66,7 +66,7 @@ abstract class cockpit_report_base extends \core\task\scheduled_task {
                     'rotation' => get_string_manager()->get_string($this->mailbodyrotation, 'mod_ivs', null, $userto->lang),
                     'course' => $course->fullname
             ], $userto->lang);
-            $body .= $reportsservice->renderMailReport($report, $annotationservice, $userto) . '<br/>' .
+            $body .= $reportsservice->render_mail_report($report, $annotationservice, $userto) . '<br/>' .
                     get_string_manager()->get_string('cockpit_report_mail_body_footer_separator', 'mod_ivs') . '<br/>' .
                     get_string_manager()->get_string('cockpit_report_mail_body_footer', 'mod_ivs', null, $userto->lang) . '<br/>';
             $body .= $url;

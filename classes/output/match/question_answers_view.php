@@ -34,15 +34,15 @@ use tool_langimport\controller;
 
 class question_answers_view implements renderable, templatable {
 
-    var $detailArray = null;
-    var $questions = null;
-    var $cmid = null;
+    public $detailarray = null;
+    public $questions = null;
+    public $cmid = null;
     protected $videoid;
     protected $courseusers;
     protected $totalcount;
 
     public function __construct($array, $questions, $cmid, $videoid, $courseusers, $totalcount) {
-        $this->detailArray = $array;
+        $this->detailarray = $array;
         $this->questions = $questions;
         $this->cmid = $cmid;
         $this->videoid = $videoid;
@@ -55,7 +55,7 @@ class question_answers_view implements renderable, templatable {
         $instance = $this->videoid;
 
         $controller = new MoodleMatchController();
-        $data = $controller->get_question_answers_data($this->detailArray, $this->questions, $this->cmid, $this->videoid,
+        $data = $controller->get_question_answers_data($this->detailarray, $this->questions, $this->cmid, $this->videoid,
                 $this->courseusers, $this->totalcount, $output);
 
         $qid = $data->id;
@@ -63,7 +63,6 @@ class question_answers_view implements renderable, templatable {
                 'question_answers_download.php', 'download',
                 array('question_id' => $qid, 'cmid' => $this->cmid, 'instance_id' => $instance,
                         'total_count' => $this->totalcount));
-
 
         return $data;
     }
