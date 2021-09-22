@@ -23,6 +23,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 ### v1.8
 * panopto integration
+* ep5 version 1.3
 
 ### v1.7
 * annotation export
