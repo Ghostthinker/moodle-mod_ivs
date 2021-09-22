@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering questions answers
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,15 +33,52 @@ use templatable;
 use stdClass;
 use tool_langimport\controller;
 
+/**
+ * Class question_answers_view
+ *
+ */
 class question_answers_view implements renderable, templatable {
 
+    /**
+     * @var array|null
+     */
     public $detailarray = null;
+
+    /**
+     * @var array|null
+     */
     public $questions = null;
+
+    /**
+     * @var int|null
+     */
     public $cmid = null;
+
+    /**
+     * @var int
+     */
     protected $videoid;
+
+    /**
+     * @var array
+     */
     protected $courseusers;
+
+    /**
+     * @var int
+     */
     protected $totalcount;
 
+    /**
+     * question_answers_view constructor.
+     *
+     * @param array $array
+     * @param array $questions
+     * @param int $cmid
+     * @param int $videoid
+     * @param array $courseusers
+     * @param int $totalcount
+     */
     public function __construct($array, $questions, $cmid, $videoid, $courseusers, $totalcount) {
         $this->detailarray = $array;
         $this->questions = $questions;
@@ -50,6 +88,12 @@ class question_answers_view implements renderable, templatable {
         $this->totalcount = $totalcount;
     }
 
+    /**
+     * Render mustache template
+     * @param \renderer_base $output
+     *
+     * @return \stdClass
+     */
     public function export_for_template(renderer_base $output) {
 
         $instance = $this->videoid;

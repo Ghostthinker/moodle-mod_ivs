@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for the Report Service
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,14 +28,18 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class ReportService
+ */
 class ReportService {
 
     /**
-     * @param $courseid
-     * @param $startdate
-     * @param $rotation
+     * Create an report
+     * @param int $courseid
+     * @param int $startdate
+     * @param int $rotation
      * @param array $filter
-     * @param null $userid
+     * @param null|int $userid
      *
      * @return \mod_ivs\Report
      * @throws \Exception
@@ -67,7 +72,7 @@ class ReportService {
     /**
      * Check if current user has access to an operation of a report
      *
-     * @param $op
+     * @param string $op
      * @param Report $report
      * @return bool
      */
@@ -85,6 +90,12 @@ class ReportService {
         return false;
     }
 
+    /**
+     * Save the report to the db
+     * @param \mod_ivs\Report $report
+     *
+     * @return bool
+     */
     public function save_to_db(Report $report) {
         global $DB;
         $report->set_timemodified(time());
@@ -106,12 +117,24 @@ class ReportService {
         return $save;
     }
 
+    /**
+     * Delete an report from the db
+     * @param int $id
+     *
+     * @return mixed
+     */
     public function delete_from_db($id) {
         global $DB;
         return $DB->delete_records('ivs_report', array("id" => $id));
 
     }
 
+    /**
+     * Get an Report from the db
+     * @param int $id
+     *
+     * @return \mod_ivs\Report|null
+     */
     public function retrieve_from_db($id) {
         global $DB;
 
@@ -127,8 +150,8 @@ class ReportService {
     /**
      * Get Array with Reports by course and user
      *
-     * @param $courseid
-     * @param null $userid
+     * @param int $courseid
+     * @param null|int $userid
      *
      * @return array
      */
@@ -156,8 +179,9 @@ class ReportService {
 
     /**
      * Get Array with Reports by rotation
+     * @param int $rotation
+     * @param null $fromstartdate
      *
-     * @param $rotation
      * @return array
      */
     public function get_reports_by_rotation($rotation, $fromstartdate = null) {
@@ -184,7 +208,12 @@ class ReportService {
     }
 
     /**
-     * @param $report
+     * Get annotations from a report
+     * @param \mod_ivs\Report $report
+     * @param \mod_ivs\AnnotationService $annotationservice
+     *
+     * @return array|mixed
+     * @throws \Exception
      */
     public function get_annotations_by_report(Report $report, AnnotationService $annotationservice) {
 
@@ -221,6 +250,15 @@ class ReportService {
         return $annotations;
     }
 
+    /**
+     * Prepare report for mail
+     * @param \mod_ivs\Report $report
+     * @param \mod_ivs\AnnotationService $annotationservice
+     * @param \stdClass $userto
+     *
+     * @return string
+     * @throws \Exception
+     */
     public function render_mail_report(Report $report, AnnotationService $annotationservice, $userto) {
 
         global $DB, $PAGE;

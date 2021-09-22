@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for the cockpit report form
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,22 +31,43 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-
+/**
+ * Class cockpit_report_form
+ */
 class cockpit_report_form {
 
+    /**
+     * @var \mod_ivs\index_page
+     */
     protected $page;
+
+    /**
+     * @var \stdClass
+     */
     protected $course;
+
+    /**
+     * @var array
+     */
     protected $context;
+
+    /**
+     * @var array
+     */
     protected $parameters;
+
+    /**
+     * @var \mod_ivs\ReportService
+     */
     private $reportservice;
 
     /**
      * cockpit_filter_form constructor.
      *
-     * @param $page
-     * @param $course
-     * @param $context
-     * @param $rawparameters
+     * @param index_page $page
+     * @param \stdClass $course
+     * @param array $context
+     * @param array $rawparameters
      * @param \mod_ivs\ReportService $reportservice
      */
     public function __construct($page, $course, $context, $rawparameters, ReportService $reportservice) {
@@ -59,6 +81,11 @@ class cockpit_report_form {
 
     }
 
+    /**
+     * Render the report form
+     * @return string|void
+     * @throws \Exception
+     */
     public function render() {
 
         global $DB;
@@ -71,7 +98,6 @@ class cockpit_report_form {
         $reportaction = optional_param('report_action', null, PARAM_RAW);
         $reportid = optional_param('report_id', null, PARAM_RAW);
 
-        // Todo: Switch case.
         if ($reportaction == 'create') {
 
             $out .= $this->render_form();
@@ -79,8 +105,6 @@ class cockpit_report_form {
             if (!empty($reportid)) {
 
                 $report = $this->reportservice->retrieve_from_db($reportid);
-
-                // TODO check - is this my report.
 
                 // Build filter url.
                 $newupdateurl = $this->page->url;
@@ -164,6 +188,12 @@ class cockpit_report_form {
 
     }
 
+    /**
+     * Render the form
+     * @param null $report
+     *
+     * @return string
+     */
     public function render_form($report = null) {
         $out = "";
         $startdate = "";
@@ -223,6 +253,10 @@ class cockpit_report_form {
         return "<form class='ivs-annotation-filter-form' method='post' action='" . $action . "'>$out</form>";
     }
 
+    /**
+     * Render all reports
+     * @return string
+     */
     public function render_listing() {
 
         global $USER;
@@ -269,7 +303,7 @@ class cockpit_report_form {
      * Parse RAW user input for query values. BE CAREFUL HERE. This is raw input
      * that gets to sql!
      *
-     * @param $rawparameters
+     * @param array $rawparameters
      */
     private function parse_parameters($rawparameters) {
 
@@ -285,6 +319,7 @@ class cockpit_report_form {
     }
 
     /**
+     * Get the rotation options
      * @return array
      */
     public function get_rotation_options() {
@@ -299,9 +334,9 @@ class cockpit_report_form {
     /**
      * Parse the raw user input so the parameters only have allowed values
      *
-     * @param $key
-     * @param $rawparameters
-     * @param $options
+     * @param string $key
+     * @param array $rawparameters
+     * @param array $options
      */
     private function parse_simple_select_option_input($key, $rawparameters, $options) {
         $this->parameters[$key] = null;
@@ -316,10 +351,23 @@ class cockpit_report_form {
         }
     }
 
+    /**
+     * Get the active filters
+     * @return array
+     */
     public function get_active_filter() {
         return $this->parameters;
     }
 
+    /**
+     * Process the form
+     * @param int $courseid
+     * @param array $rawuserpost
+     * @param array $options
+     * @param int $userid
+     *
+     * @throws \Exception
+     */
     public function process_form($courseid, $rawuserpost, $options, $userid) {
 
         $startdate = $rawuserpost['report_start_date'] ? strtotime($rawuserpost['report_start_date']) : time();

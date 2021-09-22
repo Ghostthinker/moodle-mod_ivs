@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for custom exception
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,12 +24,19 @@
 
 namespace mod_ivs\ivs_match\exception;
 
+/**
+ * Class MatchQuestionException
+ */
 class MatchQuestionException extends \Exception {
 
+    /**
+     * @var \stdClass
+     */
     private $questionnode;
 
     /**
-     * @return mixed
+     * Get the question node
+     * @return \stdClass
      */
     public function get_questionnode() {
         return $this->questionnode;
@@ -37,7 +45,10 @@ class MatchQuestionException extends \Exception {
     /**
      * MatchQuestionException constructor.
      *
-     * @param $node
+     * @param \stdClass $questionnode
+     * @param string $message
+     * @param int $code
+     * @param \mod_ivs\ivs_match\exception\Throwable|null $previous
      */
     public function __construct($questionnode, $message = "", $code = 0, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);

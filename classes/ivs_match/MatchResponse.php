@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for the responses when answering match questions
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,16 +24,26 @@
 
 namespace mod_ivs\ivs_match;
 
+/**
+ * Class MatchResponse
+ */
 class MatchResponse {
 
+    /**
+     * @var int
+     */
     private $status;
+
+    /**
+     * @var array
+     */
     private $data;
 
     /**
      * MatchResponse constructor.
      *
-     * @param $status
-     * @param $data
+     * @param array $data
+     * @param int $status
      */
     public function __construct($data = array(), $status = 200) {
         $this->status = $status;
@@ -40,6 +51,7 @@ class MatchResponse {
     }
 
     /**
+     * Get the status
      * @return int
      */
     public function get_status() {
@@ -47,6 +59,7 @@ class MatchResponse {
     }
 
     /**
+     * Set the status
      * @param int $status
      */
     public function set_status($status) {
@@ -54,6 +67,7 @@ class MatchResponse {
     }
 
     /**
+     * Get the data
      * @return mixed
      */
     public function get_data() {
@@ -61,6 +75,7 @@ class MatchResponse {
     }
 
     /**
+     * Set the data
      * @param mixed $data
      */
     public function set_data($data) {

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Stores all the ivs settings
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,20 +24,46 @@
 
 namespace mod_ivs\settings;
 
+/**
+ * Class Setting
+ */
 class Setting {
 
+    /**
+     * @var int
+     */
     public $id;
+
+    /**
+     * @var int
+     */
     public $targetid;
+
+    /**
+     * @var mixed
+     */
     public $targettype;
+
+    /**
+     * @var string|null
+     */
     public $name;
+
+    /**
+     * @var mixed
+     */
     public $value;
+
+    /**
+     * @var bool|null
+     */
     public $locked = false;
 
     /**
      * Setting constructor.
      *
-     * @param $name
-     * @param $value
+     * @param string $name
+     * @param mixed $value
      * @param bool $locked
      */
     public function __construct($name = null, $value = null, $locked = null) {
@@ -45,6 +72,12 @@ class Setting {
         $this->locked = $locked;
     }
 
+    /**
+     * Get all settings from the db
+     * @param array $record
+     *
+     * @return \mod_ivs\settings\Setting
+     */
     public static function from_db_record($record) {
         $setting = new Setting();
 

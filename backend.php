@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * File for the backend
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -103,6 +104,12 @@ switch ($endpoint) {
 
 }
 
+/**
+ * Callback for comments
+ * @param array $args
+ * @param array $postdata
+ * @param string $requestmethod
+ */
 function ivs_backend_comments($args, $postdata, $requestmethod) {
     $videoid = $args[1];
 
@@ -191,6 +198,12 @@ function ivs_backend_comments($args, $postdata, $requestmethod) {
     }
 }
 
+/**
+ * Callback for playbackcommands
+ * @param array $args
+ * @param array $postdata
+ * @param string $requestmethod
+ */
 function ivs_backend_playbackcommands($args, $postdata, $requestmethod) {
     $videonid = $args[1];
 
@@ -232,6 +245,7 @@ function ivs_backend_playbackcommands($args, $postdata, $requestmethod) {
 }
 
 /**
+ * Exit call when errors appear
  * @param string $data
  * @param int $statuscode
  */
@@ -243,7 +257,7 @@ function ivs_backend_error_exit($data = "access denied", $statuscode = 403) {
 
 /**
  * Exit call when successfully ended tasks
- * @param $data
+ * @param string|array $data
  * @param int $statuscode
  */
 function ivs_backend_exit($data, $statuscode = 200) {

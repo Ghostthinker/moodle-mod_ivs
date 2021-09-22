@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * IvsHelper class to communicate with the player
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,8 +24,17 @@
 
 namespace mod_ivs;
 
+/**
+ * Class IvsHelper
+ */
 class IvsHelper {
 
+    /**
+     * Get the user date for the player
+     * @param int $userid
+     *
+     * @return array|string[]
+     */
     public static function get_user_data_for_player($userid) {
 
         if ($userid == null) {
@@ -46,8 +56,9 @@ class IvsHelper {
 
     /**
      * Get the moodle user of this annotation
+     * @param int $id
      *
-     * @return bool|false|mixed|null|object|\stdClass|string
+     * @return mixed|null
      */
     public static function get_user($id) {
         global $USER, $DB, $PAGE;
@@ -67,25 +78,30 @@ class IvsHelper {
                         'user', array('id' => $id));
             }
 
-            if(!empty($user)) {
+            if (!empty($user)) {
                 $userpicture = new \user_picture($user);
-                $userpictureurl = $userpicture->get_url($PAGE) . '';
+                $userpictureurl = (string) $userpicture->get_url($PAGE);
 
                 $usercache[$id]['user'] = $user;
                 $usercache[$id]['fullname'] = fullname($user);
                 $usercache[$id]['picture'] = $userpictureurl;
+                $usercache[$id]['pictureObject'] = $userpicture;
+            } else {
+                $userpicture = new \moodle_url('/user/pix.php');
+
+                $usercache[$id]['user'] = null;
+                $usercache[$id]['fullname'] = "Anonymous";
+                $usercache[$id]['picture'] = (string) $userpicture;
+
             }
-
-
         }
         return $usercache[$id];
-
     }
 
     /**
      * Check if the current user may view an ivs
      *
-     * @param $ivsid
+     * @param int $ivsid
      * @return bool
      */
     public static function access_player($ivsid) {

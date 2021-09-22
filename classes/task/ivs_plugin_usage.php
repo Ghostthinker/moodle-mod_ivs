@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for calculate the usage
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,12 +26,22 @@ namespace mod_ivs\task;
 
 use mod_ivs\license\MoodleLicenseController;
 
+/**
+ * Class ivs_plugin_usage
+ */
 class ivs_plugin_usage extends \core\task\scheduled_task {
 
+    /**
+     * Get the name from the plugin
+     * @return mixed
+     */
     public function get_name() {
         return get_string('ivs_plugin', 'mod_ivs');
     }
 
+    /**
+     * Implements the execute function
+     */
     public function execute() {
         $controller = new MoodleLicenseController();
         $controller->send_usage();

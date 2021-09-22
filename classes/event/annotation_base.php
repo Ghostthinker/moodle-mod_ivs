@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * annotation_base.php
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,18 +25,31 @@
 namespace mod_ivs\event;
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class annotation_base
+ *
+ */
 abstract class annotation_base extends \core\event\base {
 
+    /**
+     * Init function
+     */
     protected function init() {
         $this->data['crud'] = 'c'; // Different crud operations which are possible 1. c(reate), r(ead), u(pdate), d(elete).
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'ivs_videocomment';
     }
 
+    /**
+     * Get error name
+     */
     public static function get_name() {
         throw new \Error("TBI");
     }
 
+    /**
+     * Get error description
+     */
     public function get_description() {
         throw new \Error("TBI");
     }
@@ -49,6 +63,10 @@ abstract class annotation_base extends \core\event\base {
         return new \moodle_url('/mod/ivs/view.php', array('id' => $this->contextinstanceid));
     }
 
+    /**
+     * Get legacy logdata
+     * @return array
+     */
     public function get_legacy_logdata() {
         // Override if you are migrating an add_to_log() call.
         return array($this->courseid, 'ivs', 'LOGACTION',
@@ -56,6 +74,10 @@ abstract class annotation_base extends \core\event\base {
                 $this->objectid, $this->contextinstanceid);
     }
 
+    /**
+     * Get legacy eventdata
+     * @return \stdClass
+     */
     protected function get_legacy_eventdata() {
         // Override if you migrating events_trigger() call.
         $data = new \stdClass();

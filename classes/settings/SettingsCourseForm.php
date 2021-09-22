@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Render the ivs settings in the course form
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,8 +31,14 @@ require_once("$CFG->libdir/formslib.php");
 
 use moodleform;
 
+/**
+ * Class SettingsCourseForm
+ */
 class SettingsCourseForm extends moodleform {
 
+    /**
+     * Define the form
+     */
     public function definition() {
         global $CFG;
 
@@ -78,7 +85,13 @@ class SettingsCourseForm extends moodleform {
 
     }
 
-    // Custom validation should be added here.
+    /**
+     * Validation function
+     * @param array $data
+     * @param mixed $files
+     *
+     * @return array
+     */
     public function validation($data, $files) {
         return array();
     }

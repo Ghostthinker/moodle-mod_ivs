@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class to handle user data
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,6 +33,9 @@ use \core_privacy\local\request\writer;
 use \core_privacy\local\request\userlist;
 use \core_privacy\local\request\approved_userlist;
 
+/**
+ * Class provider
+ */
 class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\subsystem\provider,
@@ -39,6 +43,12 @@ class provider implements
     \core_privacy\local\request\core_userlist_provider
 {
 
+    /**
+     * Get all metadata
+     * @param \core_privacy\local\metadata\collection $collection
+     *
+     * @return \core_privacy\local\metadata\collection
+     */
     public static function get_metadata(collection $collection): collection {
 
         $collection->add_database_table(
@@ -86,6 +96,10 @@ class provider implements
         return $collection;
     }
 
+    /**
+     * Get all users in a context
+     * @param \core_privacy\local\request\userlist $userlist
+     */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
 
@@ -126,6 +140,10 @@ class provider implements
         $userlist->add_from_sql('userid', $sql, $params);
     }
 
+    /**
+     * Export user data for a activity
+     * @param \core_privacy\local\request\approved_contextlist $contextlist
+     */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
 
@@ -226,6 +244,13 @@ class provider implements
 
     }
 
+    /**
+     * Export videocomments
+     * @param int $userid
+     * @param array $mappings
+     *
+     * @return array
+     */
     protected static function export_videocomment_data(int $userid,
                                                        array $mappings) {
         global $DB;
@@ -272,6 +297,13 @@ class provider implements
         return $ivsswithdata;
     }
 
+    /**
+     * Export match answers
+     * @param int $userid
+     * @param array $mappings
+     *
+     * @return array
+     */
     protected static function export_matchanswer_data(int $userid,
                                                       array $mappings) {
         global $DB;
@@ -323,6 +355,12 @@ class provider implements
         return $ivsswithdata;
     }
 
+    /**
+     * Get contexts for a user id
+     * @param int $userid
+     *
+     * @return \core_privacy\local\request\contextlist
+     */
     public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
@@ -374,6 +412,10 @@ class provider implements
         return $contextlist;
     }
 
+    /**
+     * Delete data for a single user
+     * @param \core_privacy\local\request\approved_contextlist $contextlist
+     */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
 
@@ -405,6 +447,10 @@ class provider implements
         }
     }
 
+    /**
+     * Delete data for users
+     * @param \core_privacy\local\request\approved_userlist $userlist
+     */
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
 
@@ -425,6 +471,10 @@ class provider implements
             "question_id = :question_id AND userid {$userinsql}", $paramsmatchanswer);
     }
 
+    /**
+     * Delete all data for users in a context
+     * @param \context $context
+     */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class to create the reports
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,21 +29,70 @@ use DateTime;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class Report
+ */
 class Report {
 
+    /**
+     * @var string
+     */
     const ROTATION_DAY = "daily";
+    /**
+     * @var string
+     */
     const ROTATION_WEEK = "weekly";
+
+    /**
+     * @var string
+     */
     const ROTATION_MONTH = "monthly";
 
+    /**
+     * @var null|int
+     */
     private $id = null;
+
+    /**
+     * @var int
+     */
     private $rotation;
+
+    /**
+     * @var int
+     */
     private $userid;
+
+    /**
+     * @var int
+     */
     private $courseid;
+
+    /**
+     * @var array
+     */
     private $filter;
+
+    /**
+     * @var int
+     */
     private $startdate;
+
+    /**
+     * @var int
+     */
     private $timecreated;
+
+    /**
+     * @var int
+     */
     private $timemodified;
 
+    /**
+     * Report constructor.
+     *
+     * @param false $dbrecord
+     */
     public function __construct($dbrecord = false) {
         if (is_object($dbrecord)) {
             $dbrecord->filter = unserialize($dbrecord->filter);
@@ -52,16 +102,8 @@ class Report {
     }
 
     /**
-     * reporting constructor.
-     *
-     * @param $id
-     * @param $rotation
-     * @param $user_id
-     * @param $course_id
-     * @param $filter
-     * @param $start_date
-     * @param $timecreated
-     * @param $timemodified
+     * Set the record
+     * @param \stdClass $dbrecord
      */
     public function set_record($dbrecord) {
         $this->id = $dbrecord->id;
@@ -93,6 +135,7 @@ class Report {
     }
 
     /**
+     * Get the report id
      * @return mixed
      */
     public function get_id() {
@@ -100,6 +143,7 @@ class Report {
     }
 
     /**
+     * Set the report id
      * @param mixed $id
      */
     public function set_id($id) {
@@ -107,6 +151,7 @@ class Report {
     }
 
     /**
+     * Get the rotation
      * @return mixed
      */
     public function get_rotation() {
@@ -114,6 +159,7 @@ class Report {
     }
 
     /**
+     * Set the rotation
      * @param mixed $rotation
      */
     public function set_rotation($rotation) {
@@ -121,6 +167,7 @@ class Report {
     }
 
     /**
+     * Get the user id
      * @return mixed
      */
     public function get_userid() {
@@ -128,6 +175,7 @@ class Report {
     }
 
     /**
+     * Set the user id
      * @param mixed $userid
      */
     public function set_userid($userid) {
@@ -135,6 +183,7 @@ class Report {
     }
 
     /**
+     * Get the course id
      * @return mixed
      */
     public function get_courseid() {
@@ -142,6 +191,7 @@ class Report {
     }
 
     /**
+     * Set the course id
      * @param mixed $courseid
      */
     public function set_courseid($courseid) {
@@ -149,6 +199,7 @@ class Report {
     }
 
     /**
+     * Get the filter
      * @return mixed
      */
     public function get_filter() {
@@ -156,6 +207,7 @@ class Report {
     }
 
     /**
+     * Set the filter
      * @param mixed $filter
      */
     public function set_filter($filter) {
@@ -163,6 +215,7 @@ class Report {
     }
 
     /**
+     * Get the startdate
      * @return mixed
      */
     public function get_startdate() {
@@ -170,6 +223,7 @@ class Report {
     }
 
     /**
+     * Set the startdate
      * @param mixed $startdate
      */
     public function set_startdate($startdate) {
@@ -177,6 +231,7 @@ class Report {
     }
 
     /**
+     * Get the created date
      * @return mixed
      */
     public function get_timecreated() {
@@ -184,6 +239,7 @@ class Report {
     }
 
     /**
+     * Set the created date
      * @param mixed $timecreated
      */
     public function set_timecreated($timecreated) {
@@ -191,6 +247,7 @@ class Report {
     }
 
     /**
+     * Get the edit date
      * @return mixed
      */
     public function get_timemodified() {
@@ -198,6 +255,7 @@ class Report {
     }
 
     /**
+     * Set the edit date
      * @param mixed $timemodified
      */
     public function set_timemodified($timemodified) {

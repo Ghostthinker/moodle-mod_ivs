@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class is used to restore all settings
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,16 +28,18 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+/**
+ * Class restore_match_answer_setting
+ */
 class restore_match_answer_setting extends restore_activity_generic_setting {
 
     /**
-     * Instantiates a setting object
+     * restore_match_answer_setting constructor.
      *
      * @param string $name Name of the setting
-     * @param string $vtype Type of the setting, eg {@link base_setting::IS_TEXT}
      * @param mixed $value Value of the setting
-     * @param bool $visibility Is the setting visible in the UI, eg {@link base_setting::VISIBLE}
-     * @param int $status Status of the setting with regards to the locking, eg {@link base_setting::NOT_LOCKED}
+     * @param bool $visibility Is the setting visible in the UI, eg {@see base_setting::VISIBLE}
+     * @param int $status Status of the setting with regards to the locking, eg {@see base_setting::NOT_LOCKED}
      */
     public function __construct($name, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED) {
         parent::__construct($name, self::IS_TEXT, $value, $visibility, $status);
@@ -44,16 +47,18 @@ class restore_match_answer_setting extends restore_activity_generic_setting {
     }
 }
 
+/**
+ * Class restore_videocomments_setting
+ */
 class restore_videocomments_setting extends restore_activity_generic_setting {
 
     /**
-     * Instantiates a setting object
+     * restore_videocomments_setting constructor.
      *
      * @param string $name Name of the setting
-     * @param string $vtype Type of the setting, eg {@link base_setting::IS_TEXT}
      * @param mixed $value Value of the setting
-     * @param bool $visibility Is the setting visible in the UI, eg {@link base_setting::VISIBLE}
-     * @param int $status Status of the setting with regards to the locking, eg {@link base_setting::NOT_LOCKED}
+     * @param bool $visibility Is the setting visible in the UI, eg {@see base_setting::VISIBLE}
+     * @param int $status Status of the setting with regards to the locking, eg {@see base_setting::NOT_LOCKED}
      */
     public function __construct($name, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED) {
         parent::__construct($name, self::IS_TEXT, $value, $visibility, $status);

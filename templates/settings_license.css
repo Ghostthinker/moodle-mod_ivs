@@ -16,7 +16,7 @@
 
 
 .ivs-progress .progressbar__label {
-    color: #333333 !important;
+    color: #333 !important;
 }
 
 .ivs-circle-right {
@@ -63,35 +63,34 @@
 }
 
 .ivs-license-icon {
-    text-align: center
+    text-align: center;
 }
 
-.fheader{
+.fheader {
     font-size: 20px;
 }
 
-.current-package{
+.current-package {
     margin-bottom: 20px;
 }
 
-.ivs-license-instance-identification-value{
+.ivs-license-instance-identification-value {
     margin-bottom: 20px;
 }
 
-#id_ivs_player_version_player_version{
-    margin-left:70px;
+#id_ivs_player_version_player_version {
+    margin-left: 70px;
 }
 
-#id_ivs_player_version_1{
+#id_ivs_player_version_1 {
     margin-left: 150px;
 }
 
-#id_ivs_testsystem_submitbutton
-{
+#id_ivs_testsystem_submitbutton {
     margin-left: 56%;
     width: 110%;
 }
 
 #region-main{
-    overflow:hidden;
+    overflow: hidden;
 }

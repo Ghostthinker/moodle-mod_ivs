@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * File to upgrade the ivs plugin
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -66,10 +67,10 @@ function xmldb_ivs_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020050524, 'ivs');
     }
 
-    // change setting value type from int to varchar
+    // Change setting value type from int to varchar.
     if ($oldversion < 2021080604) {
         $table = new xmldb_table('ivs_settings');
-        $field = new xmldb_field('value', XMLDB_TYPE_CHAR, NULL, NULL, NULL, NULL, 1, NULL);
+        $field = new xmldb_field('value', XMLDB_TYPE_CHAR, null, null, null, null, 1, null);
         $dbman->change_field_type($table, $field);
 
         upgrade_mod_savepoint(true, 2021080604, 'ivs');

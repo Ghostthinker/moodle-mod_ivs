@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for storing the assessment config
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,21 +24,69 @@
 
 namespace mod_ivs\ivs_match;
 
+/**
+ * Class AssessmentConfig
+ */
 class AssessmentConfig {
 
+    /**
+     * @var string
+     */
     const TAKES_SIMULATE = 'TAKES_SIMULATE';
+
+    /**
+     * @var string
+     */
     const TAKES_LEFT_NEW = 'TAKES_LEFT_NEW';
+
+    /**
+     * @var string
+     */
     const TAKES_LEFT_PROGRESS = 'TAKES_LEFT_PROGRESS';
+
+    /**
+     * @var string
+     */
     const TAKES_LEFT_COMPLETED_SUCCESS = 'TAKES_LEFT_COMPLETED';
+
+    /**
+     * @var string
+     */
     const NO_TAKES_LEFT_COMPLETED_SUCCESS = 'NO_TAKES_LEFT_COMPLETED_SUCCESS';
+
+    /**
+     * @var string
+     */
     const NO_TAKES_LEFT_COMPLETED_FAILED = 'NO_TAKES_LEFT_COMPLETED_FAILED';
 
+    /**
+     * @var string
+     */
     const ASSESSMENT_TYPE_TAKES = 'TAKES';      // Multiple takes, takes count as score unit, one take at a time.
+
+    /**
+     * @var string
+     */
     const ASSESSMENT_TYPE_FORMATIVE = 'FORMATIVE'; // No takes, a formative training.
 
+    /**
+     * @var int
+     */
     public $context_id;
+
+    /**
+     * @var string
+     */
     public $context_label;
+
+    /**
+     * @var int
+     */
     public $takes_left;
+
+    /**
+     * @var string
+     */
     public $status;
 
     /** @var MatchConfig */
@@ -45,6 +94,10 @@ class AssessmentConfig {
 
     /** @var \mod_ivs\ivs_match\MatchTake[] */
     public $takes;
+
+    /**
+     * @var string
+     */
     public $status_description;
 
 }

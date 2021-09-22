@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class manage all the settings
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,14 +26,18 @@ namespace mod_ivs\settings;
 
 use lang_string;
 
+/**
+ * Class SettingsService
+ */
 class SettingsService {
 
     /**
+     * Get the read access options
      * @return array
      */
     public static function get_ivs_read_access_options() {
-        // prepare system roles
-        // see users.php
+        // Prepare system roles.
+        // See users.php.
         $lockreadaccessoptions = array();
         $defaultteacherid = null;
         $lockreadaccessoptions['none'] = (string)(new lang_string('ivs_setting_read_access_none', 'ivs'));
@@ -53,9 +58,13 @@ class SettingsService {
         return $lockreadaccessoptions;
     }
 
+    /**
+     * Get all settings
+     * @return array
+     */
     public static function get_settings_definitions() {
 
-        $lockReadAccessOptions = self::get_ivs_read_access_options();
+        $lockreadaccessoptions = self::get_ivs_read_access_options();
 
         $settings[] = new SettingsDefinition(
             SettingsDefinition::SETTING_ANNOTATIONS_ENABLED,
@@ -128,7 +137,7 @@ class SettingsService {
                 0,
                 true,
                 true,
-                $lockReadAccessOptions
+                $lockreadaccessoptions
         );
 
         $settings[] = new SettingsDefinition(
@@ -158,10 +167,17 @@ class SettingsService {
                 true,
                 true);
 
-
         return $settings;
     }
 
+    /**
+     * Load a specific setting
+     * @param int $targetid
+     * @param string $targettype
+     * @param string $settingname
+     *
+     * @return \mod_ivs\settings\Setting
+     */
     public function load_setting($targetid, $targettype, $settingname) {
         global $DB;
 
@@ -176,6 +192,13 @@ class SettingsService {
         }
     }
 
+    /**
+     * Load all settings
+     * @param int $targetid
+     * @param string $targettype
+     *
+     * @return array
+     */
     public function load_settings($targetid, $targettype) {
         global $DB;
 
@@ -197,6 +220,10 @@ class SettingsService {
 
     }
 
+    /**
+     * Save the setting
+     * @param \mod_ivs\settings\Setting $setting
+     */
     public function save_setting(Setting $setting) {
         global $DB;
 
@@ -222,6 +249,10 @@ class SettingsService {
 
     }
 
+    /**
+     * Get the global setting for an activity
+     * @return array
+     */
     public function get_settings_global() {
         $defs = self::get_settings_definitions();
         $settings = [];
@@ -241,6 +272,12 @@ class SettingsService {
 
     }
 
+    /**
+     * Get the course setting for an activity
+     * @param null|int $courseid
+     *
+     * @return array
+     */
     public function get_rarent_settings_for_activity($courseid = null) {
         $settingsglobal = $this->get_settings_global();
 
@@ -269,6 +306,13 @@ class SettingsService {
 
     }
 
+    /**
+     * Get the activity setting
+     * @param int $activityid
+     * @param null|int $courseid
+     *
+     * @return array
+     */
     public function get_settings_for_activity($activityid, $courseid = null) {
         $settingsglobal = $this->get_settings_global();
 
@@ -305,8 +349,17 @@ class SettingsService {
         return $settingsfinal;
     }
 
-    public static function add_vis_setting_to_form($type, $globalsettings, SettingsDefinition $settingdefinition, $mform, $addlocked,
-            $options = null) {
+    /**
+     * Visibility setting for the form
+     * @param string $type
+     * @param array $globalsettings
+     * @param SettingsDefinition $settingdefinition
+     * @param \mod_ivs\settings\SettingsCourseForm $mform
+     * @param bool $addlocked
+     * @param null|array $options
+     */
+    public static function add_vis_setting_to_form($type, $globalsettings, SettingsDefinition $settingdefinition, $mform,
+      $addlocked, $options = null) {
         $attributes = array('class' => 'text-muted');
         if ($globalsettings[$settingdefinition->name]->locked) {
             $attributes['disabled'] = 'disabled';
@@ -331,7 +384,8 @@ class SettingsService {
             case "select":
                 $availablefromgroup[] = &$mform->createElement('select', 'value', '', $options, $attributes);
                 $mform->setType($settingdefinition->name . "[parent_value]", PARAM_TEXT);
-                $defaultsuffix = get_string('defaultsettinginfo', 'admin', $settingdefinition->options[$globalsettings[$settingdefinition->name]->value]);
+                $defaultsuffix = get_string('defaultsettinginfo', 'admin',
+                  $settingdefinition->options[$globalsettings[$settingdefinition->name]->value]);
                 $availablefromgroup[] = $mform->createElement('html', '<label class="text-muted">' . $defaultsuffix . '</label>');
                 break;
         }
@@ -348,14 +402,14 @@ class SettingsService {
 
         $availablefromgroup[] = $mform->createElement('hidden', 'parent_value', $globalsettings[$settingdefinition->name]->value);
 
-
-
         $mform->addGroup($availablefromgroup, $settingdefinition->name, $settingdefinition->title, ' ', true);
         $mform->addHelpButton($settingdefinition->name, $settingdefinition->description, 'ivs');
-
-
     }
 
+    /**
+     * Process the settings form for the activity
+     * @param mixed $ivs
+     */
     public function process_activity_settings_form($ivs) {
 
         $parentsettings = $this->get_rarent_settings_for_activity($ivs->course);

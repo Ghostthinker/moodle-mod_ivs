@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * The base class for creating the cockpit reports
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,14 +28,35 @@ use mod_ivs\AnnotationService;
 use mod_ivs\Report;
 use mod_ivs\ReportService;
 
+/**
+ * Class cockpit_report_base
+ */
 abstract class cockpit_report_base extends \core\task\scheduled_task {
 
+    /**
+     * @var mixed
+     */
     protected $reporting;
+
+    /**
+     * @var mixed
+     */
     protected $mailbodyrotation;
+
+    /**
+     * @var mixed
+     */
     protected $mailsubject;
+
+    /**
+     * @var mixed
+     */
     protected $cockpitreport;
 
-    // Send Email Report.
+    /**
+     * // Send Email Report.
+     * @throws \Exception
+     */
     public function execute() {
 
         global $DB;

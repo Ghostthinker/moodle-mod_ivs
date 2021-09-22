@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Base class for matach questions
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,8 +24,14 @@
 
 namespace sites\all\modules\features\ivs_match\inc\ivs_match\question;
 
+/**
+ * Class MatchQuestionBase
+ */
 class MatchQuestionBase {
 
+    /**
+     * @var int
+     */
     private $id;
 
 }

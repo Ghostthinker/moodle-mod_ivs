@@ -21,10 +21,13 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.8
+* panopto integration
+
 ### v1.7
 * annotation export
 * visibility lock (needed ``ep5 version 1.4``)
-* setting to enable/disable comments 
+* setting to enable/disable comments
 
 ### v1.6
 * Fixed license issues

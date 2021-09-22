@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class is used to backup a ivs activity
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,7 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-
+/**
+ * Class backup_ivs_activity_structure_step
+ */
 class backup_ivs_activity_structure_step extends backup_activity_structure_step {
 
     /**

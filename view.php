@@ -14,7 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
 /**
+ * The view.php renders the Interactive video suite activity.
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -56,13 +60,15 @@ if ($id) {
     error('You must specify a course_module ID or an instance ID');
 }
 
+
 $activitycontext = \context_module::instance($id);
 
 $settingscontroller = new SettingsService();
 
 $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $course->id);
 
-$videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs);
+$videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs, $course);
+
 $videourl = $videohost->get_video();
 
 $matchenabled = $activitysettings['match_question_enabled']->value;
@@ -149,6 +155,7 @@ if (empty($embedded)) {
         exit;
     }
     $urliframe = $_SERVER['REQUEST_URI'] . "&embedded=1";
+    $videohost->prerender();
     ?>
 
     <div>
@@ -180,6 +187,8 @@ if (empty($embedded)) {
 
 
         </script>
+
+        
         <!-- IVS Video -->
         <iframe class="edubreak-responsive-iframe" name="edubreakplayer" frameborder="0" src="<?php print $urliframe ?>"
                 allowfullscreen></iframe>
@@ -240,11 +249,12 @@ if (empty($embedded)) {
 
     $defaultrealm = null;
     $lockrealm = null;
-    // set realm default setting - and lock if necessary
+    // Set realm default setting - and lock if necessary.
     if ($activitysettings['lock_realm_enabled']->value && $activitysettings['lock_realm_enabled']->value != 'none') {
-        $realmval = strstr($activitysettings['lock_realm_enabled']->value, 'role_') ? 'role' : $activitysettings['lock_realm_enabled']->value;
+        $realmval = strstr($activitysettings['lock_realm_enabled']->value, 'role_') ? 'role' :
+          $activitysettings['lock_realm_enabled']->value;
         $values = [];
-        if($realmval == 'role') {
+        if ($realmval == 'role') {
             $rolekey = str_replace('role_', '', $activitysettings['lock_realm_enabled']->value);
             $values[] = ['key' => $rolekey, 'label' => 'role'];
         }
@@ -467,8 +477,12 @@ if (empty($embedded)) {
         );
     }
 
-    if (!$annotationsenabled){
+    if (!$annotationsenabled) {
         unset($playerconfig['plugins']['edubreak_annotations']);
+        unset($playerconfig['plugins']['edubreak_annotations_timebullets']);
+        unset($playerconfig['plugins']['edubreak_annotations_access']);
+        unset($playerconfig['plugins']['edubreak_annotations_drawings']);
+        unset($playerconfig['plugins']['edubreak_annotations_rating']);
     }
 
 
@@ -478,6 +492,10 @@ if (empty($embedded)) {
 
     $jsconf = $PAGE->requires->get_config_for_javascript($PAGE, $OUTPUT);
     $resversions = $jsconf['jsrev'];
+    $crossorigintag = $videohost->getcrossorigintag();
+
+
+
 
     ?>
     <!DOCTYPE html>
@@ -508,7 +526,7 @@ if (empty($embedded)) {
          style="width:100%; min-height:200px"
          data-nid="<?php echo $cm->instance ?>">
         <div class="ep5-media">
-            <video crossorigin="anonymous" class="ep5-media-video" width="100%"
+            <video <?php echo $crossorigintag?> class="ep5-media-video" width="100%"
                    preload="metadata">
                 <source src="<?php echo $videourl ?>" type="video/mp4"
                 />

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class is a helper class for the course service
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,8 +26,17 @@ namespace mod_ivs;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class CourseService
+ */
 class CourseService {
 
+    /**
+     * Get the course context
+     * @param int $courseid
+     *
+     * @return mixed
+     */
     public static function get_course_context($courseid) {
         if (empty($courseid)) {
             // Get the course module id from a post or get request.
@@ -36,6 +46,13 @@ class CourseService {
         return \context_course::instance($courseid);
     }
 
+    /**
+     * Get the course module
+     * @param int $courseid
+     * @param string $modulename
+     *
+     * @return mixed
+     */
     public function get_course_module($courseid, $modulename = MOD_IVS_COMMENT) {
         if (empty($courseid)) {
             // Get the course module id from a post or get request.
@@ -46,6 +63,12 @@ class CourseService {
         return get_coursemodule_from_id($modulename, $courseid, 0, false, MUST_EXIST);
     }
 
+    /**
+     * Get all activit from a user in the group
+     * @param int $courseid
+     *
+     * @return mixed
+     */
     public function get_user_activity_groups($courseid) {
         // Get the course module.
         $cm = $this->get_course_module($courseid);
@@ -53,14 +76,33 @@ class CourseService {
         return groups_get_activity_allowed_groups($cm);
     }
 
+    /**
+     * Get all course groups
+     * @param int $coursed
+     *
+     * @return mixed
+     */
     public function get_all_course_groups($coursed) {
         return groups_get_all_groups($coursed);
     }
 
+    /**
+     * Get all courses and groups by user
+     * @param int $courseid
+     * @param int $userid
+     *
+     * @return mixed
+     */
     public static function get_user_course_groups($courseid, $userid) {
         return groups_get_all_groups($courseid, $userid);
     }
 
+    /**
+     * Get the course members
+     * @param int $courseid
+     *
+     * @return array
+     */
     public function get_course_members($courseid) {
         global $DB;
         $direction = 'DESC';
@@ -88,17 +130,36 @@ class CourseService {
         return $members;
     }
 
+    /**
+     * Get roles by name in a course
+     * @param int $courseid
+     *
+     * @return mixed
+     */
     public function get_role_names($courseid) {
         $coursecontext = $this->get_course_context($courseid);
         return role_fix_names(get_roles_used_in_context($coursecontext));
 
     }
 
+    /**
+     * Get all roles from a course
+     * @param int $courseid
+     *
+     * @return mixed
+     */
     public function get_roles_in_context($courseid) {
         $coursecontext = $this->get_course_context($courseid);
         return get_roles_used_in_context($coursecontext);
     }
 
+    /**
+     * Get all user in a course by role
+     * @param int $courseid
+     * @param int $roleid
+     *
+     * @return mixed
+     */
     public function get_course_membersby_role($courseid, $roleid) {
         global $DB;
 
@@ -117,8 +178,12 @@ class CourseService {
 
     }
 
-    /*
-     * @return array of objects with fields ->userid, ->contextid and ->roleid.
+    /**
+     * Get user assignments in course
+     * @param int $courseid
+     * @param int $userid
+     *
+     * @return mixed
      */
     public static function get_user_course_role_assignments($courseid, $userid) {
 
@@ -126,10 +191,18 @@ class CourseService {
         return get_user_roles_with_special($coursecontext, $userid);
     }
 
+    /**
+     * Get for the current user all groups
+     * @return mixed
+     */
     public function get_current_user_groups() {
         return groups_get_my_groups();
     }
 
+    /**
+     * Get for the current user all courses
+     * @return array
+     */
     public function get_current_user_courses() {
         $groups = $this->get_current_user_groups();
 
@@ -144,6 +217,12 @@ class CourseService {
         return $courses;
     }
 
+    /**
+     * Get user groups
+     * @param int $userid
+     *
+     * @return mixed
+     */
     public function get_user_groups($userid) {
         global $DB;
         $sql = "SELECT * FROM {groups_members} gm JOIN {groups} g
@@ -151,6 +230,12 @@ class CourseService {
         return $DB->get_records_sql($sql, array($userid));
     }
 
+    /**
+     * Get all courses for a user
+     * @param int $userid
+     *
+     * @return array
+     */
     public function get_user_courses($userid) {
         $groups = $this->get_user_groups($userid);
 
@@ -167,7 +252,7 @@ class CourseService {
     /**
      * Get all students by course
      *
-     * @param $courseid
+     * @param int $courseid
      * @return array
      * @throws \dml_exception
      */

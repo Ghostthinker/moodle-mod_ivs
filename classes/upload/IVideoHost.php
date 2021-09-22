@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Interface class for all possible file video hosts
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,11 +24,37 @@
 
 namespace mod_ivs\upload;
 
+/**
+ * Interface IVideoHost
+ */
 interface IVideoHost {
+
+    /**
+     * Get the video
+     * @return mixed
+     */
     public function get_video();
 
+    /**
+     * Save video data
+     * @param \stdClass $data
+     */
     public function save_video($data);
 
+    /**
+     * Get the thumbnail
+     */
     public function get_thumbnail();
+
+    /**
+     * Prerender function
+     */
+    public function prerender();
+
+    /**
+     * Get the cross origin tag
+     * @return string
+     */
+    public function getcrossorigintag();
 
 }

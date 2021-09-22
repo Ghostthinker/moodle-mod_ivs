@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Interface class for the match plugin
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,12 +28,15 @@ use mod_ivs\ivs_match\exception\MatchNoConfigException;
 use mod_ivs\ivs_match\MatchConfig;
 use mod_ivs\ivs_match\MatchTake;
 
+/**
+ * Interface IIvsMatch
+ */
 interface IIvsMatch {
 
     /**
      * Get a single match question item
      *
-     * @param $questionid
+     * @param int $questionid
      * @param bool $skipaccess
      * @return array
      * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
@@ -42,7 +46,7 @@ interface IIvsMatch {
     /**
      * Get all match question items by video keyed by question_id
      *
-     * @param $videoid
+     * @param int $videoid
      * @param string $order
      * @param bool $skipaccess
      * @return mixed
@@ -53,8 +57,9 @@ interface IIvsMatch {
     /**
      * Insert a new match question into the database
      *
-     * @param $videoid
-     * @param $data
+     * @param int $videoid
+     * @param \stdClass $data
+     * @param bool $skipaccess
      * @return mixed
      * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
      */
@@ -63,8 +68,9 @@ interface IIvsMatch {
     /**
      * Insert a new match question into the database
      *
-     * @param $videoid
-     * @param $data
+     * @param int $videoid
+     * @param \stdClass $data
+     * @param bool $skipaccess
      * @return mixed
      * @throws \mod_ivs\ivs_match\exception\MatchQuestionNotFoundException
      * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
@@ -74,7 +80,7 @@ interface IIvsMatch {
     /**
      * Delete an exsiting match question from the database
      *
-     * @param $questionid
+     * @param int $questionid
      * @param bool $skipaccess
      * @return mixed
      * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
@@ -84,8 +90,8 @@ interface IIvsMatch {
     /**
      * Insert a new answer for a question
      *
-     * @param $videoid
-     * @param $data
+     * @param int $videoid
+     * @param \stdClass $data
      *   Holds answer data and question_id as well as the user_id
      * @param null $userid
      * @param bool $skipaccess
@@ -96,7 +102,7 @@ interface IIvsMatch {
     /**
      * Get a single answer by answer id
      *
-     * @param $answerid
+     * @param int $answerid
      * @param bool $skipaccess
      * @return mixed
      */
@@ -105,8 +111,8 @@ interface IIvsMatch {
     /**
      * Get a single answer by question and user
      *
-     * @param $questionid
-     * @param $userid
+     * @param int $questionid
+     * @param int $userid
      * @param bool $skipaccess
      * @return mixed
      */
@@ -115,8 +121,8 @@ interface IIvsMatch {
     /**
      * Get a collection of answers by video and user keyed by question_id
      *
-     * @param $videoid
-     * @param $userid
+     * @param int $videoid
+     * @param int $userid
      * @param bool $skipaccess
      * @return mixed
      */
@@ -125,8 +131,8 @@ interface IIvsMatch {
     /**
      * Get a collection of answers by take
      *
-     * @param $takeid
-     * @param $onlylatest
+     * @param int $takeid
+     * @param bool $onlylatest
      *   Only the latest answers for a question - so max is the number of questions
      * @param bool $skipaccess
      * @return mixed
@@ -136,7 +142,7 @@ interface IIvsMatch {
     /**
      * Delete a single answer by answer_id
      *
-     * @param $answerid
+     * @param int $answerid
      * @param bool $skipaccess
      * @return mixed
      */
@@ -158,10 +164,9 @@ interface IIvsMatch {
     /**
      * Check access to match takes
      *
-     * @param $op - view, update
+     * @param string $op - view, update
      * @param \mod_ivs\ivs_match\MatchTake $take
      * @return mixed
-     * @internal param $take_id
      */
     public function match_take_access($op, MatchTake $take);
 
@@ -184,7 +189,7 @@ interface IIvsMatch {
     /**
      * Delete a match take from the database
      *
-     * @param $takeid
+     * @param int $takeid
      * @return mixed
      */
     public function match_take_delete_db($takeid);
@@ -192,7 +197,7 @@ interface IIvsMatch {
     /**
      * Get a match take from the database
      *
-     * @param $takeid
+     * @param int $takeid
      * @return \mod_ivs\ivs_match\MatchTake
      */
     public function match_take_get_db($takeid);
@@ -200,8 +205,8 @@ interface IIvsMatch {
     /**
      * Get all match takes by user and context
      *
-     * @param $userid
-     * @param $videoid
+     * @param int $userid
+     * @param int $videoid
      * @param null $contextid
      * @param array $status
      * @return MatchTake[]
@@ -215,14 +220,23 @@ interface IIvsMatch {
      */
     public function get_current_user_id();
 
+    /**
+     * Get the permission for a match question
+     * @param string $op
+     * @param int $videoid
+     * @param null $contextid
+     * @param null $userid
+     *
+     * @return mixed
+     */
     public function permission_match_question($op, $videoid, $contextid = null, $userid = null);
 
     /**
      * Get an array of assessment configs
      *
-     * @param $userid
-     * @param $videoid
-     * @param bool $include_pending
+     * @param int $userid
+     * @param int $videoid
+     * @param bool $includesimulation
      * @return AssessmentConfig[]
      * @throws MatchNoConfigException
      */

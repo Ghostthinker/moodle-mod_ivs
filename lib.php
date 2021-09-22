@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Lib.php
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,7 +34,7 @@ define('IVS_ULTIMATE_ANSWER', 42);
 /**
  * Returns the information on whether the module supports a feature
  *
- * See {@link plugin_supports()} for more info.
+ * See {@see plugin_supports()} for more info.
  *
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed true if the feature is supported, null if unknown
@@ -81,6 +82,8 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
+    } else if (!empty($ivs->panopto_video_json_field)) {
+        $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (!empty($ivs->sample_video)) {
         $ivs->videourl = 'TestingFileVideoHost://' . $ivs->id;
     } else {
@@ -118,7 +121,10 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
-    } else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost'))) {
+    } else if (!empty($ivs->panopto_video_json_field)) {
+        $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
+    } else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) &&
+      substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) != 'PanoptoFileVideoHost') {
         $ivs->videourl = $mform->get_current()->videourl;
     } else {
         $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->id;
@@ -131,6 +137,7 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $videohost->save_video(null);
 
     // Save settings.
+
     $settingscontroller = new \mod_ivs\settings\SettingsService();
     $settingscontroller->process_activity_settings_form($ivs);
 
@@ -213,7 +220,8 @@ function ivs_delete_instance($id) {
     return true;
 }
 
-/**ivs_backend_comments
+/**
+ * ivs_backend_comments
  * Returns a small object with summary information about what a
  * user has done with a given particular instance of this module
  * Used for user activity reports.
@@ -267,7 +275,7 @@ function ivs_print_recent_activity($course, $viewfullnames, $timestart) {
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link ivs_print_recent_mod_activity()}.
+ * {@see ivs_print_recent_mod_activity()}.
  *
  * Returns void, it adds items into $activities and increases $index.
  *
@@ -283,12 +291,12 @@ function ivs_get_recent_mod_activity(&$activities, &$index, $timestart, $coursei
 }
 
 /**
- * Prints single activity item prepared by {@link ivs_get_recent_mod_activity()}
+ * Prints single activity item prepared by {@see ivs_get_recent_mod_activity()}
  *
  * @param stdClass $activity activity record with added 'cmid' property
  * @param int $courseid the id of the course we produce the report for
  * @param bool $detail print detailed report
- * @param array $modnames as returned by {@link get_module_types_names()}
+ * @param array $modnames as returned by {@see get_module_types_names()}
  * @param bool $viewfullnames display users' full names
  */
 function ivs_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
@@ -326,7 +334,7 @@ function ivs_get_extra_capabilities() {
  * Returns the lists of all browsable file areas within the given module context
  *
  * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
+ * by {@see file_browser::get_file_info_context_module()}
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -422,6 +430,13 @@ function ivs_extend_settings_navigation(settings_navigation $settingsnav, naviga
     // TODO Delete this function and its docblock, or implement it.
 }
 
+/**
+ * Get the saved ivs activity
+ *
+ * @param string $ivs
+ *
+ * @return string
+ */
 function ivs_get_file_dir($ivs) {
     global $CFG;
 
@@ -461,7 +476,7 @@ function ivs_annotation_event_deleted(\mod_ivs\event\annotation_deleted $event) 
 /**
  * Generate message realm
  *
- * @param $event
+ * @param \stdClass $event
  * @throws \coding_exception
  */
 function ivs_annotation_event_message_send($event) {
@@ -563,9 +578,9 @@ function ivs_annotation_event_message_send($event) {
 /**
  * Set and send message content
  *
- * @param $provider
- * @param $receivers
- * @param $course
+ * @param string $provider
+ * @param string $receivers
+ * @param \stdClass $course
  * @param \mod_ivs\annotation $annotation
  * @throws \coding_exception
  */
@@ -632,6 +647,12 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
     }
 }
 
+/**
+ * Navigation for the Interactive video suite activity
+ * @param string $navigation
+ * @param \stdClass $course
+ * @param \stdClass $context
+ */
 function ivs_extend_navigation_course($navigation, $course, $context) {
 
     // IVS Annotations.
@@ -655,6 +676,8 @@ function ivs_extend_navigation_course($navigation, $course, $context) {
 }
 
 /**
+ * Returns the MoodleLicenseController
+ *
  * @return \mod_ivs\license\ILicenseController
  */
 function ivs_get_license_controller() {

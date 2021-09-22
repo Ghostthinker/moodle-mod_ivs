@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Locallib file
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,6 +34,11 @@ defined('MOODLE_INTERNAL') || die();
  *}
  */
 
+/**
+ * Load js and css dependencies
+ * @return array[]
+ * @throws \Exception
+ */
 function ivs_ep5_get_js_and_css_dependencies() {
 
     global $DB;
@@ -77,7 +83,7 @@ function ivs_ep5_get_js_and_css_dependencies() {
 /**
  * Returns True if user has permission to edit playbackcommands in the activity context
  *
- * @param $activitycontext
+ * @param mixed $activitycontext
  * @return mixed
  */
 function ivs_may_edit_playbackcommands($activitycontext) {
@@ -88,7 +94,7 @@ function ivs_may_edit_playbackcommands($activitycontext) {
 /**
  * Returns True if user has permission to edit match questions in the activity context
  *
- * @param $activitycontext
+ * @param mixed $activitycontext
  * @return mixed
  */
 function ivs_may_edit_match_questions($activitycontext) {

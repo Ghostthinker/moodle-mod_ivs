@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class is used to restore ivs activitys
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,6 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/ivs/backup/moodle2/restore_ivs_stepslib.php');
 require_once($CFG->dirroot . '/mod/ivs/backup/moodle2/restore_ivs_settingslib.php');
 
+/**
+ * Class restore_ivs_activity_task
+ */
 class restore_ivs_activity_task extends restore_activity_task {
 
     /**
@@ -78,9 +82,9 @@ class restore_ivs_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
+     * by the {@see restore_logs_processor} when restoring
      * ivs logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see restore_log_rule} objects
      */
     public static function define_restore_log_rules() {
         $rules = array();
@@ -94,9 +98,9 @@ class restore_ivs_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
+     * by the {@see restore_logs_processor} when restoring
      * course logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see restore_log_rule} objects
      *
      * Note this rules are applied when restoring course logs
      * by the restore final task, but are defined here at

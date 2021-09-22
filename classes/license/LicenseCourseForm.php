@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * LicenseCourseForm.php
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,8 +30,14 @@ require_once("$CFG->libdir/formslib.php");
 use mod_ivs\CourseService;
 use moodleform;
 
+/**
+ * Class LicenseCourseForm
+ *
+ */
 class LicenseCourseForm extends moodleform {
-
+    /**
+     * Definition for the form
+     */
     public function definition() {
 
         $mform = $this->_form;
@@ -80,7 +87,13 @@ class LicenseCourseForm extends moodleform {
 
     }
 
-    // Custom validation should be added here.
+    /**
+     * Custom validation should be added here.
+     * @param \stdClass $data
+     * @param \stdClass $files
+     *
+     * @return array
+     */
     public function validation($data, $files) {
         $errors = [];
 

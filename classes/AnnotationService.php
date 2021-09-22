@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Service class for handling annotations
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,12 +28,16 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class AnnotationService
+ *
+ */
 class AnnotationService {
 
     /**
      * Get all annotations by course with filters
      *
-     * @param $courseid
+     * @param int $courseid
      * @param bool $skipaccesscheck
      * @param array $options
      * @param bool $counttotal
@@ -164,6 +169,13 @@ class AnnotationService {
 
     }
 
+    /**
+     * Create query to filter annotations
+     * @param int $courseid
+     * @param array $options
+     *
+     * @return array
+     */
     protected function create_filter_query($courseid, $options) {
 
         $queryparts = array();

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for the match takes
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,25 +26,77 @@ namespace mod_ivs\ivs_match;
 
 /**
  * Class MatchTake
- *
- * @package all\modules\features\ivs_match\inc\ivs_match\exception
  */
 class MatchTake {
 
+    /**
+     * @var string
+     */
     const STATUS_NEW = 'new';
+
+    /**
+     * @var string
+     */
     const STATUS_PROGRESS = 'progress';
+
+    /**
+     * @var string
+     */
     const STATUS_PASSED = 'passed';
+
+    /**
+     * @var string
+     */
     const STATUS_FAILED = 'failed';
 
+    /**
+     * @var int
+     */
     public $id;
+
+    /**
+     * @var int
+     */
     public $userid;
+
+    /**
+     * @var int
+     */
     public $contextid;
+
+    /**
+     * @var int
+     */
     public $videoid;
+
+    /**
+     * @var int
+     */
     public $created;
+
+    /**
+     * @var int
+     */
     public $changed;
+
+    /**
+     * @var bool
+     */
     public $completed;
+
+    /**
+     * @var int
+     */
     public $score;
+
+    /**
+     * @var string
+     */
     public $status = self::STATUS_NEW;
+
+    /**
+     * @var bool
+     */
     public $evaluated = false;
 
 }

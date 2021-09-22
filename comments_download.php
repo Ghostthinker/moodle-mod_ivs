@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Download all comments from the Interactive video suite activity.
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -45,8 +47,6 @@ if (!has_capability('mod/ivs:download_annotations', $context)) {
     return;
 }
 
-
-//TODO: Set column headers with the correct IDs and stuff from the course
 $columns = array(
     'col_1' => get_string("ivs_videocomment_header_id_label", 'ivs'),
     'col_2' => get_string("ivs_videocomment_header_title_label", 'ivs'),
@@ -61,21 +61,19 @@ $columns = array(
 
 $comments = \mod_ivs\annotation::retrieve_from_db_by_video($ivs->id, null);
 
-//TODO refactor function
-foreach($comments as $comment){
-    if(count($comment->get_replies()) > 0){
-        foreach ($comment->get_replies() as $replycomment){
+foreach ($comments as $comment) {
+    if (count($comment->get_replies()) > 0) {
+        foreach ($comment->get_replies() as $replycomment) {
             $replycomment->set_timestamp($comment->get_timestamp());
             $comments[] = $replycomment;
         }
     }
 }
 
-foreach ($comments as $comment){
+foreach ($comments as $comment) {
 
     $username = $comment->get_player_user_data()['name'];
     $additionaldata = $comment->get_additionaldata();
-    //$asdf = $username['name'];
 
     $data[] = array(
         'col_1' => $comment->get_id(),

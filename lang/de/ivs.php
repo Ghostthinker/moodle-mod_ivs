@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Translation file
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -332,3 +333,9 @@ $string['ivs_setting_read_access_course'] = 'Kurs';
 $string['ivs_setting_read_access_role:teacher'] = 'Rolle Trainer:in';
 $string['ivs_setting_annotations_enabled'] = 'Kommentare ermöglichen';
 $string['ivs_setting_annotations_enabled_help'] = 'Über Kommentare kann ein punktgenauen Austausch rund um die Videoinhalte mit Hilfe von Videokommentaren und Antworten auf bestehende Videokommentare stattfinden.';
+$string['ivs_setting_panopto_external_files_title'] = 'Panopto Video Upload';
+$string['ivs_setting_panopto_external_files_help'] = 'Beim Video Upload können Videos von Panopto ausgewählt werden. Das panopto_block Plugin wird dafür benötigt.';
+$string['ivs_setting_panopto_menu_title'] = 'Panopto Video';
+$string['ivs_setting_panopto_menu_button'] = 'Panopto Video hinzufügen';
+$string['ivs_setting_panopto_menu_tooltip'] = 'Es kann nur ein Video ausgewählt werden';
+

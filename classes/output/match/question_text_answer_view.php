@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering the text answers
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,15 +32,34 @@ use renderer_base;
 use templatable;
 use stdClass;
 
+/**
+ * Class question_text_answer_view
+ *
+ */
 class question_text_answer_view implements renderable, templatable {
 
+    /**
+     * @var string|null
+     */
     public $answer = null;
 
+    /**
+     * question_text_answer_view constructor.
+     *
+     * @param string $answer
+     * @param stdClass $courseuser
+     */
     public function __construct($answer, $courseuser) {
         $this->answer = $answer;
         $this->course_user = $courseuser;
     }
 
+    /**
+     * Render mustache template
+     * @param \renderer_base $output
+     *
+     * @return \stdClass
+     */
     public function export_for_template(renderer_base $output) {
 
         $controller = new MoodleMatchController();

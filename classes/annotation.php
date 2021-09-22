@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class manage all the annotations
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -36,23 +37,88 @@ define('MOD_IVS', 'ivs');
 define('MOD_IVS_COMMENT', 'ivs_videocomment');
 define('MOD_IVS_VC_ACCESS', 'ivs_vc_access');
 
+/**
+ * Class annotation
+ *
+ * @package mod_ivs
+ */
 class annotation {
 
+    /**
+     * @var int id from the annotation
+     */
     private $id;
+
+    /**
+     * @var string The content of a annotation
+     */
     private $body;
+
+    /**
+     * @var int The video id where the annotation is created
+     */
     private $videoid;
+
+    /**
+     * @var int The timemstamp where the annotation is created
+     */
     private $timestamp;
+
+    /**
+     * @var int The duration of the video
+     */
     private $duration;
+
+    /**
+     * @var string Thumbnail for the annotation
+     */
     private $thumbnail;
+
+    /**
+     * @var int The user who created the annotation
+     */
     private $userid;
+
+    /**
+     * @var array Additional data in the annotation
+     */
     private $additionaldata;
+
+    /**
+     * @var int Timestamp when editing the annotation
+     */
     private $timemodified;
+
+    /**
+     * @var int Timestamp when the annotation was created
+     */
     private $timecreated;
+
+    /**
+     * @var int The access setting of the annotation
+     */
     private $accessview;
+
+    /**
+     * @var \stdClass Info about the course
+     */
     private $courseservice;
+
+    /**
+     * @var int When its a reply, save the parent id
+     */
     private $parentid;
+
+    /**
+     * @var array Save the replies for this annotation
+     */
     protected $replies;
 
+    /**
+     * annotation constructor.
+     *
+     * @param false $annotation
+     */
     public function __construct($annotation = false) {
 
         if (is_object($annotation)) {
@@ -65,8 +131,8 @@ class annotation {
     }
 
     /**
-     * @param $annotations
-     * @param $annotation_ids
+     * Load all replies
+     * @param array $annotations
      */
     public static function load_replies(&$annotations) {
 
@@ -124,6 +190,10 @@ class annotation {
         return $save;
     }
 
+    /**
+     * Delete annotation from db
+     * @param null $annotation
+     */
     public function delete_from_db($annotation = null) {
         global $DB;
 
@@ -147,7 +217,7 @@ class annotation {
     /**
      * Load an annotation from the database
      *
-     * @param $annotationid
+     * @param int $annotationid
      * @param bool $loadreplies
      * @return \mod_ivs\annotation
      */
@@ -168,6 +238,16 @@ class annotation {
         return null;
     }
 
+    /**
+     * All annotations from a video
+     * @param int $videonid
+     * @param null $grants
+     * @param int $offset
+     * @param int $limit
+     * @param false $countonly
+     *
+     * @return array
+     */
     public static function retrieve_from_db_by_video($videonid, $grants = null, $offset = 0, $limit = 0, $countonly = false) {
         global $DB, $USER;
 
@@ -219,6 +299,10 @@ class annotation {
         return $annotations;
     }
 
+    /**
+     * Save the annotation access
+     * @param \stdClass|null $accessview
+     */
     public function write_annotation_access(\stdClass $accessview = null) {
         global $DB;
 
@@ -270,6 +354,13 @@ class annotation {
         return $save;
     }
 
+    /**
+     * Get grants from the user
+     * @param int $moodleuserid
+     * @param int $courseid
+     *
+     * @return array
+     */
     public static function get_user_grants($moodleuserid, $courseid) {
         $grants = array();
         $grants['user'] = $moodleuserid;
@@ -294,6 +385,13 @@ class annotation {
         return $grants;
     }
 
+    /**
+     * Get user grants as index
+     * @param \stdClass $moodleuser
+     * @param int $courseid
+     *
+     * @return array
+     */
     public function get_user_grants_as_index($moodleuser, $courseid) {
         $grants = array();
         $grants[0] = array('user_id' => $moodleuser->id);
@@ -312,6 +410,7 @@ class annotation {
     }
 
     /**
+     * Get the parent from a annotation
      * @return mixed
      */
     public function get_parentid() {
@@ -319,6 +418,7 @@ class annotation {
     }
 
     /**
+     * Set the parent id for a annotation
      * @param mixed $parentid
      */
     public function set_parentid($parentid) {
@@ -328,7 +428,7 @@ class annotation {
     /**
      * Create moodle events so observers can react
      *
-     * @param $op
+     * @param string $op
      * @param null $additionaldata
      * @throws \coding_exception
      */
@@ -365,7 +465,7 @@ class annotation {
     /**
      * Get the ids of all users that replied to this comment
      *
-     * @param bool $exlude_author
+     * @param bool $excludeauthor
      * @return array
      */
     public function get_reply_users($excludeauthor = true) {
@@ -392,12 +492,22 @@ class annotation {
     }
 
     /**
+     * Get all replies for a annotation
      * @return array
      */
     public function get_replies() {
         return $this->replies;
     }
 
+    /**
+     * Get all params from the user
+     * @param int $userid
+     * @param int $courseid
+     * @param int $groupid
+     * @param int $roleid
+     *
+     * @return array
+     */
     private function get_user_params($userid, $courseid, $groupid, $roleid) {
         return array(
                 'course_id' => $courseid,
@@ -411,10 +521,10 @@ class annotation {
     /**
      * Build a query and parameters for the access check of video comments that can be added to a where group.
      *
-     * @param $userid
-     * @param $courseid
-     * @param $groupids
-     * @param $roleids
+     * @param int $userid
+     * @param int $courseid
+     * @param int $groupids
+     * @param int $roleids
      * @return array
      */
     public static function get_user_grants_query($userid, $courseid, $groupids, $roleids) {
@@ -455,6 +565,11 @@ class annotation {
         return array($sql, $accessparameters);
     }
 
+    /**
+     * Parse data from request
+     * @param \stdClass $requestbody
+     * @param null $parentid
+     */
     public function from_request_body($requestbody, $parentid = null) {
         global $USER;
 
@@ -520,8 +635,7 @@ class annotation {
     /**
      * Save Preview Image as base 64
      *
-     * @param $imagebase64
-     * @param $annotation_id
+     * @param array $imagebase64
      * @return \stored_file
      * @throws \file_exception
      * @throws \stored_file_creation_exception
@@ -574,10 +688,8 @@ class annotation {
     }
 
     /**
-     * Get Preview Image
-     *
-     * @param $annotation_id
-     * @throws \coding_exception
+     * Get the preview url
+     * @return null
      */
     public function get_preview_url() {
 
@@ -609,7 +721,7 @@ class annotation {
     /**
      * Lock the access field so only privilleged users can edit the access
      *
-     * @param $accesssettings
+     * @param array $accesssettings
      */
     public function lock_access($accesssettings) {
 
@@ -623,10 +735,18 @@ class annotation {
 
     }
 
+    /**
+     * Get user data
+     * @return array|string[]
+     */
     public function get_player_user_data() {
         return IvsHelper::get_user_data_for_player($this->userid);
     }
 
+    /**
+     * Get the permission from the player
+     * @return array
+     */
     public function get_player_permissions() {
         return array(
                 'update' => $this->access('edit'),
@@ -658,6 +778,10 @@ class annotation {
         );
     }
 
+    /**
+     * Add a annotation from the player
+     * @return object
+     */
     public function to_player_comment() {
         global $PAGE;
         $object = (object) $this->get_record();
@@ -710,7 +834,7 @@ class annotation {
     /**
      * Populate an object we can store in the database
      *
-     * @param $dbrecord
+     * @param \stdClass $dbrecord
      */
     private function set_record($dbrecord) {
         $this->id = $dbrecord->id;
@@ -728,6 +852,12 @@ class annotation {
 
     }
 
+    /**
+     * Check the access
+     * @param string $op
+     *
+     * @return bool
+     */
     public function access($op) {
         global $USER;
         $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
@@ -795,7 +925,7 @@ class annotation {
     /**
      * format a timecode
      *
-     * @param $timecode
+     * @param int $timecode
      * @param bool $millisecs
      * @return string
      */
@@ -818,10 +948,22 @@ class annotation {
         return $timeformatted;
     }
 
+    /**
+     * Get a formatted timecode
+     * @param false $millisecs
+     *
+     * @return string
+     */
     public function get_timecode($millisecs = false) {
         return self::format_timecode($this->timestamp, $millisecs);
     }
 
+    /**
+     * Check the permission for viewing any annotation
+     * @param \mixed $context
+     *
+     * @return bool
+     */
     public static function has_capability_view_any_comment($context) {
         if (is_siteadmin()) {
             return true;
@@ -835,6 +977,7 @@ class annotation {
     }
 
     /**
+     * Get the id from a annotation
      * @return mixed
      */
     public function get_id() {
@@ -842,6 +985,7 @@ class annotation {
     }
 
     /**
+     * Set the id for a annotation
      * @param mixed $id
      */
     public function set_id($id) {
@@ -849,12 +993,15 @@ class annotation {
     }
 
     /**
+     * Get the body from a annotation
      * @return mixed
      */
     public function get_body() {
         return $this->body;
     }
+
     /**
+     * Get the rendered body for a annotation
      * @return mixed
      */
     public function get_rendered_body() {
@@ -866,6 +1013,7 @@ class annotation {
     }
 
     /**
+     * Set the body for a annotation
      * @param mixed $body
      */
     public function set_body($body) {
@@ -873,6 +1021,7 @@ class annotation {
     }
 
     /**
+     * Get the video id
      * @return mixed
      */
     public function get_videoid() {
@@ -880,6 +1029,7 @@ class annotation {
     }
 
     /**
+     * Set the video id
      * @param mixed $videoid
      */
     public function set_videoid($videoid) {
@@ -887,6 +1037,7 @@ class annotation {
     }
 
     /**
+     * Get the timestamp
      * @return mixed
      */
     public function get_timestamp() {
@@ -894,6 +1045,7 @@ class annotation {
     }
 
     /**
+     * Set the timestamp
      * @param mixed $timestamp
      */
     public function set_timestamp($timestamp) {
@@ -901,6 +1053,7 @@ class annotation {
     }
 
     /**
+     * Get the duration from the video
      * @return mixed
      */
     public function get_duration() {
@@ -908,6 +1061,7 @@ class annotation {
     }
 
     /**
+     * Set the duration
      * @param mixed $duration
      */
     public function set_duration($duration) {
@@ -915,6 +1069,7 @@ class annotation {
     }
 
     /**
+     * Get the thumbnail for preview image
      * @return mixed
      */
     public function get_thumbnail() {
@@ -922,6 +1077,7 @@ class annotation {
     }
 
     /**
+     * Set the thumbnail for a annotation
      * @param mixed $thumbnail
      */
     public function set_thumbnail($thumbnail) {
@@ -929,6 +1085,7 @@ class annotation {
     }
 
     /**
+     * Get the user id for a annotation
      * @return mixed
      */
     public function get_userid() {
@@ -936,6 +1093,7 @@ class annotation {
     }
 
     /**
+     * Set the user id for a annotation
      * @param mixed $userid
      */
     public function set_userid($userid) {
@@ -943,6 +1101,7 @@ class annotation {
     }
 
     /**
+     * Get additional data for a annotation
      * @return mixed
      */
     public function get_additionaldata() {
@@ -950,6 +1109,7 @@ class annotation {
     }
 
     /**
+     * Set additional data for a annotation
      * @param mixed $additionaldata
      */
     public function set_additionaldata($additionaldata) {
@@ -957,6 +1117,7 @@ class annotation {
     }
 
     /**
+     * Get modified time for a annotation
      * @return mixed
      */
     public function get_timemodified() {
@@ -964,6 +1125,7 @@ class annotation {
     }
 
     /**
+     * Set modified time for a annotation
      * @param mixed $timemodified
      */
     public function set_timemodified($timemodified) {
@@ -971,6 +1133,7 @@ class annotation {
     }
 
     /**
+     * Get created time for a annotation
      * @return mixed
      */
     public function get_timecreated() {
@@ -978,6 +1141,7 @@ class annotation {
     }
 
     /**
+     * Set created time for a annotation
      * @param mixed $timecreated
      */
     public function set_timecreated($timecreated) {
@@ -985,6 +1149,7 @@ class annotation {
     }
 
     /**
+     * Get view access for a annotation
      * @return mixed
      */
     public function get_accessview() {
@@ -992,13 +1157,15 @@ class annotation {
     }
 
     /**
-     * @param $accessview
+     * Set view access for a annotation
+     * @param int $accessview
      */
     public function set_accessview($accessview) {
         $this->accessview = $accessview;
     }
 
     /**
+     * Get course service
      * @return mixed
      */
     public function get_courseservice() {
@@ -1009,6 +1176,7 @@ class annotation {
     }
 
     /**
+     * Set course service
      * @param mixed $courseservice
      */
     public function set_courseservice($courseservice) {
@@ -1016,6 +1184,7 @@ class annotation {
     }
 
     /**
+     * Build the annotation url
      * @return \moodle_url
      */
     public function get_annotation_player_url() {
@@ -1032,6 +1201,7 @@ class annotation {
     }
 
     /**
+     * Get annotation url in the overview page
      * @return \moodle_url
      */
     public function get_annotation_overview_url() {
@@ -1042,10 +1212,11 @@ class annotation {
     }
 
     /**
+     * If a rating exists, return the correct code
      * @return string
      */
     public function get_rating_text() {
-        if(empty($this->additionaldata['rating'])){
+        if (empty($this->additionaldata['rating'])) {
             return '';
         }
         switch ($this->additionaldata['rating']) {
