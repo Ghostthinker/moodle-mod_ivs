@@ -235,12 +235,27 @@ class MoodleLicenseController implements ILicenseController
      * @return bool
      */
     public function check_is_online() {
+        global $CFG;
+
         $domain = $this->get_core_url(true);
         $curlinit = curl_init($domain);
         curl_setopt($curlinit, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($curlinit, CURLOPT_HEADER, true);
         curl_setopt($curlinit, CURLOPT_NOBODY, true);
         curl_setopt($curlinit, CURLOPT_RETURNTRANSFER, true);
+        
+        if (!empty($CFG->proxyhost)) {
+          curl_setopt($curlinit, CURLOPT_PROXY, $CFG->proxyhost);
+          if (!empty($CFG->proxyport)) {
+            curl_setopt($curlinit, CURLOPT_PROXYPORT, $CFG->proxyport);
+          }
+          if (!empty($CFG->proxytype)) {
+            // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http
+            if ($CFG->proxytype == 'SOCKS5') {
+             curl_setopt($curlinit, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+            }
+         }
+        }
 
         // Get answer.
         $response = curl_exec($curlinit);
@@ -300,6 +315,19 @@ class MoodleLicenseController implements ILicenseController
 
         // So that curl_exec returns the contents of the cURL; rather than echoing it.
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        if (!empty($CFG->proxyhost)) {
+          curl_setopt($ch, CURLOPT_PROXY, $CFG->proxyhost);
+          if (!empty($CFG->proxyport)) {
+            curl_setopt($ch, CURLOPT_PROXYPORT, $CFG->proxyport);
+          }
+          if (!empty($CFG->proxytype)) {
+            // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http
+            if ($CFG->proxytype == 'SOCKS5') {
+             curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+            }
+         }
+        }
 
         // Execute post.
         $result = curl_exec($ch);
