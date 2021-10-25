@@ -87,7 +87,7 @@ class MoodleLicenseController implements ILicenseController
         $requestdata = [
                 'instance_id' => $instanceid,
                 'system_name' => "Moodle",
-                'system_ip' => $_SERVER['SERVER_ADDR'],
+                'system_ip' => (isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : gethostname()),
                 'version_lms' => $CFG->release,
                 'version_plugin' => get_config('mod_ivs', 'version'),
                 'installation_date' => get_config('mod_ivs', 'ivs_installation_date'),
