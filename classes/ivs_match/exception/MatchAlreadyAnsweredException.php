@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Exception class when match question is already answered
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,8 +24,18 @@
 
 namespace mod_ivs\ivs_match\exception;
 
+/**
+ * Class MatchAlreadyAnsweredException
+ */
 class MatchAlreadyAnsweredException extends \Exception {
 
+    /**
+     * MatchAlreadyAnsweredException constructor.
+     *
+     * @param string $message
+     * @param int $code
+     * @param \Throwable|null $previous
+     */
     public function __construct($message = "", $code = 0, \Throwable $previous = null) {
         parent::__construct("Answer already exits for this user and question: " . $message, $code, $previous);
     }

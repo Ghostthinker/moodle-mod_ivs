@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * All form elements to create or edit an Interactive video suite
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,10 +29,12 @@ use \mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\settings\SettingsService;
 use \tool_opencast\local\api;
 
-
 global $CFG;
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
+if (file_exists($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php')) {
+    require_once($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php');
+}
 /**
  * Module instance settings form
  *
@@ -48,7 +52,30 @@ class mod_ivs_mod_form extends moodleform_mod {
         global $CFG;
 
         global $PAGE;
-        $PAGE->requires->js_call_amd('mod_ivs/ivs_activity_settings_page', 'init', []);
+
+        global $course;
+        global $USER;
+
+        $panoptoblocksenabled = file_exists($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php');
+
+        $panoptodata = '';
+        if($panoptoblocksenabled) {
+
+            $configuredserverarray = panopto_get_configured_panopto_servers();
+
+            if (file_exists(dirname(__FILE__) . '/../../blocks/panopto/lib/panopto_data.php')) {
+                require_once(dirname(__FILE__) . '/../../blocks/panopto/lib/panopto_data.php');
+                $panoptodata = new \panopto_data($course->id);
+                if (!empty($panoptodata->servername) && !empty($panoptodata->applicationkey)) {
+                    $panoptodata->sync_external_user($USER->id);
+                }
+            }
+
+            $panoptodata->buttonname = get_string('ivs_setting_panopto_menu_button', 'ivs');
+            $panoptodata->tooltip = get_string('ivs_setting_panopto_menu_tooltip', 'ivs');
+        }
+
+        $PAGE->requires->js_call_amd('mod_ivs/ivs_activity_settings_page', 'init', ['panopto_data' => $panoptodata]);
 
         $mform = $this->_form;
 
@@ -71,6 +98,20 @@ class mod_ivs_mod_form extends moodleform_mod {
             $this->standard_intro_elements();
         } else {
             $this->add_intro_editor();
+        }
+
+        if ((int) $CFG->ivs_panopto_external_files_enabled && $panoptoblocksenabled) {
+            $mform->addElement('hidden', 'panopto_video_json_field', get_string('ivs_setting_panopto_menu_title', 'ivs'),
+              ['id' => 'id_panopto_video_json_field']);
+            $mform->addElement('text', 'panopto_video', get_string('ivs_setting_panopto_menu_title', 'ivs'),
+              ['readonly' => true, 'size' => '64']);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('panopto_video_json_field', PARAM_TEXT);
+                $mform->setType('panopto_video', PARAM_TEXT);
+            } else {
+                $mform->setType('panopto_video_json_field', PARAM_CLEANHTML);
+                $mform->setType('panopto_video', PARAM_CLEANHTML);
+            }
         }
 
         if ((int) $CFG->ivs_opencast_external_files_enabled) {
@@ -157,6 +198,10 @@ class mod_ivs_mod_form extends moodleform_mod {
 
     }
 
+    /**
+     * Process default values
+     * @param array $defaultvalues
+     */
     public function data_preprocessing(&$defaultvalues) {
         if ($this->current->instance) {
             $options = array(
@@ -180,11 +225,21 @@ class mod_ivs_mod_form extends moodleform_mod {
             $parts = explode("://", $defaultvalues['videourl']);
             if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
                 $defaultvalues['opencast_video'] = $parts[1];
+            } else if ($parts[0] == "PanoptoFileVideoHost") {
+                $defaultvalues['panopto_video_json_field'] = $parts[1];
+                $decodedvalues = json_decode($parts[1]);
+                if(!empty($decodedvalues)) {
+                    $defaultvalues['panopto_video'] = $decodedvalues->videoname[0];
+                }
             }
         }
 
     }
 
+    /**
+     * Get all videos from opencast
+     * @return array|void
+     */
     public function get_videos_for_select() {
 
         global $COURSE;

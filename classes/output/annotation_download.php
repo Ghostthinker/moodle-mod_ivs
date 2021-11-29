@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering downloading annotations
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,17 +34,32 @@ use templatable;
 use stdClass;
 use user_picture;
 
+/**
+ * Class annotation_download
+ */
 class annotation_download implements renderable, templatable {
 
+    /**
+     * @var \mod_ivs\annotation|null
+     */
     public $annotation = null;
+
+    /**
+     * @var null|stdClass
+     */
     public $ivs = null;
+
+    /**
+     * @var stdClass
+     */
     public $module;
 
     /**
      * annotation_download constructor.
      *
-     * @param \mod_ivs\annotation $annotation
-     * @param null $ivs
+     * @param array $all_comments
+     * @param stdClass $ivs
+     * @param stdClass $cm
      */
     public function __construct($all_comments, $ivs, $cm) {
         $this->all_comments = $all_comments;
@@ -53,8 +69,9 @@ class annotation_download implements renderable, templatable {
 
     /**
      * Export this data so it can be used as the context for a mustache template.
+     * @param \renderer_base $output
      *
-     * @return stdClass
+     * @return \stdClass
      */
     public function export_for_template(renderer_base $output) {
 
@@ -83,8 +100,6 @@ class annotation_download implements renderable, templatable {
                 ]
             );
         }
-
-
         return $data;
     }
 }

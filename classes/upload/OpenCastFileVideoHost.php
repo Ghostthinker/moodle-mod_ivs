@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class is for the OpenCast video file host
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,19 +26,36 @@ namespace mod_ivs\upload;
 
 use \tool_opencast\local\api;
 
+/**
+ * Class OpenCastFileVideoHost
+ */
 class OpenCastFileVideoHost implements IVideoHost {
 
+    /**
+     * @var \stdClass
+     */
     protected $ivs;
+
+    /**
+     * @var \stdClass
+     */
     protected $coursemodule;
 
     /**
-     * VideoHostFactory constructor.
+     * OpenCastFileVideoHost constructor.
+     *
+     * @param \stdClass $cm
+     * @param \stdClass $ivs
      */
     public function __construct($cm, $ivs) {
         $this->ivs = $ivs;
         $this->coursemodule = $cm;
     }
 
+    /**
+     * Get the video
+     * @return mixed|string|void
+     */
     public function get_video() {
 
         if (!class_exists('\\tool_opencast\\local\\api')) {
@@ -71,11 +89,33 @@ class OpenCastFileVideoHost implements IVideoHost {
         return $url;
     }
 
+    /**
+     * Save video data
+     * @param \stdClass $formvalues
+     */
     public function save_video($formvalues) {
 
     }
 
+    /**
+     * Get the thumbnail
+     */
     public function get_thumbnail() {
         // TODO: Implement getThumbnail() method.
+    }
+
+    /**
+     * Prerender function
+     */
+    public function prerender() {
+        // TODO: Implement prerender() method.
+    }
+
+    /**
+     * Get the cross origin tag
+     * @return string
+     */
+    public function getcrossorigintag() {
+        return 'crossorigin="anonymous"';
     }
 }

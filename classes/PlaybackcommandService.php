@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * PlaybackcommandService.php
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,8 +28,16 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
-// TODO create interface.
+/**
+ * Class PlaybackcommandService
+ *
+ * @package mod_ivs
+ */
 class PlaybackcommandService {
+
+    /**
+     * Convert json response
+     */
     public function from_json() {
 
     }
@@ -36,8 +45,8 @@ class PlaybackcommandService {
     /**
      * Save Playbackcommand
      *
-     * @param $postdata
-     * @param $activityid
+     * @param \stdClass $postdata
+     * @param int $activityid
      * @return array
      * @throws \coding_exception
      * @throws \dml_exception
@@ -119,7 +128,7 @@ class PlaybackcommandService {
     /**
      * Retrieve Playbackcommand
      *
-     * @param $activityid
+     * @param int $activityid
      * @return mixed
      * @throws \Exception
      */
@@ -144,8 +153,8 @@ class PlaybackcommandService {
     /**
      * Delete Playbackcommand
      *
-     * @param $playbackcommandid
-     * @param $activityid
+     * @param int $playbackcommandid
+     * @param int $activityid
      * @throws \dml_exception
      */
     public function delete($playbackcommandid, $activityid) {
@@ -173,7 +182,7 @@ class PlaybackcommandService {
     /**
      * Load Video by activity id
      *
-     * @param $activityid
+     * @param int $activityid
      * @return mixed
      * @throws \coding_exception
      * @throws \dml_exception
@@ -188,10 +197,24 @@ class PlaybackcommandService {
 
     }
 
+    /**
+     * Returns the ivs activity
+     *
+     * @param int $activityid
+     *
+     * @return mixed
+     */
     private function get_activity($activityid) {
         return get_coursemodule_from_id('ivs', $activityid, 0, false, MUST_EXIST);
     }
 
+    /**
+     * Check the access for an ivs activity
+     *
+     * @param int $activityid
+     *
+     * @return mixed
+     */
     private function has_edit_access($activityid) {
 
         $activitycontext = \context_module::instance($activityid);
@@ -202,7 +225,7 @@ class PlaybackcommandService {
     /**
      * Special behavior playbackcommand sequence
      *
-     * @param $activityid
+     * @param int $activityid
      * @return array
      * @throws \Exception
      */

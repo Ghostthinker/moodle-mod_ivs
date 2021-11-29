@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class is for the testing video file host
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,30 +24,66 @@
 
 namespace mod_ivs\upload;
 
+/**
+ * Class TestingFileVideoHost
+ */
 class TestingFileVideoHost implements IVideoHost {
 
+    /**
+     * @var \stdClass
+     */
     protected $ivs;
+
+    /**
+     * @var \stdClass
+     */
     protected $coursemodule;
 
     /**
      * TestingFileVideoHost constructor.
      *
-     * @param $cm
-     * @param $ivs
+     * @param \stdClass $cm
+     * @param \stdClass $ivs
      */
     public function __construct($cm, $ivs) {
     }
 
+    /**
+     * Get the video
+     * @return \moodle_url
+     */
     public function get_video() {
         // TODO: Implement getVideo() method.
         return new \moodle_url('/mod/ivs/tests/codeception/tests/_data/sample.mp4');
     }
 
+    /**
+     * Save video data
+     * @param \stdClass $data
+     */
     public function save_video($data) {
         // TODO: Implement saveVideo() method.
     }
 
+    /**
+     * Get the thumbnail
+     */
     public function get_thumbnail() {
         // TODO: Implement getThumbnail() method.
+    }
+
+    /**
+     * Prerender function
+     */
+    public function prerender() {
+        // TODO: Implement prerender() method.
+    }
+
+    /**
+     * Get the crossorigintag
+     * @return string
+     */
+    public function getcrossorigintag() {
+        return 'crossorigin="anonymous"';
     }
 }

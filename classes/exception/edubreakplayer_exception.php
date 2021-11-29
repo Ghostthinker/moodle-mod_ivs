@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Exception class for the ivs
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Parent fro all deubreak exceptions
  *
- * @package ivs\local\exception
  */
 class ivs_exception extends \moodle_exception {
 

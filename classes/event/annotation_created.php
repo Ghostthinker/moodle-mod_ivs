@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * annotation_created.php
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,12 +25,24 @@
 namespace mod_ivs\event;
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class annotation_created
+ *
+ */
 class annotation_created extends \mod_ivs\event\annotation_base {
 
+    /**
+     * Returns the created annotation
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventannotationcreated', 'mod_ivs');
     }
 
+    /**
+     * Returns the created annotation description
+     * @return string
+     */
     public function get_description() {
         return "The user with id {$this->userid} created an annotation with id {$this->objectid}.";
     }

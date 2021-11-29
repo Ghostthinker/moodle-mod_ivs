@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * File for the settings
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -41,6 +42,10 @@ if ($ADMIN->fulltree) {
             get_string('ivs_setting_opencast_external_files_title', 'ivs'),
             get_string('ivs_setting_opencast_external_files_help', 'ivs'), 1));
 
+    $settings->add(new admin_setting_configcheckbox('ivs_panopto_external_files_enabled',
+      get_string('ivs_setting_panopto_external_files_title', 'ivs'),
+      get_string('ivs_setting_panopto_external_files_help', 'ivs'), 1));
+
     $settings->add(new admin_setting_configcheckbox('ivs_opencast_internal_files_enabled',
             get_string('ivs_setting_opencast_internal_files_title', 'ivs'),
             get_string('ivs_setting_opencast_internal_files_help', 'ivs'), 1));
@@ -66,7 +71,8 @@ if ($ADMIN->fulltree) {
                 break;
             case 'select':
                 if ($playersetting->lockedsite) {
-                    $settings->add(new admin_setting_configselect_with_lock("mod_ivs/" . $playersetting->name, $playersetting->title,
+                    $settings->add(new admin_setting_configselect_with_lock("mod_ivs/" . $playersetting->name,
+                      $playersetting->title,
                             get_string($playersetting->description . '_help', 'ivs'), 0, $playersetting->options));
 
                 } else {

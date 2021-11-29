@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class to add a video to a instance
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,8 +26,14 @@ namespace mod_ivs;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class video
+ */
 class video {
 
+    /**
+     * @var \stdClass
+     */
     private $instance;
 
     /**
@@ -34,10 +41,23 @@ class video {
      */
     private $context;
 
+    /**
+     * @var \stdClass
+     */
     private $course;
 
+    /**
+     * @var \stdClass
+     */
     private $coursemodule;
 
+    /**
+     * video constructor.
+     *
+     * @param \stdClass $coursemodulecontext
+     * @param \stdClass $coursemodule
+     * @param \stdClass $course
+     */
     public function __construct($coursemodulecontext, $coursemodule, $course) {
         global $PAGE;
         $this->context = $coursemodulecontext;
@@ -45,6 +65,12 @@ class video {
         $this->course = $course;
     }
 
+    /**
+     * Add a video instance
+     * @param \mod_ivs\stdClass $formdata
+     *
+     * @return mixed
+     */
     public function add_instance(stdClass $formdata) {
         global $DB;
         // Add the database record.

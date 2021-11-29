@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * course_module_instance_list_viewed.php
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,5 +26,9 @@ namespace mod_ivs\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class course_module_instance_list_viewed
+ *
+ */
 class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
 }

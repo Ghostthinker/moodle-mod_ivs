@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Controller class for match questions
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,6 +32,9 @@ use mod_ivs\ivs_match\exception\MatchTakeException;
 use mod_ivs\ivs_match\exception\MatchTakeNoRemainingAttemptsException;
 use mod_ivs\settings\SettingsService;
 
+/**
+ * Class IvsMatchControllerBase
+ */
 class IvsMatchControllerBase {
 
     /**
@@ -40,11 +44,22 @@ class IvsMatchControllerBase {
 
     /**
      * IvsMatchControllerBase constructor.
+     *
+     * @param \mod_ivs\ivs_match\IIvsMatch $ivsmatchinterface
      */
     public function __construct(IIvsMatch $ivsmatchinterface) {
         $this->ivsmatchinterface = $ivsmatchinterface;
     }
 
+    /**
+     * Handle general requests
+     * @param string $endpoint
+     * @param array $patharguments
+     * @param string $method
+     * @param array $postdata
+     *
+     * @return \mod_ivs\ivs_match\MatchResponse
+     */
     public function handle_request($endpoint, $patharguments, $method, $postdata) {
 
         $videonid = $patharguments[0];
@@ -106,6 +121,14 @@ class IvsMatchControllerBase {
 
     }
 
+    /**
+     * Handle answers requests
+     * @param array $patharguments
+     * @param string $method
+     * @param array $postdata
+     *
+     * @return \mod_ivs\ivs_match\MatchResponse
+     */
     protected function handle_answers_requests($patharguments, $method, $postdata) {
 
         $videonid = $patharguments[0];
@@ -128,6 +151,16 @@ class IvsMatchControllerBase {
         }
     }
 
+    /**
+     * Handle the requests
+     * @param array $patharguments
+     * @param string $method
+     * @param array $postdata
+     *
+     * @return \mod_ivs\ivs_match\MatchResponse
+     * @throws \mod_ivs\ivs_match\exception\MatchNoConfigException
+     * @throws \mod_ivs\ivs_match\exception\MatchTakeNoRemainingAttemptsException
+     */
     protected function handle_context_requests($patharguments, $method, $postdata) {
 
         $videonid = $patharguments[0];
@@ -152,8 +185,8 @@ class IvsMatchControllerBase {
     /**
      * Process an answer comming from ep5
      *
-     * @param $videoid
-     * @param $postdata
+     * @param int $videoid
+     * @param array $postdata
      * @param null $userid
      * @param bool $skipaccess
      * @return mixed
@@ -210,6 +243,14 @@ class IvsMatchControllerBase {
         return $response;
     }
 
+    /**
+     * Evaluate the take
+     * @param int $takeid
+     *
+     * @return mixed|\mod_ivs\ivs_match\MatchTake
+     * @throws \mod_ivs\ivs_match\exception\MatchNoConfigException
+     * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
+     */
     public function evaluate_take($takeid) {
 
         $matchtake = $this->ivsmatchinterface->match_take_get_db($takeid);
@@ -258,16 +299,34 @@ class IvsMatchControllerBase {
 
     }
 
+    /**
+     * Add the question to the player
+     * @param \stdClass $datadb
+     *
+     * @return mixed
+     */
     protected function to_player_question($datadb) {
 
         return $datadb;
     }
 
+    /**
+     * Validate the question
+     * @param int $videonid
+     * @param array $postdata
+     */
     private function validate_input($videonid, $postdata) {
-        // TODO add some general validaion.
-        // This should be done for each question type.
     }
 
+    /**
+     * Evaluate the answer
+     * @param array $answerdata
+     * @param bool $addsolution
+     * @param bool $skipaccesscheck
+     *
+     * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
+     * @throws \mod_ivs\ivs_match\exception\MatchQuestionNotFoundException
+     */
     public function evaluate_answer(&$answerdata, $addsolution = true, $skipaccesscheck = true) {
 
         $questionid = $answerdata['question_id'];
@@ -317,6 +376,12 @@ class IvsMatchControllerBase {
         }
     }
 
+    /**
+     * Get the solution when answering the question
+     * @param array $question
+     *
+     * @return array|null[]
+     */
     public function get_solution_for_answer($question) {
 
         $solution = [];
@@ -337,6 +402,13 @@ class IvsMatchControllerBase {
         return $solution;
     }
 
+    /**
+     * Add the answer to a question from a user
+     * @param array $questions
+     * @param int $videoid
+     * @param int $userid
+     * @param int $takeid
+     */
     public function add_answers_to_questions(&$questions, $videoid, $userid, $takeid) {
 
         // 16.08.2018 - 10:40 - SH - This is a temp solution to getthe answers of the current take.
@@ -353,9 +425,11 @@ class IvsMatchControllerBase {
 
     /**
      * Load questions for get request
+     * @param int $videoid
+     * @param null $userid
+     * @param null $takeid
      *
-     * @param $videoid
-     * @param $userid
+     * @return mixed
      * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
      */
     public function load_questions_for_user_by_video($videoid, $userid = null, $takeid = null) {
@@ -369,9 +443,9 @@ class IvsMatchControllerBase {
     /**
      * Get the number of remaing attempts by user
      *
-     * @param $userid
-     * @param $videoid
-     * @param $contextid
+     * @param int $userid
+     * @param int $videoid
+     * @param int $contextid
      * @return int
      */
     public function get_remaining_attempts($userid, $videoid, $contextid) {
@@ -400,9 +474,10 @@ class IvsMatchControllerBase {
     }
 
     /**
-     * @param $userid
-     * @param $videoid
-     * @param $contextid
+     * Get the takes for an user
+     * @param int $userid
+     * @param int $videoid
+     * @param int $contextid
      * @return \mod_ivs\ivs_matchMatchTake|mixed
      * @throws \mod_ivs\ivs_match\exception\MatchTakeNoRemainingAttemptsException
      */
@@ -435,6 +510,12 @@ class IvsMatchControllerBase {
 
     }
 
+    /**
+     * Evaluate a match take
+     * @param \stdClass $matchtake
+     *
+     * @return mixed
+     */
     private function evaluate_formative_take($matchtake) {
         return $matchtake;
     }

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class for creating a question summary
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,14 +24,44 @@
 
 namespace mod_ivs\ivs_match\question;
 
+/**
+ * Class QuestionSummary
+ */
 class QuestionSummary {
 
+    /**
+     * @var int
+     */
     public $question_id;
+
+    /**
+     * @var string
+     */
     public $question_title;
+
+    /**
+     * @var string
+     */
     public $question_body;
+
+    /**
+     * @var bool
+     */
     public $first_attempt_correct;
+
+    /**
+     * @var bool
+     */
     public $last_attempt_correct;
+
+    /**
+     * @var int
+     */
     public $num_students_participation; // Number of course members with role student that answered the question at least one time.
+
+    /**
+     * @var int
+     */
     public $num_students_total;
 
 }

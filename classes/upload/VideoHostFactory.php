@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class includes all video hosts
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,13 +24,20 @@
 
 namespace mod_ivs\upload;
 
+/**
+ * Class VideoHostFactory
+ */
 class VideoHostFactory {
 
     /**
-     * @param $ivs
-     * @return \mod_ivs\upload\IVideoHost
+     * Returns the filehost for an activity
+     * @param \stdClass $cm
+     * @param \stdClass $ivs
+     * @param null $course
+     *
+     * @return \mod_ivs\upload\MoodleFileVideoHost|\mod_ivs\upload\OpenCastFileVideoHost|\mod_ivs\upload\PanoptoFileVideoHost|\mod_ivs\upload\TestingFileVideoHost
      */
-    public static function create($cm, $ivs) {
+    public static function create($cm, $ivs, $course = null) {
 
         $parts = explode("://", $ivs->videourl);
 
@@ -41,6 +49,8 @@ class VideoHostFactory {
                 return new OpenCastFileVideoHost($cm, $ivs);
             case 'TestingFileVideoHost':
                 return new TestingFileVideoHost($cm, $ivs);
+            case 'PanoptoFileVideoHost':
+                return new PanoptoFileVideoHost($cm, $ivs, $course);
         }
     }
 }

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering annotations
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,17 +33,33 @@ use templatable;
 use stdClass;
 use user_picture;
 
+/**
+ * Class annotation_view
+ *
+ */
 class annotation_view implements renderable, templatable {
 
+    /**
+     * @var \mod_ivs\annotation|null
+     */
     public $annotation = null;
+
+    /**
+     * @var null|stdClass
+     */
     public $ivs = null;
+
+    /**
+     * @var stdClass
+     */
     public $module;
 
     /**
      * annotation_view constructor.
      *
      * @param \mod_ivs\annotation $annotation
-     * @param null $ivs
+     * @param stdClass $ivs
+     * @param stdClass $module
      */
     public function __construct(\mod_ivs\annotation $annotation, $ivs, $module) {
         $this->annotation = $annotation;
@@ -52,8 +69,9 @@ class annotation_view implements renderable, templatable {
 
     /**
      * Export this data so it can be used as the context for a mustache template.
+     * @param \renderer_base $output
      *
-     * @return stdClass
+     * @return \stdClass
      */
     public function export_for_template(renderer_base $output) {
 
@@ -62,16 +80,16 @@ class annotation_view implements renderable, templatable {
 
         $user = IvsHelper::get_user($this->annotation->get_userid());
 
-        if ($user['fullname']) {
-            $userpicture = new user_picture($user['user']);
-            $userpicture->size = 1; // Size f1.
-
-            $data->comment_author_link = $user['fullname'];
-            $data->user_picture = $userpicture->get_url($PAGE)->out(false);
+        if(isset($user['pictureObject'])){
+            $userpictureobject = $user['pictureObject'];
+            $userpictureobject->size = 1; // Size f1.
+            $userpicture = $userpictureobject->get_url($PAGE)->out(false);
         } else {
-            $data->comment_author_link = 'Anonymous';
-            $data->user_picture = (string) new \moodle_url('/user/pix.php');
+            $userpicture = $user['picture'];
         }
+
+        $data->comment_author_link = $user['fullname'];
+        $data->user_picture = $userpicture;
 
         $data->comment_body = $this->annotation->get_rendered_body();
         $data->id = $this->annotation->get_id();
@@ -105,7 +123,6 @@ class annotation_view implements renderable, templatable {
         $renderer = $PAGE->get_renderer('ivs');
 
         // Render Replies.
-        // @var \mod_ivs\annotation $comment.
         foreach ($replies as $reply) {
             $renderable = new \mod_ivs\output\annotation_reply_view($reply);
             $data->replies .= $renderer->render($renderable);
@@ -114,6 +131,7 @@ class annotation_view implements renderable, templatable {
         $videohost = \mod_ivs\upload\VideoHostFactory::create($this->module, $this->ivs);
 
         $data->video_url = $videohost->get_video();
+
         return $data;
     }
 }

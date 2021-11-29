@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ *
+ * Class to filter the cockpit form
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,26 +30,59 @@ use \mod_ivs\service;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
+/**
+ * Class cockpit_filter_form
+ */
 class cockpit_filter_form
 {
 
+    /**
+     * @var string
+     */
     public static $filterusers = "filter_users";
+
+    /**
+     * @var string
+     */
     public static $filterhasdrawing = "filter_has_drawing";
+
+    /**
+     * @var string
+     */
     public static $filterrating = "filter_rating";
+
+    /**
+     * @var string
+     */
     public static $filteraccess = "filter_access";
 
+    /**
+     * @var \mod_ivs\index_page
+     */
     protected $page;
+
+    /**
+     * @var \stdClass
+     */
     protected $course;
+
+    /**
+     * @var mixed
+     */
     protected $context;
+
+    /**
+     * @var array
+     */
     protected $parameters;
 
     /**
      * cockpit_filter_form constructor.
      *
-     * @param $page
-     * @param $course
-     * @param $context
-     * @param $parameters
+     * @param index_page $page
+     * @param \stdClass $course
+     * @param mixed $context
+     * @param array $rawparameters
      */
     public function __construct($page, $course, $context, $rawparameters) {
         $this->page = $page;
@@ -57,6 +92,10 @@ class cockpit_filter_form
         $this->parse_parameters($rawparameters);
     }
 
+    /**
+     * Render function for the form
+     * @return string
+     */
     public function render() {
 
         // Render user select.
@@ -104,7 +143,7 @@ class cockpit_filter_form
      * Parse RAW user input for query values. BE CAREFUL HERE. This is raw input
      * that gets to sql!
      *
-     * @param $rawparameters
+     * @param array $rawparameters
      */
     private function parse_parameters($rawparameters) {
 
@@ -127,9 +166,9 @@ class cockpit_filter_form
     /**
      * Parse the raw user input so the parameters only have allowed values
      *
-     * @param $key
-     * @param $rawparameters
-     * @param $options
+     * @param string $key
+     * @param array $rawparameters
+     * @param array $options
      */
     private function parse_simple_select_option_input($key, $rawparameters, $options) {
         $this->parameters[$key] = null;
@@ -146,6 +185,7 @@ class cockpit_filter_form
 
     /**
      * Get users by course as select options
+     * @return array
      */
     private function get_user_options() {
         $cs = new CourseService();
@@ -159,6 +199,10 @@ class cockpit_filter_form
         return $options;
     }
 
+    /**
+     * Check if drawings exists
+     * @return array
+     */
     private function get_has_drawing_options() {
         $options = array();
 
@@ -183,6 +227,10 @@ class cockpit_filter_form
         return $options;
     }
 
+    /**
+     * Get the access options
+     * @return array
+     */
     private function get_access_options() {
         $options = array();
 
@@ -198,9 +246,9 @@ class cockpit_filter_form
     /**
      * Cerate a simple select list
      *
-     * @param $id
-     * @param $label
-     * @param $options
+     * @param int $id
+     * @param string $label
+     * @param array $options
      * @return string
      */
     private function create_select($id, $label, $options) {
@@ -219,11 +267,21 @@ class cockpit_filter_form
                 "</select></div>";
     }
 
-    // Custom validation should be added here.
+    /**
+     * Validation function
+     * @param array $data
+     * @param mixed $files
+     *
+     * @return array
+     */
     public function validation($data, $files) {
         return array();
     }
 
+    /**
+     * Get the active filters
+     * @return mixed
+     */
     public function get_active_filter() {
         return $this->parameters;
     }

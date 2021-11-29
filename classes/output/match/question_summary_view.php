@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering the question summary view
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,16 +32,39 @@ use renderer_base;
 use templatable;
 use stdClass;
 
+/**
+ * Class question_summary_view
+ *
+ */
 class question_summary_view implements renderable, templatable {
 
+    /**
+     * @var array|null
+     */
     public $question = null;
+
+    /**
+     * @var \stdClass|null
+     */
     public $coursestudents = null;
 
+    /**
+     * question_summary_view constructor.
+     *
+     * @param array $question
+     * @param stdClass $coursestudents
+     */
     public function __construct($question, $coursestudents) {
         $this->question = $question;
         $this->coursestudents = $coursestudents;
     }
 
+    /**
+     * Render mustache template
+     * @param \renderer_base $output
+     *
+     * @return \mod_ivs\ivs_match\question\QuestionSummary|\stdClass
+     */
     public function export_for_template(renderer_base $output) {
 
         $controller = new MoodleMatchController();

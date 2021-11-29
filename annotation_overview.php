@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Render all annotations
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -61,7 +62,6 @@ $commentsforpage = [];
 
 $renderer = $PAGE->get_renderer('ivs');
 
-
 echo '<div class="ivs-annotations">';
 
 $all_rendered_comments = [];
@@ -74,7 +74,7 @@ foreach ($comments as $comment) {
 
 echo '</div>';
 
-$renderable = new \mod_ivs\output\annotation_download($all_rendered_comments,$ivs,$cm);
+$renderable = new \mod_ivs\output\annotation_download($all_rendered_comments, $ivs, $cm);
 echo $renderer->render($renderable);
 
 

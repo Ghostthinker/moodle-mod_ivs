@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This class process all elements to restore
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,15 +24,20 @@
 
 use mod_ivs\annotation;
 
-
+/**
+ * Class restore_ivs_activity_structure_step
+ */
 class restore_ivs_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * @var mixed
+     */
     protected $videocommentcache;
 
     /**
      * Defines structure of path elements to be processed during the restore
      *
-     * @return array of {@link restore_path_element}
+     * @return array of {@see restore_path_element}
      */
     protected function define_structure() {
 
@@ -77,6 +83,10 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Process a videocomment
+     * @param \stdClass $data
+     */
     protected function process_ivs_videocomment($data) {
         global $DB;
         $data = (object) $data;
@@ -142,6 +152,10 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
         }
     }
 
+    /**
+     * Process matchquestions
+     * @param \stdClass $data
+     */
     protected function process_ivs_matchquestion($data) {
         global $DB;
         $data = (object) $data;
@@ -156,6 +170,10 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
         $this->set_mapping('matchquestion', $oldid, $newitemid);
     }
 
+    /**
+     * Process a matchtake
+     * @param \stdClass $data
+     */
     protected function process_ivs_matchtake($data) {
         global $DB;
         $data = (object) $data;
@@ -189,6 +207,10 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
         }
     }
 
+    /**
+     * Process match answers
+     * @param \stdClass $data
+     */
     protected function process_ivs_matchanswer($data) {
         global $DB;
         $data = (object) $data;
@@ -222,6 +244,10 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
         }
     }
 
+    /**
+     * Process all ivs settings
+     * @param \stdClass $data
+     */
     protected function process_ivs_settings($data) {
         global $DB;
         $data = (object) $data;

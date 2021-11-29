@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering the question overview
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,16 +30,39 @@ use renderer_base;
 use templatable;
 use stdClass;
 
+/**
+ * Class question_overview
+ *
+ */
 class question_overview implements renderable, templatable {
 
+    /**
+     * @var null
+     */
     public $question = null;
+
+    /**
+     * @var null
+     */
     public $module = null;
 
+    /**
+     * question_overview constructor.
+     *
+     * @param array $question
+     * @param stdClass $module
+     */
     public function __construct($question, $module) {
         $this->question = $question;
         $this->module = $module;
     }
 
+    /**
+     * Render mustache template
+     * @param \renderer_base $output
+     *
+     * @return \stdClass
+     */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
         $data->id = $this->question['nid'];

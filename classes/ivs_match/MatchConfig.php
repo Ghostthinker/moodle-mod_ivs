@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class to create a match config
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,21 +24,50 @@
 
 namespace mod_ivs\ivs_match;
 
+/**
+ * Class MatchConfig
+ */
 class MatchConfig {
 
+    /**
+     * @var string
+     */
     public $assessmenttype = AssessmentConfig::ASSESSMENT_TYPE_TAKES;
 
+    /**
+     * @var int
+     */
     public $rate = 100;
+
+    /**
+     * @var int
+     */
     public $attempts = 0;
+
+    /**
+     * @var bool
+     */
     public $allow_repeat_answers = false;
+
+    /**
+     * @var bool
+     */
     public $player_controls_enabled = false;
+
+    /**
+     * @var bool
+     */
     public $show_solution = true;
+
+    /**
+     * @var bool
+     */
     public $show_feedback = false;
 
     /**
      * Create match config object from array
      *
-     * @param $ar
+     * @param array $ar
      * @return MatchConfig
      */
     public static function from_array($ar) {
@@ -53,10 +83,20 @@ class MatchConfig {
         return $mc;
     }
 
+    /**
+     * Check if the attempts are limited
+     * @return bool
+     */
     public function has_unlimited_attempts() {
         return $this->attempts == 0;
     }
 
+    /**
+     * Check if the user has passed
+     * @param int $score
+     *
+     * @return bool
+     */
     public function has_passed($score) {
         return $score >= $this->rate;
     }

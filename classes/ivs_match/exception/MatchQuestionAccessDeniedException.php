@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Exception class when access denied for match question
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,5 +24,8 @@
 
 namespace mod_ivs\ivs_match\exception;
 
+/**
+ * Class MatchQuestionAccessDeniedException
+ */
 class MatchQuestionAccessDeniedException extends MatchQuestionException {
 }

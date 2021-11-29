@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class witch create the weekly cockpit report
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,8 +26,14 @@ namespace mod_ivs\task;
 
 use mod_ivs\Report;
 
+/**
+ * Class cockpit_report_weekly
+ */
 class cockpit_report_weekly extends cockpit_report_base {
 
+    /**
+     * cockpit_report_weekly constructor.
+     */
     public function __construct() {
 
         $this->reporting = Report::ROTATION_WEEK;
@@ -36,6 +43,10 @@ class cockpit_report_weekly extends cockpit_report_base {
 
     }
 
+    /**
+     * Get the name of the report
+     * @return string
+     */
     public function get_name() {
         // Shown in admin screens.
         return $this->cockpitreport;

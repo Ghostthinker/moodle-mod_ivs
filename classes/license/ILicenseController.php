@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * ILicenseController
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,34 +24,118 @@
 
 namespace mod_ivs\license;
 
+/**
+ * Interface ILicenseController
+ *
+ */
 interface ILicenseController {
 
+    /**
+     * Interface function
+     * @return mixed
+     */
     public function generate_instance_id();
 
+    /**
+     * Interface function
+     * @return mixed
+     */
     public function get_instance_id();
 
+    /**
+     * Interface function
+     * @param null $context
+     *
+     * @return mixed
+     */
     public function has_active_license($context = null);
 
+    /**
+     * Interface function
+     * @param null|\stdClass $context
+     *
+     * @return mixed
+     */
     public function get_active_license($context = null);
 
+    /**
+     * Interface function
+     * @param int $instanceid
+     *
+     * @return mixed
+     */
     public function core_register($instanceid);
 
+    /**
+     * Interface function
+     * @param int $courseid
+     * @param int $licenseid
+     *
+     * @return mixed
+     */
     public function activate_course_license($courseid, $licenseid);
 
+    /**
+     * Interface function
+     * @return mixed
+     */
     public function get_status();
 
+    /**
+     * Interface function
+     * @param \stdClass $license
+     *
+     * @return mixed
+     */
     public function get_license_type($license);
 
+    /**
+     * Interface function
+     * @param int $licenseid
+     *
+     * @return mixed
+     */
     public function get_cdn_source($licenseid);
 
+    /**
+     * Interface function
+     * @param int $courseid
+     * @param int $licenseid
+     *
+     * @return mixed
+     */
     public function release_course_license($courseid, $licenseid);
 
+    /**
+     * Interface function
+     * @param \stdClass $status
+     * @param false $reset
+     *
+     * @return mixed
+     */
     public function get_course_licenses($status, $reset = false);
 
+    /**
+     * Interface function
+     * @param \stdClass $status
+     * @param false $reset
+     *
+     * @return mixed
+     */
     public function get_instance_licenses($status, $reset = false);
 
+    /**
+     * Interface function
+     * @param array $courselicenses
+     *
+     * @return mixed
+     */
     public function get_course_license_options($courselicenses);
 
+    /**
+     * Interface function
+     * @return mixed
+     */
     public function send_usage();
 
 }

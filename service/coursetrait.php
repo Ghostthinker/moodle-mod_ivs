@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This template class is used for course service
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,6 +29,7 @@ trait CourseTrait {
     private $courseservice;
 
     /**
+     * Get the course service
      * @return mixed
      */
     public function get_courseservice() {
@@ -38,6 +40,7 @@ trait CourseTrait {
     }
 
     /**
+     * Set the course service
      * @param mixed $courseservice
      */
     public function set_courseservice($courseservice) {

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Output class for rendering no licenses for courses
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,11 +30,24 @@ use renderer_base;
 use templatable;
 use stdClass;
 
+/**
+ * Class settings_license_none_view
+ *
+ */
 class settings_license_none_view implements renderable, templatable {
 
+    /**
+     * settings_license_none_view constructor.
+     */
     public function __construct() {
     }
 
+    /**
+     * Render mustache template
+     * @param \renderer_base $output
+     *
+     * @return \stdClass
+     */
     public function export_for_template(renderer_base $output) {
 
         $lc = ivs_get_license_controller();

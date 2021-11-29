@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Render all answers from match takes.
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,7 +25,7 @@
 
 require_once('../../config.php');
 
-define('DEFAULT_PAGE_SIZE', 10); // TODO INCREASE THIS.
+define('DEFAULT_PAGE_SIZE', 10);
 
 // Pager, sort and settings.
 $page = optional_param('page', 0, PARAM_INT); // Which page to show.

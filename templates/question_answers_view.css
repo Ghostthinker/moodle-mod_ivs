@@ -7,7 +7,8 @@
     margin: 2em 0;
 }
 
-table th.text-center, table td.text-center {
+table th.text-center,
+table td.text-center {
     text-align: center;
 }
 
@@ -25,14 +26,14 @@ table th.text-center, table td.text-center {
     flex-wrap: wrap;
 }
 
-.answers-header-details .MathJax_Display{
+.answers-header-details .MathJax_Display {
     display: inline !important;
 }
 
-.answers-header-details .filter_mathjaxloader_equation p{
-display: inline !important;
+.answers-header-details .filter_mathjaxloader_equation p {
+    display: inline !important;
 }
 
-.answers-header-details p{
+.answers-header-details p {
     display: inline !important;
 }
