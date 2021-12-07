@@ -188,7 +188,7 @@ if (empty($embedded)) {
 
         </script>
 
-        
+
         <!-- IVS Video -->
         <iframe class="edubreak-responsive-iframe" name="edubreakplayer" frameborder="0" src="<?php print $urliframe ?>"
                 allowfullscreen></iframe>
@@ -369,6 +369,7 @@ if (empty($embedded)) {
                     'picture' => $userpictureurl,
                     'url' => ''
             ),
+            'interface_uri' => $backendurl . '',
             'plugins' => array(
                     'edubreak_annotations' => array(
                             'interface_uri' => $backendurl . '',

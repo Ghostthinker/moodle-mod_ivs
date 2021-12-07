@@ -1,4 +1,4 @@
-# About 
+# About
 moodle-mod_ivs is a Moodle activity plugin to allow Social Video Learning.
 Enrich your videos by the powerful features of the social video player. Create pinpointed video comments for real discussions, add drawings or mark important situations directly in your videos by using just one tool.
 
@@ -23,6 +23,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 ### v1.8
 * panopto integration
+* fix moodle proxy configuration
 * ``ep5 version 1.4``
 
 ### v1.7
@@ -34,7 +35,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 * Fixed license issues
 * Added Bulk operations settings for comments and match
 * Videoplayer: autorending of clickable links in comments and match
-* Videoplayer: jump to active context and comment initially 
+* Videoplayer: jump to active context and comment initially
 * Videoplayer: added MathJax support
 * Videoplayer: added Markdown support
 * Fixed switchcast interface
