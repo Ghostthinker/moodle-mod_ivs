@@ -77,17 +77,17 @@ $annotationsenabled = $activitysettings['annotations_enabled']->value;
 require_login($course, true, $cm);
 $context = context_course::instance($course->id);
 $userroles = get_user_roles($context, $USER->id);
+$courseservice = new \mod_ivs\CourseService();
+$members = $courseservice->get_course_members($course->id);
+if (!empty($members)) {
 
-$isadmin = false;
-$isteacher = false;
-
-// Admin.
-$isadmin = is_siteadmin();
-
-// At least teacher > editingteacher/manager.
-if (has_capability('mod/ivs:access_reports', $context)
-) {
-    $isteacher = $activitycontext;
+    $values = array();
+    foreach ($members as $key => $value) {
+        $values[] = array(
+                'key' => $value->id,
+                'label' => fullname($value)
+        );
+    }
 }
 
 if (empty($embedded)) {
@@ -272,7 +272,7 @@ if (empty($embedded)) {
         foreach ($members as $key => $value) {
             $values[] = array(
                     'key' => $value->id,
-                    'label' => $value->firstname . ' ' . $value->lastname
+                    'label' => fullname($value)
             );
         }
         $accessmembers = array();
@@ -365,7 +365,7 @@ if (empty($embedded)) {
             'hide_when_inactive' => (int) $activitysettings['hide_when_inactive']->value,
             'list_item_buttons_hover_enabled' => (int) $activitysettings['list_item_buttons_hover_enabled']->value,
             'current_userdata' => array(
-                    'name' => $USER->firstname . ' ' . $USER->lastname,
+                    'name' => fullname($USER),
                     'picture' => $userpictureurl,
                     'url' => ''
             ),
@@ -377,9 +377,9 @@ if (empty($embedded)) {
                             'default_cid' => $cid,
                             'permission_create_comment' => $permissioncreatecomment,
                             'video_id' => $cm->instance,
-                            'annotation_bulk_operations_enabled' => ($isadmin || $isteacher),
+                            'annotation_bulk_operations_enabled' => (is_siteadmin() || has_capability('mod/ivs:access_reports', $context)),
                             'current_userdata' => array(
-                                    'name' => $USER->firstname . ' ' . $USER->lastname,
+                                    'name' => fullname($USER),
                                     'picture' => $userpictureurl,
                                     'url' => ''
                             ),
@@ -390,6 +390,7 @@ if (empty($embedded)) {
                             'client_side_screenshots_width' => 400
                     ),
                     'edubreak_annotations_drawings' => array(),
+                    'edubreak_annotations_audio_message' => array(),
                     'edubreak_annotations_rating' => array(
                             'type' => 'lights'
                     ),
@@ -425,6 +426,13 @@ if (empty($embedded)) {
         }
     }
 
+    if ((int) $activitysettings['annotation_audio_enabled']->value) {
+        $playerconfig['plugins']['edubreak_annotations_audio_message'] = array(
+                'interface_uri' => $backendurl . '/media/'. $cm->instance,
+                'max_duration' => $activitysettings['annotation_audio_max_duration']->value,
+        );
+    }
+
     $matchcontroller = new \mod_ivs\MoodleMatchController();
 
     if ($matchenabled) {
@@ -452,7 +460,7 @@ if (empty($embedded)) {
                 'take_id' => null,
                 'full_screen_start' => true,
                 'may_edit' => ivs_may_edit_match_questions($activitycontext),
-                'match_bulk_operations_enabled' => ($isadmin || $isteacher),
+                'match_bulk_operations_enabled' => (is_siteadmin() || has_capability('mod/ivs:access_reports', $context)),
                 'active_context' => $cm->instance,
                 'assessment_config' => $assessmentconfig,
                 'sounds' => [
@@ -510,9 +518,13 @@ if (empty($embedded)) {
         $jsfiles = $includefiles['js'];
         $cssfiles = $includefiles['css'];
 
-        foreach ($jsfiles as $jsfile) {
-            echo '<script src="' . $jsfile . '"></script>';
-        }
+       foreach ($jsfiles as $jsfile) {
+           $type = 'application/javascript';
+           if(strpos($jsfile,'recorder') > -1 || strpos($jsfile,'gt-audio-player') > -1){
+               $type = 'module';
+           }
+           echo '<script type="' . $type . '" src="' . $jsfile . '"></script>';
+       }
 
         foreach ($cssfiles as $cssfile) {
             echo '<link rel="stylesheet" href="' . $cssfile . '">';

@@ -57,12 +57,12 @@ class annotation_download implements renderable, templatable {
     /**
      * annotation_download constructor.
      *
-     * @param array $all_comments
+     * @param array $allcomments
      * @param stdClass $ivs
      * @param stdClass $cm
      */
-    public function __construct($all_comments, $ivs, $cm) {
-        $this->all_comments = $all_comments;
+    public function __construct($allcomments, $ivs, $cm) {
+        $this->all_comments = $allcomments;
         $this->ivs = $ivs;
         $this->module = $cm;
     }

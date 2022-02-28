@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
 if (file_exists($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php')) {
     require_once($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php');
 }
+
 /**
  * Module instance settings form
  *
@@ -59,7 +60,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         $panoptoblocksenabled = file_exists($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php');
 
         $panoptodata = '';
-        if($panoptoblocksenabled) {
+        if ($panoptoblocksenabled) {
 
             $configuredserverarray = panopto_get_configured_panopto_servers();
 
@@ -102,9 +103,9 @@ class mod_ivs_mod_form extends moodleform_mod {
 
         if ((int) $CFG->ivs_panopto_external_files_enabled && $panoptoblocksenabled) {
             $mform->addElement('hidden', 'panopto_video_json_field', get_string('ivs_setting_panopto_menu_title', 'ivs'),
-              ['id' => 'id_panopto_video_json_field']);
+                    ['id' => 'id_panopto_video_json_field']);
             $mform->addElement('text', 'panopto_video', get_string('ivs_setting_panopto_menu_title', 'ivs'),
-              ['readonly' => true, 'size' => '64']);
+                    ['readonly' => true, 'size' => '64']);
             if (!empty($CFG->formatstringstriptags)) {
                 $mform->setType('panopto_video_json_field', PARAM_TEXT);
                 $mform->setType('panopto_video', PARAM_TEXT);
@@ -198,8 +199,27 @@ class mod_ivs_mod_form extends moodleform_mod {
 
     }
 
+    public function validation($data, $files) {
+
+        $errors = [];
+        if (!is_numeric($data['annotation_audio_max_duration']['value'])) {
+            $errors['numeric'] = get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+        }
+
+        if ($data['annotation_audio_max_duration']['value'] > IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION || $data['annotation_audio_max_duration']['value'] < 0) {
+            $errors['range'] = get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+        }
+
+        if (!empty($errors)) {
+            \core\notification::error(get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs'));
+        }
+
+        return $errors;
+    }
+
     /**
      * Process default values
+     *
      * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
@@ -228,7 +248,7 @@ class mod_ivs_mod_form extends moodleform_mod {
             } else if ($parts[0] == "PanoptoFileVideoHost") {
                 $defaultvalues['panopto_video_json_field'] = $parts[1];
                 $decodedvalues = json_decode($parts[1]);
-                if(!empty($decodedvalues)) {
+                if (!empty($decodedvalues)) {
                     $defaultvalues['panopto_video'] = $decodedvalues->videoname[0];
                 }
             }
@@ -238,6 +258,7 @@ class mod_ivs_mod_form extends moodleform_mod {
 
     /**
      * Get all videos from opencast
+     *
      * @return array|void
      */
     public function get_videos_for_select() {
@@ -268,9 +289,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         }
 
         foreach ($videos as $video) {
-            if (in_array('opencast-api', $video->publication_status)) {
-                $publishedvideos[$video->identifier] = $video->title;
-            } else if (in_array('switchcast-api', $video->publication_status)) {
+            if (strpos('api', $video->publication_status) > -1) {
                 $publishedvideos[$video->identifier] = $video->title;
             }
         }

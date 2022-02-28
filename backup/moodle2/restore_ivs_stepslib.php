@@ -147,7 +147,7 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
                 $annotation = annotation::retrieve_from_db($newitemid);
                 $annotation->write_annotation_access();
 
-                $this->set_mapping('videocomment', $oldid, $newitemid);
+                $this->set_mapping('videocomment', $oldid, $newitemid, true);
             }
         }
     }
@@ -271,6 +271,7 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
     protected function after_execute() {
         $this->add_related_files('mod_ivs', 'videos', null);
         $this->add_related_files('mod_ivs', 'preview', null);
+
     }
 
     /**
@@ -282,19 +283,19 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
     protected function after_restore() {
         global $DB;
 
-        if (empty($this->videocommentcache)) {
-            return;
-        }
+        if (!empty($this->videocommentcache)) {
 
-        foreach ($this->videocommentcache as $oldid => $data) {
-            $oldparentid = $data->parent_id;
-            $newparentid = $this->get_mapping('videocomment', $oldparentid);
-            $data->parent_id = $newparentid->newitemid;
-            $newitemid = $DB->insert_record('ivs_videocomment', $data);
-            $annotation = annotation::retrieve_from_db($newitemid);
-            $annotation->write_annotation_access();
-            $data->id = $newitemid;
-            $this->set_mapping('videocomment', $oldid, $newitemid);
+            foreach ($this->videocommentcache as $oldid => $data) {
+                $oldparentid = $data->parent_id;
+                $newparentid = $this->get_mapping('videocomment', $oldparentid);
+                $data->parent_id = isset($newparentid->newitemid) ? $newparentid->newitemid : null;
+                $newitemid = $DB->insert_record('ivs_videocomment', $data);
+                $annotation = annotation::retrieve_from_db($newitemid);
+                $annotation->write_annotation_access();
+                $data->id = $newitemid;
+                $this->set_mapping('videocomment', $oldid, $newitemid, true);
+            }
         }
+        $this->add_related_files('mod_ivs', 'audio_annotation', 'videocomment');
     }
 }

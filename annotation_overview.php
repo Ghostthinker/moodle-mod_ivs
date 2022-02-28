@@ -64,17 +64,17 @@ $renderer = $PAGE->get_renderer('ivs');
 
 echo '<div class="ivs-annotations">';
 
-$all_rendered_comments = [];
+$allrenderedcomments = [];
 /** @var \mod_ivs\annotation $comment */
 foreach ($comments as $comment) {
     $renderable = new \mod_ivs\output\annotation_view($comment, $ivs, $cm);
-    $all_rendered_comments[] = $renderable;
+    $allrenderedcomments[] = $renderable;
     echo $renderer->render($renderable);
 }
 
 echo '</div>';
 
-$renderable = new \mod_ivs\output\annotation_download($all_rendered_comments, $ivs, $cm);
+$renderable = new \mod_ivs\output\annotation_download($allrenderedcomments, $ivs, $cm);
 echo $renderer->render($renderable);
 
 

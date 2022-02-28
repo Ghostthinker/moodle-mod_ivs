@@ -102,6 +102,10 @@ class question_answers_view implements renderable, templatable {
         $data = $controller->get_question_answers_data($this->detailarray, $this->questions, $this->cmid, $this->videoid,
                 $this->courseusers, $this->totalcount, $output);
 
+        if (empty($data)) {
+            return null;
+        }
+
         $qid = $data->id;
         $data->download_options = $output->download_dataformat_selector(get_string('ivs_match_download_summary_label', 'ivs'),
                 'question_answers_download.php', 'download',

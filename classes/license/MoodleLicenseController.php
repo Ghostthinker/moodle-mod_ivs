@@ -24,6 +24,7 @@
 namespace mod_ivs\license;
 
 use ArrayIterator;
+use curl;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -232,35 +233,37 @@ class MoodleLicenseController implements ILicenseController
 
     /**
      * Check if the core is online
+     *
      * @return bool
      */
     public function check_is_online() {
         global $CFG;
 
         $domain = $this->get_core_url(true);
-        $curlinit = curl_init($domain);
-        curl_setopt($curlinit, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($curlinit, CURLOPT_HEADER, true);
-        curl_setopt($curlinit, CURLOPT_NOBODY, true);
-        curl_setopt($curlinit, CURLOPT_RETURNTRANSFER, true);
-        
+
+        $curl = new curl();
+
+        $curl->setopt(['CURLOPT_CONNECTTIMEOUT' => 10]);
+        $curl->setopt(['CURLOPT_HEADER' => true]);
+        $curl->setopt(['CURLOPT_NOBODY' => true]);
+        $curl->setopt(['CURLOPT_RETURNTRANSFER' => true]);
+
         if (!empty($CFG->proxyhost)) {
-          curl_setopt($curlinit, CURLOPT_PROXY, $CFG->proxyhost);
-          if (!empty($CFG->proxyport)) {
-            curl_setopt($curlinit, CURLOPT_PROXYPORT, $CFG->proxyport);
-          }
-          if (!empty($CFG->proxytype)) {
-            // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http
-            if ($CFG->proxytype == 'SOCKS5') {
-             curl_setopt($curlinit, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+            $curl->setopt(['CURLOPT_PROXY' => $CFG->proxyhost]);
+            if (!empty($CFG->proxyport)) {
+                $curl->setopt(['CURLOPT_PROXYPORT' => $CFG->proxyport]);
             }
-         }
+            if (!empty($CFG->proxytype)) {
+                // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http.
+                if ($CFG->proxytype == 'SOCKS5') {
+                    $curl->setopt(['CURLOPT_PROXYTYPE' => 'CURLPROXY_SOCKS5']);
+                }
+            }
         }
 
         // Get answer.
-        $response = curl_exec($curlinit);
+        $response = $curl->post($domain);
 
-        curl_close($curlinit);
         if ($response) {
             return true;
         }
@@ -269,6 +272,7 @@ class MoodleLicenseController implements ILicenseController
 
     /**
      * send POST request
+     *
      * @param string $path
      * @param string $method
      * @param \stdClass $requestdata
@@ -283,58 +287,54 @@ class MoodleLicenseController implements ILicenseController
         // Url-ify the data for the POST.
         $requestjson = json_encode($requestdata);
 
-        // Open connection.
-        $ch = curl_init($url);
+        $curl = new curl();
 
         switch ($method) {
             case "POST":
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $requestjson);
+                $curl->setopt(['CURLOPT_POST' => 1]);
                 break;
             case "GET":
                 break;
             case "PUT":
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $requestjson);
+                $curl->setopt(['CURLOPT_POST' => 1]);
+                $curl->setopt(['CURLOPT_CUSTOMREQUEST' => 'PUT']);
                 break;
             case "PATCH":
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $requestjson);
+                $curl->setopt(['CURLOPT_POST' => 1]);
+                $curl->setopt(['CURLOPT_CUSTOMREQUEST' => 'PATCH']);
                 break;
             case "DELETE":
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                $curl->setopt(['CURLOPT_POST' => 1]);
+                $curl->setopt(['CURLOPT_CUSTOMREQUEST' => 'DELETE']);
                 break;
         }
 
         // Set the url, number of POST vars, POST data.
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $curl->setopt(['CURLOPT_FAILONERROR' => true]);
+        $curl->setopt(['CURLOPT_HTTPHEADER' => ['Content-Type: application/json']]);
 
         // So that curl_exec returns the contents of the cURL; rather than echoing it.
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
+        $curl->setopt(['CURLOPT_RETURNTRANSFER' => true]);
+
         if (!empty($CFG->proxyhost)) {
-          curl_setopt($ch, CURLOPT_PROXY, $CFG->proxyhost);
-          if (!empty($CFG->proxyport)) {
-            curl_setopt($ch, CURLOPT_PROXYPORT, $CFG->proxyport);
-          }
-          if (!empty($CFG->proxytype)) {
-            // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http
-            if ($CFG->proxytype == 'SOCKS5') {
-             curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+            $curl->setopt(['CURLOPT_PROXY' => $CFG->proxyhost]);
+            if (!empty($CFG->proxyport)) {
+                $curl->setopt(['CURLOPT_PROXYPORT' => $CFG->proxyport]);
             }
-         }
+            if (!empty($CFG->proxytype)) {
+                // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http.
+                if ($CFG->proxytype == 'SOCKS5') {
+                    $curl->setopt(['CURLOPT_PROXYTYPE' => 'CURLPROXY_SOCKS5']);
+                }
+            }
         }
 
         // Execute post.
-        $result = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $result = $curl->post($url, $requestjson);
+        $httpcode = $curl->get_info();
 
-        if (!curl_errno($ch)) {
-            switch ($httpcode) {
+        if (!$curl->get_errno()) {
+            switch ($httpcode['http_code']) {
                 case 200:
                 case 201:  // OK -> created.
                     break;
@@ -343,8 +343,6 @@ class MoodleLicenseController implements ILicenseController
                     return false;
             }
         }
-
-        curl_close($ch);
 
         return $result;
     }
@@ -769,7 +767,7 @@ class MoodleLicenseController implements ILicenseController
      */
     public function get_all_user_from_instance() {
         global $DB;
-        $sql = "SELECT * FROM {user} WHERE suspended = 0";
+        $sql = "SELECT * FROM {user} WHERE suspended = 0 AND deleted = 0 AND ID > 1";
         $users = $DB->get_records_sql($sql);
 
         return $users;

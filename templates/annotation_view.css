@@ -1,3 +1,14 @@
+.ivs-audio-annotation-content {
+    display: flex;
+    align-items: center;
+    margin: 5px 5px 5px 0px;
+}
+
+.ivs-audio-annotation-content .ivs-audio-annotation-download {
+    width: 35px;
+    padding: 5px;
+}
+
 .ivs-annotations .comment-left {
     float: left;
 }
@@ -188,6 +199,7 @@
     width: 80px;
     height: 80px;
 }
+
 .lds-dual-ring:after {
     content: " ";
     display: block;
@@ -199,6 +211,7 @@
     border-color: #000 transparent #000 transparent;
     animation: lds-dual-ring 1.2s linear infinite;
 }
+
 @keyframes lds-dual-ring {
     0% {
         transform: rotate(0deg);

@@ -107,7 +107,7 @@ class CourseService {
         global $DB;
         $direction = 'DESC';
 
-        $sql = "SELECT DISTINCT u.id, u.firstname,u.lastname
+        $sql = "SELECT DISTINCT u.*
         FROM {user} u
         JOIN {user_enrolments} ue ON (ue.userid = u.id )
         JOIN {enrol} e ON (ue.enrolid = e.id )

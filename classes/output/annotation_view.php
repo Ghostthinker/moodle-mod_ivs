@@ -80,7 +80,7 @@ class annotation_view implements renderable, templatable {
 
         $user = IvsHelper::get_user($this->annotation->get_userid());
 
-        if(isset($user['pictureObject'])){
+        if (isset($user['pictureObject'])) {
             $userpictureobject = $user['pictureObject'];
             $userpictureobject->size = 1; // Size f1.
             $userpicture = $userpictureobject->get_url($PAGE)->out(false);
@@ -131,6 +131,10 @@ class annotation_view implements renderable, templatable {
         $videohost = \mod_ivs\upload\VideoHostFactory::create($this->module, $this->ivs);
 
         $data->video_url = $videohost->get_video();
+
+        // Render audio player.
+        $renderable = new \mod_ivs\output\annotation_audio_player_view($this->annotation);
+        $data->render_audio_player = $renderer->render($renderable);
 
         return $data;
     }

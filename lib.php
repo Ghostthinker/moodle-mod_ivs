@@ -22,12 +22,14 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+use mod_ivs\settings\SettingsService;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * Example constant, you probably want to remove this :-)
  */
-define('IVS_ULTIMATE_ANSWER', 42);
+define('IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION', 300);
 
 /* Moodle core API */
 
@@ -82,7 +84,7 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
-    } else if (!empty($ivs->panopto_video_json_field)) {
+    } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video_url)) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (!empty($ivs->sample_video)) {
         $ivs->videourl = 'TestingFileVideoHost://' . $ivs->id;
@@ -121,7 +123,7 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
-    } else if (!empty($ivs->panopto_video_json_field)) {
+    } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video_url)) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) &&
       substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) != 'PanoptoFileVideoHost') {
@@ -588,6 +590,13 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
 
     global $USER;
 
+    $settingscontroller = new SettingsService();
+    $activitysettings = $settingscontroller->get_settings_for_activity($annotation->get_videoid(), $course->id);
+
+    if (!$activitysettings['user_notification_settings']->value) {
+        return;
+    }
+
     if (!empty($receivers)) {
 
         foreach ($receivers as $account) {
@@ -619,10 +628,10 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
 
             $url = $annotation->get_annotation_player_url()->out(false);
             $subject = get_string($annotationsubject, 'mod_ivs',
-                    ['userfromfirstname' => $USER->firstname, 'userfromlastname' => $USER->lastname]);
+                    ['fullname' => fullname($USER)]);
             $fullmessage = get_string($annotationfullmessage, 'mod_ivs',
-                    ['usertofirstname' => $account->firstname, 'usertolastname' => $account->lastname,
-                            'userfromfirstname' => $USER->firstname, 'userfromlastname' => $USER->lastname,
+                    ['fullname' => fullname($account),
+                            'fullname' => fullname($USER),
                             'annotation' => $annotation->get_rendered_body(),
                       'course_name' => $course->fullname, 'annotation_url' => $url]);
             $smallmessage = get_string($annotationsmallmessage, 'mod_ivs');

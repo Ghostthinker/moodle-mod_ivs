@@ -80,8 +80,7 @@ abstract class cockpit_report_base extends \core\task\scheduled_task {
             $url = new \moodle_url('/mod/ivs/cockpit.php', array('id' => $report->get_courseid()));
 
             $body = get_string_manager()->get_string('cockpit_report_mail_body_header', 'mod_ivs', [
-                            'usertofirstname' => $userto->firstname,
-                            'usertolastname' => $userto->lastname,
+                            'fullname' => fullname($userto)
                     ], $userto->lang) . '<br/><br/>';
 
             $body .= get_string_manager()->get_string('cockpit_report_mail_body', 'mod_ivs', [

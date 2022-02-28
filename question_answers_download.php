@@ -59,11 +59,11 @@ $answersdata = $controller->get_question_answers_data(array_values($useranswers)
 $columns = array(
         'col_1' => get_string("ivs_match_question_header_id_label", 'ivs') . $answersdata->id,
         'col_2' => get_string("ivs_match_question_header_type_label", 'ivs') . $answersdata->question_type,
-        'col_3' => get_string("ivs_match_question_header_title_label", 'ivs') . $answersdata->label
+        'col_3' => get_string("ivs_match_question_header_title_label", 'ivs') . strip_tags($answersdata->label)
 );
 
 $data[] = array(
-        'col_1' => get_string("ivs_match_question_header_question_label", 'ivs') . $answersdata->question,
+        'col_1' => get_string("ivs_match_question_header_question_label", 'ivs') . strip_tags($answersdata->question),
 );
 
 switch ($answersdata->question_type) {
@@ -95,9 +95,9 @@ switch ($answersdata->question_type) {
                     'col_1' => $answerdetails->fullname,
                     'col_2' => $answerdetails->id,
                     'col_3' => $answerdetails->correct,
-                    'col_4' => $answerdetails->selected_answer,
+                    'col_4' => strip_tags($answerdetails->selected_answer),
                     'col_5' => $answerdetails->retries,
-                    'col_6' => $answerdetails->last,
+                    'col_6' => strip_tags($answerdetails->last),
             );
         }
 
@@ -119,9 +119,9 @@ switch ($answersdata->question_type) {
             $data[] = array(
                     'col_1' => $answerdetails->fullname,
                     'col_2' => $answerdetails->id,
-                    'col_3' => $answerdetails->first,
+                    'col_3' => strip_tags($answerdetails->first),
                     'col_4' => $answerdetails->retries,
-                    'col_5' => $answerdetails->last,
+                    'col_5' => strip_tags($answerdetails->last),
             );
         }
 
@@ -142,8 +142,8 @@ switch ($answersdata->question_type) {
             $data[] = array(
                     'col_1' => $answerdetails->fullname,
                     'col_2' => $answerdetails->id,
-                    'col_3' => $answerdetails->first,
-                    'col_4' => $answerdetails->last,
+                    'col_3' => strip_tags($answerdetails->first),
+                    'col_4' => strip_tags($answerdetails->last),
             );
         }
         break;

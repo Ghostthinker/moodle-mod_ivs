@@ -87,6 +87,21 @@ class SettingsDefinition {
     /**
      * @var string
      */
+    const SETTING_PLAYER_ANNOTATION_AUDIO = 'annotation_audio_enabled';
+
+    /**
+     * @var string
+     */
+    const SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION = 'annotation_audio_max_duration';
+
+    /**
+     * @var string
+     */
+    const SETTING_USER_NOTIFICATION_SETTINGS = 'user_notification_settings';
+
+    /**
+     * @var string
+     */
     public $name;
 
     /**

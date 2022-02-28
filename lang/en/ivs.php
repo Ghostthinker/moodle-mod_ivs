@@ -67,30 +67,30 @@ $string['eventannotationcreated'] = 'Annotation created';
 $string['eventannotationupdated'] = 'Annotation updated';
 $string['eventannotationdeleted'] = 'Annotation deleted';
 $string['annotation_context_url_name'] = 'Videocomment';
-$string['annotation_direct_mention_subject'] = 'New videocomment from {$a->userfromfirstname} {$a->userfromlastname}';
-$string['annotation_direct_mention_fullmessage'] = 'Hello {$a->usertofirstname} {$a->usertolastname},
+$string['annotation_direct_mention_subject'] = 'New videocomment from {$a->fullname}';
+$string['annotation_direct_mention_fullmessage'] = 'Hello {$a->fullname},
 
-{$a->userfromfirstname} {$a->userfromlastname} has created a new videocomment:
+{$a->fullname} has created a new videocomment:
 
 {$a->annotation}
 
 ------------------------------------------------------------------------
 This is a copy of a message sent to you at "{$a->course_name}". Go to {$a->annotation_url} to see the complete videocomment';
 $string['annotation_direct_mention_smallmessage'] = 'New Videocomment';
-$string['annotation_reply_subject'] = 'Answer to your videocomment from  {$a->userfromfirstname} {$a->userfromlastname}';
-$string['annotation_reply_fullmessage'] = 'Hello {$a->usertofirstname} {$a->usertolastname},
+$string['annotation_reply_subject'] = 'Answer to your videocomment from  {$a->fullname}';
+$string['annotation_reply_fullmessage'] = 'Hello {$a->fullname},
 
-{$a->userfromfirstname} {$a->userfromlastname} has replied to your videocomment:
+{$a->fullname} has replied to your videocomment:
 
 {$a->annotation}
 
 ------------------------------------------------------------------------
 This is a copy of a message sent to you at "{$a->course_name}". Go to {$a->annotation_url} to see the complete videocomment with all comments.';
 $string['annotation_reply_smallmessage'] = 'Answer to comment';
-$string['annotation_conversation_subject'] = 'New comment in your conversation from {$a->userfromfirstname} {$a->userfromlastname}';
-$string['annotation_conversation_fullmessage'] = 'Hallo {$a->usertofirstname} {$a->usertolastname},
+$string['annotation_conversation_subject'] = 'New comment in your conversation from {$a->fullname}';
+$string['annotation_conversation_fullmessage'] = 'Hallo {$a->fullname},
 
-{$a->userfromfirstname} {$a->userfromlastname} has replied to your conversation:
+{$a->fullname} has replied to your conversation:
 
 {$a->annotation}
 
@@ -144,7 +144,7 @@ $string['cockpit_report_mail_body_rotation_monthly'] = 'monthly';
 $string['cockpit_report_mail_annotation_header_part_1'] = 'commented';
 $string['cockpit_report_mail_annotation_header_part_2'] = 'on';
 $string['cockpit_report_mail_annotation_header_part_3'] = '';
-$string['cockpit_report_mail_body_header'] = 'Hello {$a->usertofirstname} {$a->usertolastname},';
+$string['cockpit_report_mail_body_header'] = 'Hello {$a->fullname},';
 $string['cockpit_report_mail_body'] = 'this is your {$a->rotation} report of the ivs activities in the course {$a->course}:';
 $string['cockpit_report_mail_body_footer_separator'] = '---------------------------------------';
 $string['cockpit_report_mail_body_footer'] = 'Click the following link to view and edit your report in the ivs:';
@@ -341,7 +341,14 @@ $string['ivs_setting_read_access_role:teacher'] = 'Role teacher';
 $string['ivs_setting_annotations_enabled'] = 'Enable video comments';
 $string['ivs_setting_annotations_enabled_help'] = 'Comments can be used to have a point-by-point exchange around the video content with the help of video comments and responses to existing video comments.';
 $string['ivs_setting_panopto_external_files_title'] = 'Panopto video upload';
-$string['ivs_setting_panopto_external_files_help'] = 'You can choose Panopto to upload videos. The panopto_block plugin is required to use panopto videos.';
+$string['ivs_setting_panopto_external_files_help'] = 'You can choose Panopto to upload videos. The panopto_block plugin is required to use panopto videos';
 $string['ivs_setting_panopto_menu_title'] = 'Panopto video';
 $string['ivs_setting_panopto_menu_button'] = 'Add Panopto video';
 $string['ivs_setting_panopto_menu_tooltip'] = 'Only one video can be selected';
+$string['ivs_setting_annotation_audio'] = 'Audio message';
+$string['ivs_setting_annotation_audio_help'] = 'With the microphone of the device used, short audio messages can be recorded and saved in a video comment';
+$string['ivs_setting_annotation_audio_max_duration'] = 'Max recording time in seconds';
+$string['ivs_setting_annotation_audio_max_duration_help'] = 'Set the max recording time for audio messages in seconds. Max duration are 300 seconds';
+$string['ivs_setting_annotation_audio_max_duration_validation'] = 'Only values between 0 and 300 are allowed';
+$string['ivs_setting_user_notification_settings'] = 'Notification for new video comment';
+$string['ivs_setting_user_notification_settings_help'] = 'Disable/enable notification of new video comments for all students.';

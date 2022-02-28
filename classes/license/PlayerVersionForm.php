@@ -46,16 +46,18 @@ class PlayerVersionForm extends moodleform {
         $lc = ivs_get_license_controller();
 
         $status = $lc->get_status();
-        $group = [];
-        $playerversion = json_decode(json_encode($status->player_versions), true);
+        if (!empty($status)) {
+            $group = [];
+            $playerversion = json_decode(json_encode($status->player_versions), true);
 
-        $mform->addElement('header', 'section_playerversion', get_string('ivs_set_player_version', 'ivs'));
-        $group[] = &$mform->createElement('select', 'player_version', "", $playerversion);
-        $mform->setDefault('ivs_player_version[player_version]', $status->used_player_version);
-        $group[] = &$mform->createElement('submit', '', get_string('ivs_set_player_version', 'ivs'));
-        $mform->addGroup($group, 'ivs_player_version',
-                get_string('ivs_actual_player_version', 'mod_ivs') . $status->used_player_version);
-        $mform->setExpanded("section_playerversion", false);
+            $mform->addElement('header', 'section_playerversion', get_string('ivs_set_player_version', 'ivs'));
+            $group[] = &$mform->createElement('select', 'player_version', "", $playerversion);
+            $mform->setDefault('ivs_player_version[player_version]', $status->used_player_version);
+            $group[] = &$mform->createElement('submit', '', get_string('ivs_set_player_version', 'ivs'));
+            $mform->addGroup($group, 'ivs_player_version',
+                    get_string('ivs_actual_player_version', 'mod_ivs') . $status->used_player_version);
+            $mform->setExpanded("section_playerversion", false);
+        }
     }
 
     /**

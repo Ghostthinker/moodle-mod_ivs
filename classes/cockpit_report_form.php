@@ -143,7 +143,7 @@ class cockpit_report_form {
 
                 if (!empty($report->get_filter()['filter_users'])) {
                     $reportuser = $DB->get_record('user', array('id' => $report->get_filter()['filter_users']));
-                    $username = $reportuser->firstname . " " . $reportuser->lastname;
+                    $username = fullname($reportuser);
                     $out .= "<div>" . get_string("users") . ": " . $username . "</div>";
                 }
 

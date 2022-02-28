@@ -16,12 +16,14 @@
 
 /**
  * File for the backend
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+use mod_ivs\MediaController;
 use mod_ivs\MoodleMatchController;
 
 define('AJAX_SCRIPT', true);
@@ -57,7 +59,6 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 $requesturi = strtok($_SERVER["REQUEST_URI"], '?');
 
 $actualurl = $httpschema . '://' . $httphost . $requesturi;
-
 
 $url = str_replace($pathendpoint, "", $actualurl);
 
@@ -101,11 +102,21 @@ switch ($endpoint) {
         }
         $mc->handle_request($endpoint, $args, $requestmethod, $postdata);
         break;
+    case "media":
+
+        $mc = new MediaController();
+        array_shift($args);
+        if ($requestbody = file_get_contents('php://input')) {
+            $postdata = json_decode($requestbody, true);
+        }
+
+        $mc->handle_request($args, $requestmethod, $_FILES);
 
 }
 
 /**
  * Callback for comments
+ *
  * @param array $args
  * @param array $postdata
  * @param string $requestmethod
@@ -141,8 +152,6 @@ function ivs_backend_comments($args, $postdata, $requestmethod) {
             if (!$annotation->access("create")) {
                 ivs_backend_error_exit();
             }
-
-            $annotation->from_request_body($postdata, $parentid);
 
             $playercomment = $annotation->to_player_comment();
             ivs_backend_exit($playercomment);
@@ -192,7 +201,11 @@ function ivs_backend_comments($args, $postdata, $requestmethod) {
             if (!$an->access("delete")) {
                 ivs_backend_error_exit();
             }
-            $an->delete_from_db($an);
+            $an->delete_from_db();
+
+            if (!empty($an->load_audio_annotation())) {
+                $an->delete_audio();
+            }
 
             ivs_backend_exit('ok');
     }
@@ -200,6 +213,7 @@ function ivs_backend_comments($args, $postdata, $requestmethod) {
 
 /**
  * Callback for playbackcommands
+ *
  * @param array $args
  * @param array $postdata
  * @param string $requestmethod
@@ -246,6 +260,7 @@ function ivs_backend_playbackcommands($args, $postdata, $requestmethod) {
 
 /**
  * Exit call when errors appear
+ *
  * @param string $data
  * @param int $statuscode
  */
@@ -257,6 +272,7 @@ function ivs_backend_error_exit($data = "access denied", $statuscode = 403) {
 
 /**
  * Exit call when successfully ended tasks
+ *
  * @param string|array $data
  * @param int $statuscode
  */
@@ -265,6 +281,7 @@ function ivs_backend_exit($data, $statuscode = 200) {
     if (is_string($data)) {
         print $data;
     } else {
+        header("Content-type: application/json; charset=utf-8");
         print json_encode($data);
     }
     exit;

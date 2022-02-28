@@ -46,13 +46,15 @@ class TestsystemForm extends moodleform {
         $lc = ivs_get_license_controller();
 
         $status = $lc->get_status();
-        $group = [];
-        $mform->addElement('header', 'section_testsystem', get_string('ivs_set_testsystem', 'ivs'));
-        $group[] = &$mform->createElement('text', '', '',
-                ['size' => 40, 'style' => 'margin-left:-20px;', 'value' => $status->testsystem]);
-        $group[] = &$mform->createElement('submit', 'submitbutton', get_string('ivs_set_testsystem', 'ivs'));
-        $mform->addGroup($group, 'ivs_testsystem', get_string('ivs_testsystem', 'ivs'));
-        $mform->setExpanded("section_testsystem", false);
+        if(!empty($status)) {
+            $group = [];
+            $mform->addElement('header', 'section_testsystem', get_string('ivs_set_testsystem', 'ivs'));
+            $group[] = &$mform->createElement('text', '', '',
+                    ['size' => 40, 'style' => 'margin-left:-20px;', 'value' => $status->testsystem]);
+            $group[] = &$mform->createElement('submit', 'submitbutton', get_string('ivs_set_testsystem', 'ivs'));
+            $mform->addGroup($group, 'ivs_testsystem', get_string('ivs_testsystem', 'ivs'));
+            $mform->setExpanded("section_testsystem", false);
+        }
     }
 
     /**

@@ -22,6 +22,9 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+use mod_ivs\admin_setting_configtext_ivs_custom;
+use mod_ivs\admin_setting_configtext_ivs_custom_with_lock;
+
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/adminlib.php');
@@ -80,6 +83,17 @@ if ($ADMIN->fulltree) {
                             get_string($playersetting->description . '_help', 'ivs'), 0, $playersetting->options));
 
                 }
+                break;
+            case 'text':
+                if ($playersetting->lockedsite) {
+                    $settings->add(new admin_setting_configtext_ivs_custom_with_lock("mod_ivs/" . $playersetting->name,
+                            $playersetting->title,
+                            get_string($playersetting->description . '_help', 'ivs'), ['value' => 120], PARAM_INT));
+
+                } else {
+                    $settings->add(new admin_setting_configtext_ivs_custom("mod_ivs/" . $playersetting->name, $playersetting->title,
+                            get_string($playersetting->description . '_helpcd', 'ivs'), 120), PARAM_INT);
+                }
 
                 break;
         }
@@ -95,3 +109,5 @@ $settings = null;
 $ADMIN->add('interactive_video_suite_settings', new admin_externalpage('admin_settings_license', get_string('ivs_license', 'ivs'),
         $CFG->wwwroot . '/mod/ivs/admin/admin_settings_license.php',
         'moodle/site:config'));
+
+

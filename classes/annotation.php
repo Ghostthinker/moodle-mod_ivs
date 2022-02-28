@@ -16,6 +16,7 @@
 
 /**
  * This class manage all the annotations
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -130,8 +131,32 @@ class annotation {
 
     }
 
+    public function load_audio_annotation() {
+        $itemid = $this->id;
+
+        $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
+        $context = \context_module::instance($coursemodule->id);
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_ivs', 'audio_annotation', $itemid, 'itemid', false);
+        $file = end($files);
+        if (!empty($file)) {
+            $url = \moodle_url::make_pluginfile_url(
+                    $file->get_contextid(),
+                    $file->get_component(),
+                    $file->get_filearea(),
+                    $file->get_itemid(),
+                    $file->get_filepath(),
+                    $file->get_filename(),
+                    false);
+
+            return $url;
+        }
+    }
+
     /**
      * Load all replies
+     *
      * @param array $annotations
      */
     public static function load_replies(&$annotations) {
@@ -148,7 +173,7 @@ class annotation {
             return;
         }
 
-        list($insql, $inparams) = $DB->get_in_or_equal($annotationids);
+        [$insql, $inparams] = $DB->get_in_or_equal($annotationids);
         $params = $annotationids;
 
         $query = 'SELECT * FROM {ivs_videocomment} WHERE parent_id ' . $insql . ' ORDER BY time_stamp ';
@@ -192,15 +217,20 @@ class annotation {
 
     /**
      * Delete annotation from db
+     *
      * @param null $annotation
      */
-    public function delete_from_db($annotation = null) {
+    public function delete_from_db() {
         global $DB;
-
+        $annotation = $this;
         // Delete recomments access.
         $recomments = $DB->get_records('ivs_videocomment', array('parent_id' => $annotation->id));
         foreach ($recomments as $recomment) {
             $DB->delete_records('ivs_vc_access', array('annotation_id' => $recomment->id));
+            $an = self::retrieve_from_db($recomment->id);
+            if (!empty($an->load_audio_annotation())) {
+                $an->delete_audio();
+            }
         }
 
         // Delete comments access.
@@ -240,6 +270,7 @@ class annotation {
 
     /**
      * All annotations from a video
+     *
      * @param int $videonid
      * @param null $grants
      * @param int $offset
@@ -267,7 +298,7 @@ class annotation {
                 $grants = self::get_user_grants($USER->id, $courseid);
             }
 
-            list($accessquery, $accessparameters) =
+            [$accessquery, $accessparameters] =
                     self::get_user_grants_query($grants['user'], $grants['course'], $grants['group'], $grants['role']);
 
             if (!empty($accessquery)) {
@@ -301,6 +332,7 @@ class annotation {
 
     /**
      * Save the annotation access
+     *
      * @param \stdClass|null $accessview
      */
     public function write_annotation_access(\stdClass $accessview = null) {
@@ -356,6 +388,7 @@ class annotation {
 
     /**
      * Get grants from the user
+     *
      * @param int $moodleuserid
      * @param int $courseid
      *
@@ -387,6 +420,7 @@ class annotation {
 
     /**
      * Get user grants as index
+     *
      * @param \stdClass $moodleuser
      * @param int $courseid
      *
@@ -411,6 +445,7 @@ class annotation {
 
     /**
      * Get the parent from a annotation
+     *
      * @return mixed
      */
     public function get_parentid() {
@@ -419,6 +454,7 @@ class annotation {
 
     /**
      * Set the parent id for a annotation
+     *
      * @param mixed $parentid
      */
     public function set_parentid($parentid) {
@@ -493,6 +529,7 @@ class annotation {
 
     /**
      * Get all replies for a annotation
+     *
      * @return array
      */
     public function get_replies() {
@@ -501,6 +538,7 @@ class annotation {
 
     /**
      * Get all params from the user
+     *
      * @param int $userid
      * @param int $courseid
      * @param int $groupid
@@ -567,6 +605,7 @@ class annotation {
 
     /**
      * Parse data from request
+     *
      * @param \stdClass $requestbody
      * @param null $parentid
      */
@@ -679,6 +718,63 @@ class annotation {
     }
 
     /**
+     * Save Preview Image as base 64
+     *
+     * @param array $imagebase64
+     * @return \stored_file
+     * @throws \file_exception
+     * @throws \stored_file_creation_exception
+     */
+    public function save_audio($filepath) {
+
+        if (empty($this->id)) {
+            return;
+        }
+
+        $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
+        $context = \context_module::instance($coursemodule->id);
+
+        $itemid = $this->id;
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_ivs', 'audio_annotation', $itemid, 'itemid', false);
+
+        $existingfile = $value = end($files);
+        $filename = md5_file($filepath) . '.mp3';
+        $fileinfo = array(
+                'contextid' => $context->id,
+                'component' => 'mod_ivs',
+                'filearea' => 'audio_annotation',
+                'itemid' => $itemid,
+                'filepath' => '/',
+                'filename' => $filename);
+
+        if ($existingfile) {
+            $existingfile->delete();
+        }
+        $file = $fs->create_file_from_pathname($fileinfo, $filepath);
+
+        return $file;
+    }
+
+    public function delete_audio() {
+
+        $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0,
+                false, MUST_EXIST);
+        $context = \context_module::instance($coursemodule->id);
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_ivs', 'audio_annotation',
+                $this->id, 'itemid', false);
+
+        $existingfile = end($files);
+
+        if ($existingfile) {
+            $existingfile->delete();
+        }
+    }
+
+    /**
      * Get the normalized timecode id for the preview image
      *
      * @return int
@@ -689,6 +785,7 @@ class annotation {
 
     /**
      * Get the preview url
+     *
      * @return null
      */
     public function get_preview_url() {
@@ -737,6 +834,7 @@ class annotation {
 
     /**
      * Get user data
+     *
      * @return array|string[]
      */
     public function get_player_user_data() {
@@ -745,6 +843,7 @@ class annotation {
 
     /**
      * Get the permission from the player
+     *
      * @return array
      */
     public function get_player_permissions() {
@@ -780,6 +879,7 @@ class annotation {
 
     /**
      * Add a annotation from the player
+     *
      * @return object
      */
     public function to_player_comment() {
@@ -809,6 +909,12 @@ class annotation {
 
         if (isset($object->additional_data['pinmode_pause_seconds'])) {
             $object->pinmode_pause_seconds = $object->additional_data['pinmode_pause_seconds'];
+        }
+
+        $audioannotation = $this->load_audio_annotation();
+
+        if ($audioannotation) {
+            $object->audioAnnotation = (string) $audioannotation;
         }
 
         unset($object->additional_data);
@@ -854,6 +960,7 @@ class annotation {
 
     /**
      * Check the access
+     *
      * @param string $op
      *
      * @return bool
@@ -950,6 +1057,7 @@ class annotation {
 
     /**
      * Get a formatted timecode
+     *
      * @param false $millisecs
      *
      * @return string
@@ -960,6 +1068,7 @@ class annotation {
 
     /**
      * Check the permission for viewing any annotation
+     *
      * @param \mixed $context
      *
      * @return bool
@@ -978,6 +1087,7 @@ class annotation {
 
     /**
      * Get the id from a annotation
+     *
      * @return mixed
      */
     public function get_id() {
@@ -986,6 +1096,7 @@ class annotation {
 
     /**
      * Set the id for a annotation
+     *
      * @param mixed $id
      */
     public function set_id($id) {
@@ -994,6 +1105,7 @@ class annotation {
 
     /**
      * Get the body from a annotation
+     *
      * @return mixed
      */
     public function get_body() {
@@ -1002,6 +1114,7 @@ class annotation {
 
     /**
      * Get the rendered body for a annotation
+     *
      * @return mixed
      */
     public function get_rendered_body() {
@@ -1014,6 +1127,7 @@ class annotation {
 
     /**
      * Set the body for a annotation
+     *
      * @param mixed $body
      */
     public function set_body($body) {
@@ -1022,6 +1136,7 @@ class annotation {
 
     /**
      * Get the video id
+     *
      * @return mixed
      */
     public function get_videoid() {
@@ -1030,6 +1145,7 @@ class annotation {
 
     /**
      * Set the video id
+     *
      * @param mixed $videoid
      */
     public function set_videoid($videoid) {
@@ -1038,6 +1154,7 @@ class annotation {
 
     /**
      * Get the timestamp
+     *
      * @return mixed
      */
     public function get_timestamp() {
@@ -1046,6 +1163,7 @@ class annotation {
 
     /**
      * Set the timestamp
+     *
      * @param mixed $timestamp
      */
     public function set_timestamp($timestamp) {
@@ -1054,6 +1172,7 @@ class annotation {
 
     /**
      * Get the duration from the video
+     *
      * @return mixed
      */
     public function get_duration() {
@@ -1062,6 +1181,7 @@ class annotation {
 
     /**
      * Set the duration
+     *
      * @param mixed $duration
      */
     public function set_duration($duration) {
@@ -1070,6 +1190,7 @@ class annotation {
 
     /**
      * Get the thumbnail for preview image
+     *
      * @return mixed
      */
     public function get_thumbnail() {
@@ -1078,6 +1199,7 @@ class annotation {
 
     /**
      * Set the thumbnail for a annotation
+     *
      * @param mixed $thumbnail
      */
     public function set_thumbnail($thumbnail) {
@@ -1086,6 +1208,7 @@ class annotation {
 
     /**
      * Get the user id for a annotation
+     *
      * @return mixed
      */
     public function get_userid() {
@@ -1094,6 +1217,7 @@ class annotation {
 
     /**
      * Set the user id for a annotation
+     *
      * @param mixed $userid
      */
     public function set_userid($userid) {
@@ -1102,6 +1226,7 @@ class annotation {
 
     /**
      * Get additional data for a annotation
+     *
      * @return mixed
      */
     public function get_additionaldata() {
@@ -1110,6 +1235,7 @@ class annotation {
 
     /**
      * Set additional data for a annotation
+     *
      * @param mixed $additionaldata
      */
     public function set_additionaldata($additionaldata) {
@@ -1118,6 +1244,7 @@ class annotation {
 
     /**
      * Get modified time for a annotation
+     *
      * @return mixed
      */
     public function get_timemodified() {
@@ -1126,6 +1253,7 @@ class annotation {
 
     /**
      * Set modified time for a annotation
+     *
      * @param mixed $timemodified
      */
     public function set_timemodified($timemodified) {
@@ -1134,6 +1262,7 @@ class annotation {
 
     /**
      * Get created time for a annotation
+     *
      * @return mixed
      */
     public function get_timecreated() {
@@ -1142,6 +1271,7 @@ class annotation {
 
     /**
      * Set created time for a annotation
+     *
      * @param mixed $timecreated
      */
     public function set_timecreated($timecreated) {
@@ -1150,6 +1280,7 @@ class annotation {
 
     /**
      * Get view access for a annotation
+     *
      * @return mixed
      */
     public function get_accessview() {
@@ -1158,6 +1289,7 @@ class annotation {
 
     /**
      * Set view access for a annotation
+     *
      * @param int $accessview
      */
     public function set_accessview($accessview) {
@@ -1166,6 +1298,7 @@ class annotation {
 
     /**
      * Get course service
+     *
      * @return mixed
      */
     public function get_courseservice() {
@@ -1177,6 +1310,7 @@ class annotation {
 
     /**
      * Set course service
+     *
      * @param mixed $courseservice
      */
     public function set_courseservice($courseservice) {
@@ -1185,6 +1319,7 @@ class annotation {
 
     /**
      * Build the annotation url
+     *
      * @return \moodle_url
      */
     public function get_annotation_player_url() {
@@ -1202,6 +1337,7 @@ class annotation {
 
     /**
      * Get annotation url in the overview page
+     *
      * @return \moodle_url
      */
     public function get_annotation_overview_url() {
@@ -1213,6 +1349,7 @@ class annotation {
 
     /**
      * If a rating exists, return the correct code
+     *
      * @return string
      */
     public function get_rating_text() {

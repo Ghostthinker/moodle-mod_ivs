@@ -3,7 +3,12 @@ define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/m
         init: function (panopto_data) {
             // register 'enable video question' change event
             $('#id_match_question_enabled_value').change(function () {
-                set_display_option();
+                set_display_option('#id_match_question_enabled_value', 'playbackrate_enabled');
+                return;
+            });
+
+            $('#id_annotations_enabled_value').change(function () {
+                set_display_option('#id_annotations_enabled_value', 'user_notification_settings');
                 return;
             });
 
@@ -97,11 +102,11 @@ define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/m
 /**
  * set 'adjust playback speed' visibility depending on 'enable video question' checkbox
  */
-function set_display_option() {
-    if (!$('#id_match_question_enabled_value').is(":checked")) {
-        $('[data-groupname="playbackrate_enabled"]').css('display', 'none');
+function set_display_option(field,dataGroupname) {
+    if (!$(field).is(":checked")) {
+        $('[data-groupname='+dataGroupname+']').css('display', 'none');
     } else {
-        $('[data-groupname="playbackrate_enabled"]').css('display', '');
+        $('[data-groupname='+dataGroupname+']').css('display', '');
     }
 }
 

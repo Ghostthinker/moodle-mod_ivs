@@ -119,7 +119,7 @@ if (data_submitted() && confirm_sesskey()) {
     if ($fromform = $playerelectionform->get_data()) {
         $status = $lc->get_status();
         $playerversion = $fromform->ivs_player_version['player_version'];
-        if ($status->used_player_version == $playerversion) {
+        if (!empty($status) && $status->used_player_version == $playerversion) {
             \core\notification::info(get_string('ivs_same_player_version',
               'ivs'));
         } else {
@@ -313,13 +313,16 @@ if (!empty($expiredcourselicenses) || !empty($expiredinstancelicenses)) {
 
 echo '</div>';
 
-if ($status->type == IVS_SYSTEM_TYPE_MAIN) {
+if (!empty($status) && $status->type == IVS_SYSTEM_TYPE_MAIN) {
     $testsystemform->display();
 
 } else {
-    \core\notification::info(get_string('ivs_testsystem_info_message', 'ivs'));
+    if (!empty($status)) {
+        \core\notification::info(get_string('ivs_testsystem_info_message', 'ivs'));
+    }
 }
 
 $playerelectionform->display();
 
 echo $renderer->footer();
+

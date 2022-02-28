@@ -72,17 +72,14 @@ class OpenCastFileVideoHost implements IVideoHost {
         $publications = json_decode($result, true);
 
         foreach ($publications as $publication) {
-            if ($publication['channel'] == 'opencast-api' || $publication['channel'] == 'switchcast-api') {
-
+            if (strpos('api', $publication['channel']) > -1) {
                 // Sort array by media height (max -> min).
                 usort($publication['media'], function($a, $b) {
                     return strcmp($b['height'], $a['height']);
                 });
-
                 if (!empty($publication['media'][0]['url'])) {
                     $url = $publication['media'][0]['url'];
                 }
-
             }
         }
 

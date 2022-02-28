@@ -193,7 +193,8 @@ class cockpit_filter_form
         $options = array();
 
         foreach ($members as $member) {
-            $options[$member->id] = $member->firstname . " " . $member->lastname;
+
+            $options[$member->id] = fullname($member);
         }
 
         return $options;

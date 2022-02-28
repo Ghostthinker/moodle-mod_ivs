@@ -1169,6 +1169,9 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
      * @return \stdClass
      */
     public function get_question_answers_data($detailarray, $questions, $cmid, $videoid, $courseusers, $totalcount, $output) {
+        if (empty($detailarray)) {
+            return null;
+        }
         $data = new \stdClass;
 
         $controller = $this;

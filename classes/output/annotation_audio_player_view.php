@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Output class for rendering annotations replies
+ * Output class for rendering annotation audio player
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,6 +25,7 @@
 // Standard GPL and phpdocs.
 namespace mod_ivs\output;
 
+use mod_ivs\AnnotationService;
 use mod_ivs\IvsHelper;
 use renderable;
 use renderer_base;
@@ -32,9 +33,9 @@ use templatable;
 use stdClass;
 
 /**
- * Class annotation_reply_view
+ * Class annotation_audio_player_view
  */
-class annotation_reply_view implements renderable, templatable {
+class annotation_audio_player_view implements renderable, templatable {
 
     /**
      * @var \mod_ivs\annotation|null
@@ -42,17 +43,12 @@ class annotation_reply_view implements renderable, templatable {
     public $annotation = null;
 
     /**
-     * @var null|stdClass
-     */
-    public $ivs = null;
-
-    /**
      * @var stdClass
      */
     public $module;
 
     /**
-     * annotation_reply_view constructor.
+     * annotation_audio_player_view constructor.
      *
      * @param \mod_ivs\annotation $annotation
      */
@@ -67,24 +63,14 @@ class annotation_reply_view implements renderable, templatable {
      * @return \stdClass
      */
     public function export_for_template(renderer_base $output) {
-
-        global $PAGE;
         $data = new stdClass();
-
-        $user = IvsHelper::get_user($this->annotation->get_userid());
-
-        $data->comment_body = $this->annotation->get_rendered_body();
-        $data->id = $this->annotation->get_id();
-        $data->user_picture = $user['picture'];
-        $data->comment_author_link = $user['fullname'];
-        $data->comment_created = userdate($this->annotation->get_timecreated());
-
-        // Render audio player.
-        $renderer = $PAGE->get_renderer('ivs');
-
-        $renderable = new \mod_ivs\output\annotation_audio_player_view($this->annotation);
-        $data->render_audio_player = $renderer->render($renderable);
-
+        $data->audio_annotation = (string) $this->annotation->load_audio_annotation();
+        if ($data->audio_annotation) {
+            $data->download_button = new \moodle_url('/mod/ivs/assets/download_button.png') . '';
+            $data->audio_annotation_available = true;
+        } else {
+            $data->audio_annotation_available = false;
+        }
         return $data;
     }
 }

@@ -243,6 +243,7 @@ WHERE video_id = ?;',
         // Define file annotations (we do not use itemid in this example).
         $ivs->annotate_files('mod_ivs', 'videos', null);
         $ivs->annotate_files('mod_ivs', 'preview', null);
+        $ivs->annotate_files('mod_ivs', 'audio_annotation', null);
 
         return $this->prepare_activity_structure($ivs);
     }
