@@ -10,7 +10,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 * Install plugin to **mod/ivs** <br/>
   Please see [Installing_a_plugin](https://docs.moodle.org/39/en/Installing_plugins#Installing_a_plugin) for detailed installation instructions
 * Get your Instance-Identification at **/mod/ivs/admin/admin_settings_license.php**
-* Buy your [IVS-License](https://interactive-video-suite.de/en/pricing) using your License-Identification
+* Buy your [IVS-License](https://interactive-video-suite.de/en/pricing) using your Instance-Identification
 * Create Interactive Video Suite activities
 
 # Features
