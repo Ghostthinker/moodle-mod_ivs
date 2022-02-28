@@ -21,6 +21,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.9
+* audiomessages
+* fixed multiple issues and bugs
+* ``ep5 version 2.0``
+
 ### v1.8
 * panopto integration
 * fix moodle proxy configuration
