@@ -1,6 +1,7 @@
 # About
 moodle-mod_ivs is a Moodle activity plugin to allow Social Video Learning.
 Enrich your videos by the powerful features of the social video player. Create pinpointed video comments for real discussions, add drawings or mark important situations directly in your videos by using just one tool.
+- follow the link to the [Moodle plugins directory](https://moodle.org/plugins/mod_ivs) for more details
 
 # Requirements
 * Requires a [IVS-License](https://interactive-video-suite.de/en/pricing) to setup and use
