@@ -31,6 +31,12 @@ namespace mod_ivs;
  */
 class MediaController {
 
+    private $backendService;
+
+    public function __construct(){
+        $this->backendService = new BackendService();
+    }
+
     public function handle_request($patharguments, $method, $files) {
         switch ($method) {
             case 'POST':
@@ -41,7 +47,7 @@ class MediaController {
                 break;
         }
 
-        ivs_backend_error_exit('Method not found', 405);
+        $this->backendService->ivs_backend_error_exit('Method not found', 405);
     }
 
     private function handle_post($patharguments, $files) {
@@ -51,17 +57,17 @@ class MediaController {
         $annotation = annotation::retrieve_from_db($annotationid);
 
         if (!$annotation->access("edit")) {
-            ivs_backend_error_exit();
+            $this->backendService->ivs_backend_error_exit();
         }
 
         try {
             $file = $annotation->save_audio($files['media']['tmp_name']);
         } catch (\Exception $e) {
-            ivs_backend_error_exit('Failed to save media', 500);
+            $this->backendService->ivs_backend_error_exit('Failed to save media', 500);
         }
 
         $response = $annotation->to_player_comment();
-        ivs_backend_exit($response, 200);
+        $this->backendService->ivs_backend_exit($response, 200);
 
     }
 
@@ -70,19 +76,19 @@ class MediaController {
 
         $annotation = annotation::retrieve_from_db($annotationid);
         if (empty($annotation)) {
-            ivs_backend_error_exit('Annotation not found', 404);
+            $this->backendService->ivs_backend_error_exit('Annotation not found', 404);
         }
         if (!$annotation->access("delete")) {
-            ivs_backend_error_exit('Access denied', 403);
+            $this->backendService->ivs_backend_error_exit('Access denied', 403);
         }
 
         try {
             $annotation->delete_audio();
         } catch (\Exception $e) {
-            ivs_backend_error_exit('Failed to delete media', 500);
+            $this->backendService->ivs_backend_error_exit('Failed to delete media', 500);
         }
 
-        ivs_backend_exit('success', 200);
+        $this->backendService->ivs_backend_exit('success', 200);
         exit;
     }
 

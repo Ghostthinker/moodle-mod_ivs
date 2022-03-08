@@ -100,8 +100,8 @@ class mod_ivs_mod_form extends moodleform_mod {
         } else {
             $this->add_intro_editor();
         }
-
-        if ((int) $CFG->ivs_panopto_external_files_enabled && $panoptoblocksenabled) {
+        $panoptoexternalfilesenabled = get_config('mod_ivs', 'ivs_panopto_external_files_enabled');
+        if ((int) $panoptoexternalfilesenabled && $panoptoblocksenabled) {
             $mform->addElement('hidden', 'panopto_video_json_field', get_string('ivs_setting_panopto_menu_title', 'ivs'),
                     ['id' => 'id_panopto_video_json_field']);
             $mform->addElement('text', 'panopto_video', get_string('ivs_setting_panopto_menu_title', 'ivs'),
@@ -115,7 +115,8 @@ class mod_ivs_mod_form extends moodleform_mod {
             }
         }
 
-        if ((int) $CFG->ivs_opencast_external_files_enabled) {
+        $opencastexternalfilesenabled = get_config('mod_ivs', 'ivs_opencast_external_files_enabled');
+        if ((int) $opencastexternalfilesenabled) {
 
             try {
                 $opencastvideos = $this->get_videos_for_select();
@@ -129,8 +130,8 @@ class mod_ivs_mod_form extends moodleform_mod {
                 \core\notification::error($e->getMessage());
             }
         }
-
-        if ((int) $CFG->ivs_opencast_internal_files_enabled) {
+        $opencastinternalfilesenabled = get_config('mod_ivs', 'ivs_opencast_internal_files_enabled');
+        if ((int) $opencastinternalfilesenabled) {
             $mform->addElement('filepicker', 'video_file', get_string('file'), null,
                     array(
                             'subdirs' => 0,

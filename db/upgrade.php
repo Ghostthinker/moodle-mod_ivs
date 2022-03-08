@@ -34,7 +34,7 @@ use mod_ivs\MoodleLicenseController;
  * @return bool
  */
 function xmldb_ivs_upgrade($oldversion) {
-    global $DB;
+    global $DB,$CFG;
 
     $dbman = $DB->get_manager();
 
@@ -74,6 +74,20 @@ function xmldb_ivs_upgrade($oldversion) {
         $dbman->change_field_type($table, $field);
 
         upgrade_mod_savepoint(true, 2021080604, 'ivs');
+    }
+
+    // Change setting value type from int to varchar.
+    if ($oldversion < 2022030100) {
+        //Get the current values from the config
+        $ivs_opencast_internal_files_enabled = $CFG->ivs_opencast_internal_files_enabled;
+        $ivs_opencast_external_files_enabled = $CFG->ivs_opencast_external_files_enabled;
+        $ivs_panopto_external_files_enabled = $CFG->ivs_panopto_external_files_enabled;
+
+        set_config('ivs_opencast_internal_files_enabled', $ivs_opencast_internal_files_enabled, 'mod_ivs');
+        set_config('ivs_opencast_external_files_enabled', $ivs_opencast_external_files_enabled, 'mod_ivs');
+        set_config('ivs_panopto_external_files_enabled', $ivs_panopto_external_files_enabled, 'mod_ivs');
+
+        upgrade_mod_savepoint(true, 2022030100, 'ivs');
     }
 
     return true;

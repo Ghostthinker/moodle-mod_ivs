@@ -426,11 +426,15 @@ if (empty($embedded)) {
         }
     }
 
+
     if ((int) $activitysettings['annotation_audio_enabled']->value) {
         $playerconfig['plugins']['edubreak_annotations_audio_message'] = array(
                 'interface_uri' => $backendurl . '/media/'. $cm->instance,
                 'max_duration' => $activitysettings['annotation_audio_max_duration']->value,
         );
+    }
+    else{
+        unset($playerconfig['plugins']['edubreak_annotations_audio_message']);
     }
 
     $matchcontroller = new \mod_ivs\MoodleMatchController();
