@@ -292,7 +292,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         foreach ($videos as $video) {
             if (is_array($video->publication_status)) {
                 foreach ($video->publication_status as $entry) {
-                    if (strpos('api', $entry) > -1) {
+                    if (strpos($entry, 'api') > -1) {
                         $publishedvideos[$video->identifier] = $video->title;
                     }
                 }
