@@ -280,6 +280,7 @@ class MoodleLicenseController implements ILicenseController
      * @return bool|string
      */
     protected function send_curl_request($path, $method = "POST", $requestdata) {
+        global $CFG;
 
         $coreurl = $this->get_core_url(true);
         $url = $coreurl . IVS_CORE_API_PREFIX . $path;
