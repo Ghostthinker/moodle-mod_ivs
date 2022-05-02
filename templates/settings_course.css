@@ -1,3 +1,7 @@
 label.ivs-setting-locked-checkbox {
     margin-left: 200px;
 }
+
+#id_panopto_video{
+    width: 60%;
+}

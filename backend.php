@@ -49,12 +49,12 @@ $pathendpoint = $wwwroot . "/mod/ivs/backend.php/";
 $httpschema = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 $backendService = new \mod_ivs\BackendService();
 if (!isset($_SERVER['HTTP_HOST'])) {
-    $backendService->ivs_backend_error_exit();
+    $backendService->ivs_backend_error_exit('No http host found');
 }
 $httphost = $_SERVER['HTTP_HOST'];
 
 if (!isset($_SERVER['REQUEST_URI'])) {
-    $backendService->ivs_backend_error_exit();
+    $backendService->ivs_backend_error_exit('No Request uri found');
 }
 $requesturi = strtok($_SERVER["REQUEST_URI"], '?');
 
@@ -70,11 +70,11 @@ $videoid = $args[1];
 $postdata = array();
 
 if (!\mod_ivs\IvsHelper::access_player($videoid)) {
-    $backendService->ivs_backend_error_exit();
+    $backendService->ivs_backend_error_exit('No access to the player');
 }
 
 if (!isset($_SERVER['REQUEST_METHOD'])) {
-    $backendService->ivs_backend_error_exit();
+    $backendService->ivs_backend_error_exit('No Request method found');
 }
 
 $requestmethod = $_SERVER['REQUEST_METHOD'];

@@ -120,4 +120,15 @@ class IvsHelper {
         return true;
     }
 
+    /**
+     * get language
+     *
+     * @param int $ivsid
+     * @return bool
+     */
+    public static function get_language() {
+        $currentlanguage = current_language();
+        $lang = $currentlanguage;
+        return stripos($lang, '_') ? substr($lang, 0, stripos($lang, '_')) : $lang;
+    }
 }

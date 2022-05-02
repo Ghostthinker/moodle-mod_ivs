@@ -395,9 +395,16 @@ class annotation {
      * @return array
      */
     public static function get_user_grants($moodleuserid, $courseid) {
+        global $USER;
+
         $grants = array();
         $grants['user'] = $moodleuserid;
-        $grants['course'] = $courseid;
+        $coursecontext = \context_course::instance($courseid);
+        if (is_enrolled($coursecontext, $USER->id, '', true)) {
+            $grants['course'] = $courseid;
+        } else {
+            $grants['course'] = -1;
+        }
 
         $groups = CourseService::get_user_course_groups($courseid, $moodleuserid);
 
@@ -966,7 +973,7 @@ class annotation {
      * @return bool
      */
     public function access($op) {
-        global $USER;
+        global $USER, $DB;
         $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
         $context = \context_module::instance($coursemodule->id);
 
@@ -981,6 +988,7 @@ class annotation {
                 }
                 break;
             case 'view':
+
                 if (is_siteadmin()) {
                     return true;
                 }
@@ -992,6 +1000,51 @@ class annotation {
                 if (has_capability('mod/ivs:view_any_comment', $context)) {
                     return true;
                 }
+
+                $grants = self::get_user_grants($USER->id, $coursemodule->course);
+
+                $accessparameters = array(
+                        $this->get_id(),
+                        $grants['course'],
+                        $USER->id,
+                        $USER->id
+                );
+
+                // Build the base query for access.
+                $select = 'annotation_id = ? AND (
+                  (rid = ? AND realm = \'course\') OR
+                  (rid = ? AND realm = \'member\') OR (rid = ? AND realm = \'author\')';
+
+
+                // Add group realms if needed.
+                $groupquery = '';
+                $groupids = $grants['group'];
+                if (!empty($groupids)) {
+                    foreach ($groupids as $gid) {
+                        $groupquery .= ' OR (rid = ? AND realm = \'group\')';
+                        $accessparameters[] = $gid;
+                    }
+                }
+
+                // Add the  role realms if needed.
+                $rolequery = '';
+                $roleids = $grants['role'];
+                if (!empty($roleids)) {
+                    foreach ($roleids as $rid) {
+                        $rolequery .= ' OR (rid = ?  AND realm = \'role\')';
+                        $accessparameters[] = $rid;
+                    }
+                }
+
+                // Build the  complete access query.
+                $select = $select . $groupquery . $rolequery . ')';
+
+                $accessrecord = $DB->get_record_select("ivs_vc_access", $select, $accessparameters);
+
+                if($accessrecord) {
+                    return true;
+                }
+
                 break;
             case 'edit':
             case 'delete':
@@ -1022,6 +1075,7 @@ class annotation {
                 if (has_capability('mod/ivs:lock_annotation_access', $context)) {
                     return true;
                 }
+
                 break;
 
         }
@@ -1122,7 +1176,24 @@ class annotation {
         $this->body = str_replace('\]', '$$', $this->body);
         $this->body = str_replace('\(', '$', $this->body);
         $this->body = str_replace('\)', '$', $this->body);
-        return format_text($this->body, FORMAT_MARKDOWN);
+
+        // find domain.tld/mod/ivs/view.php?id=15&cid=82
+        $re = '@(("|\')?[[http[s]?]?(://)?([a-zA-Z][-\w]+[\.|:]+[^\s\.]+[^\s]*[/mod/ivs/view\.php\?id=][\d]+[&|&amp;]+[cid=]+)(\d+)([&|&amp;]+nofilter)?(</a>)?)@';
+
+        $bodytext = $this->get_body();
+        $bodytext = preg_replace_callback($re, function($m) {
+            $quotesfound = $m[2] ?? null;
+            $endtaglinkfound = $m[7] ?? null;
+
+            if ($quotesfound || $endtaglinkfound) {
+                return $m[0];
+            }
+
+            return "$m[0]&nofilter";
+
+        }, $bodytext);
+
+        return format_text($bodytext, FORMAT_MARKDOWN);
     }
 
     /**

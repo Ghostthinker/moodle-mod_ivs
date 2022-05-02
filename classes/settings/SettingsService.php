@@ -147,7 +147,7 @@ class SettingsService {
                 get_string('ivs_setting_read_access_lock', 'ivs'),
                 'ivs_setting_read_access_lock',
                 'select',
-                0,
+                'none',
                 true,
                 true,
                 $lockreadaccessoptions

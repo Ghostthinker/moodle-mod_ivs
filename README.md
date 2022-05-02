@@ -22,6 +22,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.10
+* share comments
+* ``ep5 version 2.1``
+
 ### v1.9
 * audiomessages
 * fixed multiple issues and bugs

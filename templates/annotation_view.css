@@ -26,7 +26,6 @@
     box-shadow: 2px 3px 5px silver;
     margin-bottom: 8px;
     padding: 8px;
-
 }
 
 .ivs-annotations .comment-main {
@@ -44,7 +43,6 @@
 
 .ivs-annotations .field-created {
     float: right;
-    margin-right: 10px;
 }
 
 .ivs-annotations .clearfix {
@@ -124,6 +122,10 @@
 .ivs-annotations .field-annotations-replies .annotation-reply .user-picture {
     width: 50px;
     padding-top: 4px;
+}
+.ivs-annotations .field-annotations-replies .annotation-reply .user-picture img {
+    max-width: 100%;
+    width: 100%;
 }
 
 .ivs-annotations .field-annotations-replies .annotation-reply .ivs-annotation-content {

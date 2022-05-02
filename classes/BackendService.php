@@ -58,7 +58,7 @@ class BackendService {
                 $annotation->from_request_body($postdata, $parentid);
 
                 if (!$annotation->access("create")) {
-                    $this->ivs_backend_error_exit();
+                    $this->ivs_backend_error_exit('No create access');
                 }
 
                 $playercomment = $annotation->to_player_comment();
@@ -91,7 +91,7 @@ class BackendService {
                 $annotation = \mod_ivs\annotation::retrieve_from_db($annotationid, true);
 
                 if (!$annotation->access("edit")) {
-                    $this->ivs_backend_error_exit();
+                    $this->ivs_backend_error_exit('No edit access');
                 }
                 $annotation->from_request_body($postdata);
 
@@ -107,7 +107,7 @@ class BackendService {
                 $an = \mod_ivs\annotation::retrieve_from_db($annotationid);
 
                 if (!$an->access("delete")) {
-                    $this->ivs_backend_error_exit();
+                    $this->ivs_backend_error_exit('No delete access');
                 }
                 $an->delete_from_db();
 

@@ -1,4 +1,5 @@
 define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/modal', 'core/modal_registry', 'core/modal_factory','core/templates','core/str','core/modal_events'], function($, Notification, CustomEvents, Modal, ModalRegistry, ModalFactory, Templates,Str,ModalEvents) {
+    let selectedPanoptoVideo = '';
     return {
         init: function (panopto_data) {
             // register 'enable video question' change event
@@ -42,54 +43,49 @@ define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/m
                             // Stop the default save button behaviour which is to close the modal.
                             e.preventDefault();
                             modal.hide();
-                            save = true;
-                            win = document.getElementsByTagName('iframe')[1].contentWindow;
-                            message = {cmd: 'createEmbeddedFrame'};
-                            win.postMessage(JSON.stringify(message), 'https://' + servername);
+
+                            if (selectedPanoptoVideo.ids.length <= 1) {
+                                let panopto_video_name = selectedPanoptoVideo.names;
+                                let panopto_video_id = selectedPanoptoVideo.ids;
+                                let panopto_data = JSON.stringify({
+                                    'servername': servername,
+                                    'instancename': instancename,
+                                    'sessiongroupid': sessiongroupid,
+                                    'videoname': panopto_video_name,
+                                    'sessionId': panopto_video_id
+                                });
+                                if(panopto_video_name.length == 1){
+                                    $('#id_panopto_video_json_field').val(panopto_data);
+                                }
+                                else{
+                                    $('#id_panopto_video_json_field').val('');
+                                    $('#id_panopto_video_json_field').attr('value','')
+                                    $('#id_panopto_video').attr('value','')
+                                }
+
+                                $('#id_panopto_video').val(panopto_video_name);
+                            }
                         });
                     });
                 ;
 
                 window.addEventListener('message', (e) => {
                         let panopto_selected_video_data = JSON.parse(e.data);
-
+                        selectedPanoptoVideo = JSON.parse(e.data);
                         if(panopto_selected_video_data.cmd === 'ready'){
-                            win = document.getElementsByTagName('iframe')[1].contentWindow;
+                            win = document.getElementById('panopto_iframe').contentWindow;
                             message = {cmd: 'createEmbeddedFrame'};
                             win.postMessage(JSON.stringify(message), 'https://' + servername);
                         }
-
                         if(panopto_selected_video_data.cmd === 'deliveryList'){
                             if(panopto_selected_video_data.ids.length > 1){
-                                $('.modal-footer').children().first().attr('disabled',true);
-                                $('.modal-footer').children().first().attr('title',panopto_data.tooltip);
+                                $('.modal-footer').children().closest('.btn-primary').attr('disabled',true);
+                                $('.modal-footer').children().closest('.btn-primary').attr('title',panopto_data.tooltip);
                             }
                             else{
-                                $('.modal-footer').children().first().attr('disabled',false);
-                                $('.modal-footer').children().first().removeAttr('title',true);
+                                $('.modal-footer').children().closest('.btn-primary').attr('disabled',false);
+                                $('.modal-footer').children().closest('.btn-primary').removeAttr('title',true);
                             }
-                        }
-
-                        if (panopto_selected_video_data.cmd === 'deliveryList' && save && panopto_selected_video_data.ids.length <= 1) {
-                            let panopto_video_name = panopto_selected_video_data.names;
-                            let panopto_video_id = panopto_selected_video_data.ids;
-                            let panopto_data = JSON.stringify({
-                                'servername': servername,
-                                'instancename': instancename,
-                                'sessiongroupid': sessiongroupid,
-                                'videoname': panopto_video_name,
-                                'sessionId': panopto_video_id
-                            });
-                            if(panopto_video_name.length == 1){
-                                $('#id_panopto_video_json_field').val(panopto_data);
-                            }
-                            else{
-                                $('#id_panopto_video_json_field').val('');
-                                $('#id_panopto_video_json_field').attr('value','')
-                                $('#id_panopto_video').attr('value','')
-                            }
-                            
-                            $('#id_panopto_video').val(panopto_video_name);
                         }
                     }
                 )

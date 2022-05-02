@@ -43,6 +43,12 @@ define('IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION', 300);
  */
 function ivs_supports($feature) {
 
+    $featurePurpose = null;
+    if(defined('FEATURE_MOD_PURPOSE')) {
+        // catch moodle 3 undefined warning
+        $featurePurpose = FEATURE_MOD_PURPOSE;
+    }
+
     switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;
@@ -54,10 +60,13 @@ function ivs_supports($feature) {
             return false;
         case FEATURE_BACKUP_MOODLE2:
             return true;
+        case $featurePurpose:
+            return MOD_PURPOSE_COLLABORATION;
         default:
             return null;
     }
 }
+
 
 /**
  * Saves a new instance of the ivs into the database
@@ -84,7 +93,7 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
-    } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video_url)) {
+    } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (!empty($ivs->sample_video)) {
         $ivs->videourl = 'TestingFileVideoHost://' . $ivs->id;
@@ -123,7 +132,7 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
 
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
-    } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video_url)) {
+    } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) &&
       substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) != 'PanoptoFileVideoHost') {

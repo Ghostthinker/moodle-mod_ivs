@@ -54,7 +54,6 @@
 
 
     IvsMiniplayer.prototype.resize = function () {
-
         this.$svg.css({
             'width': this.$container.width() + 'px',
             'height': this.$container.height() + 'px'
@@ -62,19 +61,10 @@
         this.$svg.show();
     };
 
-    $(document).ready(function () {
-        renderPlayerIfInViewport();
-    });
 
-    var timer = null;
-
-    $(window).scroll(function() {
-        if(timer !== null) {
-            clearTimeout(timer);
-        }
-        timer = setTimeout(renderPlayerIfInViewport,250);
-    })
-
+    /**
+     *
+     */
     function renderPlayerIfInViewport(){
         $.each($('div.annotation-view-comment-container'), function() {
 
@@ -110,6 +100,7 @@
                 }
 
             } else if (videolegit) {
+
                 var videofromtop = $(videolegit).offset().top;
                 var unloadloadoffsetinpx = 1000;
 
@@ -128,8 +119,25 @@
                     $(videolegit).replaceWith(placeholderelement);
                 }
             }
-
-        })
+        });
     }
+
+    $(document).ready(function () {
+        // render preview image drawings
+        $(".field-ivs-annotation-preview").IvsMiniplayer();
+
+        // render video fallback
+        renderPlayerIfInViewport();
+    });
+
+    var timer = null;
+
+    $(window).scroll(function() {
+        if(timer !== null) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(renderPlayerIfInViewport,350);
+    });
+
 
 })(jQuery);

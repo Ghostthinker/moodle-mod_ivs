@@ -48,7 +48,6 @@ $PAGE->set_heading($heading);
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.css'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.js'));
-$PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_download.css'));
 $PAGE->requires->jquery();
 
 

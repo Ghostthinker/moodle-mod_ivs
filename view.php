@@ -38,7 +38,7 @@ require_once('../../config.php');
 require_once('./lib.php');
 require_once('./locallib.php');
 
-global $USER, $DB;
+global $USER, $DB, $CFG;;
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n = optional_param('n', 0, PARAM_INT);  // ... ivs instance ID - it should be named as the first character of the module.
@@ -72,6 +72,7 @@ $videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs, $course);
 $videourl = $videohost->get_video();
 
 $matchenabled = $activitysettings['match_question_enabled']->value;
+
 $annotationsenabled = $activitysettings['annotations_enabled']->value;
 
 require_login($course, true, $cm);
@@ -79,6 +80,15 @@ $context = context_course::instance($course->id);
 $userroles = get_user_roles($context, $USER->id);
 $courseservice = new \mod_ivs\CourseService();
 $members = $courseservice->get_course_members($course->id);
+
+if ($matchenabled) {
+    $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
+    if (!$permissionsavematch) {
+        \core\notification::info(get_string('ivs_disabled_saving_match_result', 'ivs'));
+    }
+}
+
+
 if (!empty($members)) {
 
     $values = array();
@@ -162,7 +172,7 @@ if (empty($embedded)) {
         <style>
             .edubreak-responsive-iframe {
                 width: 100%;
-                height: 100%;
+                height: 70vh;
                 min-height: 500px
             }
 
@@ -359,8 +369,11 @@ if (empty($embedded)) {
         ];
     }
 
+    $lang = IvsHelper::get_language();
+
     $playerconfig = array(
             'overlay_mode' => false,
+            'lang' => $lang,
             'align_top' => false,
             'hide_when_inactive' => (int) $activitysettings['hide_when_inactive']->value,
             'list_item_buttons_hover_enabled' => (int) $activitysettings['list_item_buttons_hover_enabled']->value,
@@ -387,7 +400,10 @@ if (empty($embedded)) {
                             'pin_mode_pause_allowed' => $maycreatepinnedannotations,
                             'readmore_enabled' => (int) $activitysettings['annotations_readmore_enabled']->value,
                             'client_side_screenshots_enabled' => true,
-                            'client_side_screenshots_width' => 400
+                            'client_side_screenshots_width' => 400,
+                            'share_enabled' => true,
+                            'share_callback' => 'internal',
+                            'share_baseurl' => new \moodle_url('/mod/ivs/view.php', array('id' => $cm->id)) . '&cid='
                     ),
                     'edubreak_annotations_drawings' => array(),
                     'edubreak_annotations_audio_message' => array(),
@@ -441,18 +457,9 @@ if (empty($embedded)) {
 
     if ($matchenabled) {
 
-        $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
-
-        if (!$permissionsavematch) {
-            \core\notification::info(get_string('ivs_disabled_saving_match_result', 'ivs'));
-        }
-
         $assessmentconfig =
             $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
                 false);
-
-        $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
-
 
 
         $playerconfig['playbackrate_enabled'] = (int) $activitysettings['playbackrate_enabled']->value;
@@ -524,7 +531,7 @@ if (empty($embedded)) {
 
        foreach ($jsfiles as $jsfile) {
            $type = 'application/javascript';
-           if(strpos($jsfile,'recorder') > -1 || strpos($jsfile,'gt-audio-player') > -1){
+           if(strpos($jsfile,'recorder') > -1 || strpos($jsfile,'gt-audio-player') > -1 || strpos($jsfile,'gt-share-button') > -1){
                $type = 'module';
            }
            echo '<script type="' . $type . '" src="' . $jsfile . '"></script>';

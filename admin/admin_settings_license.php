@@ -202,6 +202,7 @@ if (count($instancelicense) > 0) {
             ]));
         }
         $renderable = new \mod_ivs\output\license\settings_license_instance_view($license);
+
         $PAGE->requires->js_call_amd('mod_ivs/settings_license_instance', 'init', []);
         echo $renderer->render($renderable);
     }

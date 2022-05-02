@@ -50,12 +50,9 @@ class mod_ivs_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $PAGE, $course, $USER;
 
-        global $PAGE;
-
-        global $course;
-        global $USER;
+        $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/settings_course.css'));
 
         $panoptoblocksenabled = file_exists($CFG->dirroot . '/blocks/panopto/lib/block_panopto_lib.php');
 
@@ -130,6 +127,7 @@ class mod_ivs_mod_form extends moodleform_mod {
                 \core\notification::error($e->getMessage());
             }
         }
+
         $opencastinternalfilesenabled = get_config('mod_ivs', 'ivs_opencast_internal_files_enabled');
         if ((int) $opencastinternalfilesenabled) {
             $mform->addElement('filepicker', 'video_file', get_string('file'), null,

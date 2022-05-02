@@ -11,3 +11,17 @@
 .ivs-questions .question-listing form.form-inline {
     float: left;
 }
+
+.modicon_ivs.activityiconcontainer {
+    padding: 0;
+}
+
+.modtype_ivs .activityiconcontainer img {
+    width: 28px;
+    height: 28px;
+}
+.modicon_ivs.activityiconcontainer img {
+    width: 35px;
+    height: 35px;
+}
+

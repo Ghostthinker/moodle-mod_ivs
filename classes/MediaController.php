@@ -57,7 +57,7 @@ class MediaController {
         $annotation = annotation::retrieve_from_db($annotationid);
 
         if (!$annotation->access("edit")) {
-            $this->backendService->ivs_backend_error_exit();
+            $this->backendService->ivs_backend_error_exit('No edit access');
         }
 
         try {

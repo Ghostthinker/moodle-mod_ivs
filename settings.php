@@ -76,11 +76,11 @@ if ($ADMIN->fulltree) {
                 if ($playersetting->lockedsite) {
                     $settings->add(new admin_setting_configselect_with_lock("mod_ivs/" . $playersetting->name,
                       $playersetting->title,
-                            get_string($playersetting->description . '_help', 'ivs'), 0, $playersetting->options));
+                            get_string($playersetting->description . '_help', 'ivs'), ['value' => $playersetting->default, 'locked' => 0], $playersetting->options));
 
                 } else {
                     $settings->add(new admin_setting_configselect("mod_ivs/" . $playersetting->name, $playersetting->name,
-                            get_string($playersetting->description . '_help', 'ivs'), 0, $playersetting->options));
+                            get_string($playersetting->description . '_help', 'ivs'), $playersetting->default, $playersetting->options));
 
                 }
                 break;
