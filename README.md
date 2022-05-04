@@ -14,6 +14,9 @@ Enrich your videos by the powerful features of the social video player. Create p
 * Buy your [IVS-License](https://interactive-video-suite.de/en/pricing) using your Instance-Identification
 * Create Interactive Video Suite activities
 
+# Recommendation
+* Use Moodle filter plugin to enhance the Interactive Video Suite Activity. Share a comment link which will be rendered as a Interactive Video Suite activity https://github.com/Ghostthinker/moodle-filter_ivs
+
 # Features
 * Interactive Video Suite activity
 * Reports
