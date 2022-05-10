@@ -47,14 +47,13 @@ $wwwroot = $CFG->wwwroot;
 $pathendpoint = $wwwroot . "/mod/ivs/backend.php/";
 
 // $_SERVER['HTTPS'] == 'on' could be not available in all webserver versions
-if ( (! empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https') ||
-     (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ||
-     (! empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ) {
+if ((!empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https') ||
+        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ||
+        (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) {
     $httpschema = 'https';
 } else {
     $httpschema = 'http';
 }
-
 
 $backendService = new \mod_ivs\BackendService();
 if (!isset($_SERVER['HTTP_HOST'])) {
