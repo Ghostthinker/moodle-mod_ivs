@@ -28,7 +28,8 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 ### v1.10
 * share comments
-* ``ep5 version 2.1``
+* improved player UX
+* ``ep5 version 2.1``, ``ep5 version 2.2``
 
 ### v1.9
 * audiomessages
