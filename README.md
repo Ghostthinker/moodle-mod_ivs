@@ -26,6 +26,16 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.11
+* annotation preview
+* export video comments
+* ``ep5 version 2.3``
+
+### v1.10
+* share comments
+* improved player UX
+* ``ep5 version 2.1``, ``ep5 version 2.2``
+
 ### v1.10
 * share comments
 * improved player UX

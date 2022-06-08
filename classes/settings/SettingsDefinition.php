@@ -97,6 +97,11 @@ class SettingsDefinition {
     /**
      * @var string
      */
+    const SETTING_PLAYER_ANNOTATION_COMMENT_PREVIEW_OFFSET = 'annotation_comment_preview_offset';
+
+    /**
+     * @var string
+     */
     const SETTING_USER_NOTIFICATION_SETTINGS = 'user_notification_settings';
 
     /**

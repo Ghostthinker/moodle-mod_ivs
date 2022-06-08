@@ -957,4 +957,18 @@ class MoodleLicenseController implements ILicenseController
         ];
         return  $this->send_request("instance", $requestdata);
     }
+
+    public function renderFreemiumInfoText(){
+        $status = $this->get_status();
+        if(isset($status->freemium)){
+            $createdtimestamp = strtotime($status->freemium->created);
+
+            if ($createdtimestamp >= strtotime('-1 month')) {
+                \core\notification::info(get_string('ivs_freemium_start', 'ivs'));
+            }
+            else{
+                \core\notification::info(get_string('ivs_freemium_end', 'ivs'));
+            }
+        }
+    }
 }

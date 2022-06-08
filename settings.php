@@ -88,11 +88,11 @@ if ($ADMIN->fulltree) {
                 if ($playersetting->lockedsite) {
                     $settings->add(new admin_setting_configtext_ivs_custom_with_lock("mod_ivs/" . $playersetting->name,
                             $playersetting->title,
-                            get_string($playersetting->description . '_help', 'ivs'), ['value' => 120], PARAM_INT));
+                            get_string($playersetting->description . '_help', 'ivs'), ['value' => $playersetting->default], PARAM_INT));
 
                 } else {
                     $settings->add(new admin_setting_configtext_ivs_custom("mod_ivs/" . $playersetting->name, $playersetting->title,
-                            get_string($playersetting->description . '_helpcd', 'ivs'), 120), PARAM_INT);
+                            get_string($playersetting->description . '_helpcd', 'ivs'), $playersetting->default), PARAM_INT);
                 }
 
                 break;

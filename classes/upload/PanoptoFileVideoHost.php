@@ -93,7 +93,7 @@ class PanoptoFileVideoHost implements IVideoHost {
     /**
      * Prerender function
      */
-    public function prerender() {
+    public function prerender(&$urliframe) {
         if (!file_exists(dirname(__FILE__) . '/../../../../blocks/panopto/lib/panopto_data.php')) {
             return;
         }
@@ -116,8 +116,13 @@ class PanoptoFileVideoHost implements IVideoHost {
           '/Panopto/Pages/Sessions/EmbeddedUpload.aspx?playlistsEnabled=true'.$instancestring.'&folderID='.$sessiongroupid;
 
         // Load the iframe for the session - reload the  player afterward and remove it. This is required to get the cookie .
-        echo '<iframe width="100px" height="100px" src="'.$iframeurl.'" style="display:none"
-        onload="$(\'iframe.edubreak-responsive-iframe\')[0].contentWindow.location.reload();$(this).remove();"></iframe>';
+        echo '<iframe width="100px" height="100px" src="'.$iframeurl.'" style="display:none" allowfullscreen="allowfullscreen"
+        mozallowfullscreen="mozallowfullscreen" 
+        msallowfullscreen="msallowfullscreen" 
+        oallowfullscreen="oallowfullscreen" 
+        webkitallowfullscreen="webkitallowfullscreen"
+        onload="setTimeout(() => {$(\'iframe.edubreak-responsive-iframe\')[0].src=\''.$urliframe.'\';},2000);"></iframe>';
+        $urliframe = '';
     }
 
     /**

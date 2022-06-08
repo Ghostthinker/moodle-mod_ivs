@@ -123,6 +123,11 @@ if (empty($embedded)) {
 
     $lc = ivs_get_license_controller();
 
+    $status = $lc->get_status();
+    if(isset($status->freemium)) {
+        \core\notification::info(get_string('ivs_freemium_activity', 'ivs'));
+    }
+
     $hasactivelicense = $lc->has_active_license(['course' => $course]);
     if (!$hasactivelicense) {
         \core\notification::error(get_string('ivs_activity_licence_error', 'ivs'));
@@ -131,6 +136,7 @@ if (empty($embedded)) {
     }
 
     $activelicense = $lc->get_active_license(['course' => $course]);
+
 
 
     $roleid = 0;
@@ -164,8 +170,27 @@ if (empty($embedded)) {
         echo $OUTPUT->footer();
         exit;
     }
+
+    // We need to check all browsers, to check if we are save in safari
+    if(strpos($_SERVER['HTTP_USER_AGENT'],'Chrome')) {
+    }
+    else if(strpos($_SERVER['HTTP_USER_AGENT'],'Firefox')) {
+    }
+    else if(strpos($_SERVER['HTTP_USER_AGENT'],'Safari')) {
+        \core\notification::info(get_string('ivs_activity_safari_info_text', 'ivs',
+                ['url' => $CFG->IVS_CORE_URL]));
+    }
+
+    ?>
+
+    <div class="ivs-loading-spinner-container" id="ivs-loading-spinner">
+        <div class="ivs-loading-spinner">
+        </div>
+    </div>
+
+<?php
     $urliframe = $_SERVER['REQUEST_URI'] . "&embedded=1";
-    $videohost->prerender();
+    $videohost->prerender($urliframe);
     ?>
 
     <div>
@@ -194,6 +219,19 @@ if (empty($embedded)) {
                 $(".edubreak-responsive-iframe").css("min-height", good_height_min);
 
             }, 1000);
+
+            const interval = setInterval(spinnerInterval, 1000);
+
+            function spinnerInterval() {
+                if($('.edubreak-responsive-iframe').contents().find('#ep5-overlay-annotations').length){
+                    document.getElementById('ivs-loading-spinner').remove();
+                    stopSpinnerInterval();
+                }
+            }
+
+            function stopSpinnerInterval() {
+                clearInterval(interval);
+            }
 
 
         </script>
@@ -425,6 +463,15 @@ if (empty($embedded)) {
                     ),
             )
     );
+
+    if(!empty($activitysettings['annotation_comment_preview_offset']->value)){
+        $playerconfig['plugins']['edubreak_annotations']['jump_to_annotation'] = [
+                'preview' => true,
+                'offset' => $activitysettings['annotation_comment_preview_offset']->value,
+        ];
+    }
+
+
     // Extend accessibility options, if available.
     $playerconfig['plugins']['edubreak_annotations_rating'] += $ratingoptions;
 

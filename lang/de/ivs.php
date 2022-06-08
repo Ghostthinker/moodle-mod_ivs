@@ -345,5 +345,10 @@ $string['ivs_setting_annotation_audio_max_duration_help'] = 'Festlegen der maxim
 $string['ivs_setting_annotation_audio_max_duration_validation'] = 'Bitte nur Werte zwischen 0 und 300 eingeben';
 $string['ivs_setting_user_notification_settings'] = 'Benachrichtigung bei neuem Videokommentar';
 $string['ivs_setting_user_notification_settings_help'] = 'Benachrichtigung bei neuem Videokommentar für alle Kursteilnehmer:innen deaktivieren/aktivieren';
-
+$string['ivs_freemium_start'] = 'Wir wünschen dir viel Spaß mit der Interactive Video Suite. Lege direkt los und erstelle deinen ersten Videokommentar. Falls du deine Lizenz upgraden möchtest, gelangst du <a href="https://interactive-video-suite.de/de/preise">hier zum IVS-Shop</a>';
+$string['ivs_freemium_activity'] = 'Du willst mehr über die Möglichkeiten von Social Video und der Interactive Video Suite erfahren? <a href="https://interactive-video-suite.de/de/demo-anfrage">Dann melde dich zum kostenlosen Demokurs inklusive persönlicher Beratung an.</a>';
+$string['ivs_freemium_end'] = 'Erwerbe jetzt eine größere Lizenz, um mehr Personen in einen Kurs einzuladen und die Interactive Video Suite optimal für dein Szenario zu nutzen. Hier gehts zum <a href="https://interactive-video-suite.de/de/preise">Shop</a>';
+$string['ivs_setting_annotation_comment_preview_offset'] = 'Anspielen eines Videokommentars';
+$string['ivs_setting_annotation_comment_preview_offset_help'] = 'Beim Klick auf einen Videokommentar wird das Video um diesen Wert zurückgespult und bis zum Kommentar abgespielt';
+$string['ivs_activity_safari_info_text'] = 'Falls Sie Probleme haben dieses Video abzuspielen besuchen Sie <a href="{$a->url}/archive/docs/anleitung/allgemeine-hilfe/safari-panopto>">unsere Hilfe</a>. Sollte es dennoch Probleme geben, benutzen Sie bitte einen anderen Browser (Chrome, Firefox, Edge)';
 

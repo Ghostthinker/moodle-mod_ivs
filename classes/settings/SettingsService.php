@@ -199,6 +199,16 @@ class SettingsService {
                 true
                 );
 
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_PLAYER_ANNOTATION_COMMENT_PREVIEW_OFFSET,
+                get_string('ivs_setting_annotation_comment_preview_offset', 'ivs'),
+                'ivs_setting_annotation_comment_preview_offset',
+                'text',
+                0,
+                true,
+                true
+        );
+
         return $settings;
     }
 

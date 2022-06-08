@@ -292,6 +292,9 @@ if (!empty($overbookedcourselicences) || !empty($overbookedinstancelicences)) {
 
 $expiredcourselicenses = $lc->get_instance_licenses_by_type('course', [IVS_LICENCSE_EXPIRED]);
 $expiredinstancelicenses = $lc->get_instance_licenses_by_type('instance', [IVS_LICENCSE_EXPIRED]);
+
+$lc->renderFreemiumInfoText();
+
 if (!empty($expiredcourselicenses) || !empty($expiredinstancelicenses)) {
     if (!empty($expiredinstancelicenses)) {
         \core\notification::error(get_string('ivs_duration_error_instance', 'ivs',

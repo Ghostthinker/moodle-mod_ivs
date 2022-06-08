@@ -104,7 +104,7 @@ class OpenCastFileVideoHost implements IVideoHost {
     /**
      * Prerender function
      */
-    public function prerender() {
+    public function prerender(&$urliframe) {
         // TODO: Implement prerender() method.
     }
 

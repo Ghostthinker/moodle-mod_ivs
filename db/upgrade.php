@@ -90,6 +90,16 @@ function xmldb_ivs_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022030100, 'ivs');
     }
 
+    // Add new roles to export annotation capability
+    if ($oldversion < 2022053103) {
+
+        assign_capability('mod/ivs:download_annotations', CAP_ALLOW, 1, context_system::instance()->id);
+        assign_capability('mod/ivs:download_annotations', CAP_ALLOW, 4, context_system::instance()->id);
+        assign_capability('mod/ivs:download_annotations', CAP_ALLOW, 5, context_system::instance()->id);
+
+        upgrade_mod_savepoint(true, 2022053103, 'ivs');
+    }
+
     return true;
 }
 

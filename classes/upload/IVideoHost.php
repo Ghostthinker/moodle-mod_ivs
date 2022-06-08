@@ -49,7 +49,7 @@ interface IVideoHost {
     /**
      * Prerender function
      */
-    public function prerender();
+    public function prerender(&$urliframe);
 
     /**
      * Get the cross origin tag
