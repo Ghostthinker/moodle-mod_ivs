@@ -770,11 +770,11 @@ class MoodleLicenseController implements ILicenseController
      */
     public function get_all_user_from_instance() {
         global $DB;
-        $sql = 'SELECT u.id FROM {user} u'
+        $sql = 'SELECT COUNT(DISTINCT u.id) FROM {user} u'
                 . ' INNER JOIN {user_enrolments} ue ON u.id = ue.userid'
                 . ' INNER JOIN {enrol} e ON e.id = ue.enrolid'
                 . ' WHERE u.suspended = 0 AND u.deleted = 0 AND u.id > 1 AND u.lastaccess >= ?';
-        $users = $DB->get_records_sql($sql, [strtotime(IVS_LICENSE_ACTIVE_USER_PERIOD)]);
+        $users = $DB->count_records_sql($sql, [strtotime(IVS_LICENSE_ACTIVE_USER_PERIOD)]);
 
         return $users;
     }
@@ -883,7 +883,7 @@ class MoodleLicenseController implements ILicenseController
      * @return int
      */
     public function get_num_instance_members() {
-        return count($this->get_all_user_from_instance());
+        return $this->get_all_user_from_instance();
     }
 
     /**
