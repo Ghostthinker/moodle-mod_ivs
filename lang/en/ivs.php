@@ -358,3 +358,4 @@ $string['ivs_freemium_end'] = 'Buy now a larger license to invite more people to
 $string['ivs_setting_annotation_comment_preview_offset'] = 'Preview of a videocomment';
 $string['ivs_setting_annotation_comment_preview_offset_help'] = 'When you click on a video comment, the video is rewound by this value and played until the comment is reached';
 $string['ivs_activity_safari_info_text'] = 'If you have problems playing this video visit <a href="{$a->url}/archive/docs/manual/general-help/safari-panopto>">our help page</a>. If you still have problems, please use another browser (Chrome, Firefox, Edge)';
+$string['ivs_usage_instance_info'] = 'When purchasing an IVS Flat, please note that {$a->usage} users of your instance are counted';

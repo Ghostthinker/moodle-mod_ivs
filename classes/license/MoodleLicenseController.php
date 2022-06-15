@@ -45,6 +45,7 @@ define('IVS_SYSTEM_TYPE_MAIN', 'main');
 define('IVS_SYSTEM_TYPE_TEST', 'testsystem');
 define('IVS_ACTION_TESTSYSTEM', 'test');
 define('IVS_ACTION_PLAYERVERSION', 'player');
+define('IVS_LICENSE_ACTIVE_USER_PERIOD', 'NOW - 6 MONTHS');
 
 /**
  * Class MoodleLicenseController
@@ -764,12 +765,16 @@ class MoodleLicenseController implements ILicenseController
 
     /**
      * Get all user from the instance which are active
+     *
      * @return mixed
      */
     public function get_all_user_from_instance() {
         global $DB;
-        $sql = "SELECT * FROM {user} WHERE suspended = 0 AND deleted = 0 AND ID > 1";
-        $users = $DB->get_records_sql($sql);
+        $sql = 'SELECT u.id FROM {user} u'
+                . ' INNER JOIN {user_enrolments} ue ON u.id = ue.userid'
+                . ' INNER JOIN {enrol} e ON e.id = ue.enrolid'
+                . ' WHERE u.suspended = 0 AND u.deleted = 0 AND u.id > 1 AND u.lastaccess >= ?';
+        $users = $DB->get_records_sql($sql, [strtotime(IVS_LICENSE_ACTIVE_USER_PERIOD)]);
 
         return $users;
     }

@@ -42,12 +42,14 @@
 
         this.$container = $video;
 
+        var videoel = $video.get(0);
+        if (!videoel) {
+            return;
+        }
 
         $video.get(0).addEventListener('loadedmetadata', function () {
             this.currentTime = data.comment_timestamp;
-
             self.resize();
-
         }, false);
 
     };
@@ -66,20 +68,16 @@
      *
      */
     function renderPlayerIfInViewport(){
+
         $.each($('div.annotation-view-comment-container'), function() {
 
-            var videoplaceholder = $(this).find('.video_placeholder')[0];
-            var videolegit = $(this).find('video')[0];
-            var scrollbarfromtop = $(window).scrollTop();
+            const el = this;
+            const observer = new window.IntersectionObserver(([entry]) => {
+                var videoplaceholder = $(this).find('.video_placeholder')[0];
+                var videolegit = $(this).find('video')[0];
 
-            if (videoplaceholder) {
-                var placeholderfromtop = $(videoplaceholder).offset().top;
-                var loadoffsetinpx = 100;
-
-                if (
-                    placeholderfromtop < (scrollbarfromtop + $(window).height() + loadoffsetinpx)
-                    && scrollbarfromtop < (placeholderfromtop + $(this).height() + loadoffsetinpx)
-                ) {
+                if (entry.isIntersecting && videoplaceholder) {
+                    console.log("enter", this);
                     var videoelement = document.createElement('video');
                     var sourceelement = document.createElement('source');
                     var notsupportedbrowserelement = document.createElement('div');
@@ -97,17 +95,10 @@
                     $(videoplaceholder).replaceWith(videoelement);
 
                     $(this).find('.field-ivs-annotation-preview').IvsMiniplayer();
-                }
 
-            } else if (videolegit) {
+                } else if(!entry.isIntersecting && videolegit) {
 
-                var videofromtop = $(videolegit).offset().top;
-                var unloadloadoffsetinpx = 1000;
-
-                if (
-                    videofromtop > (scrollbarfromtop + $(window).height() + unloadloadoffsetinpx)
-                    || scrollbarfromtop > (videofromtop + $(this).height() + unloadloadoffsetinpx)
-                ) {
+                    console.log("leave", this);
                     var placeholderelement = document.createElement('div');
                     var spinner = document.createElement('div');
                     spinner.classList.add('lds-dual-ring');
@@ -118,26 +109,22 @@
                     $(videolegit).next('svg').hide();
                     $(videolegit).replaceWith(placeholderelement);
                 }
-            }
+            }, {
+                root: null,
+                threshold: 0.0, // set offset 0.1 means trigger if atleast 10% of element in viewport
+            });
+
+            observer.observe(el);
         });
     }
 
-    $(document).ready(function () {
+    $(document).ready( () => {
         // render preview image drawings
         $(".field-ivs-annotation-preview").IvsMiniplayer();
 
         // render video fallback
         renderPlayerIfInViewport();
+
     });
-
-    var timer = null;
-
-    $(window).scroll(function() {
-        if(timer !== null) {
-            clearTimeout(timer);
-        }
-        timer = setTimeout(renderPlayerIfInViewport,350);
-    });
-
 
 })(jQuery);

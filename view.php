@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 /**
  * The view.php renders the Interactive video suite activity.
  *

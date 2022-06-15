@@ -206,6 +206,10 @@ if (count($instancelicense) > 0) {
         $PAGE->requires->js_call_amd('mod_ivs/settings_license_instance', 'init', []);
         echo $renderer->render($renderable);
     }
+} else {
+    \core\notification::info(get_string('ivs_usage_instance_info', 'ivs', [
+            'usage' => $lc->get_num_instance_members()
+    ]));
 }
 
 if (count($courselicenses) > 0) {
