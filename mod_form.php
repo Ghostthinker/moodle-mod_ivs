@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use \mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\settings\SettingsService;
+use mod_ivs\upload\ExternalSourceVideoHost;
 use \tool_opencast\local\api;
 
 global $CFG;
@@ -141,54 +142,53 @@ class mod_ivs_mod_form extends moodleform_mod {
                     ));
         }
 
+      $externalSourcesEnabled = get_config('mod_ivs', 'ivs_external_sources_enabled');
+      if ((int) $externalSourcesEnabled) {
+        $mform->addElement('text', 'external_video_source', get_string('ivs_setting_external_source_menu_title', 'ivs'),
+          ['size' => '64']);
+        if (!empty($CFG->formatstringstriptags)) {
+          $mform->setType('external_video_source', PARAM_TEXT);
+        } else {
+          $mform->setType('external_video_source', PARAM_CLEANHTML);
+        }
+      }
+
+
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
 
-        $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'));
-        $settingsdefinitions = \mod_ivs\settings\SettingsService::get_settings_definitions();
-
         $settingscontroller = new SettingsService();
         $parentsettings = $settingscontroller->get_rarent_settings_for_activity($this->_course->id);
-
+        $activiysettings = [];
         if (!empty($this->_instance)) {
             $activiysettings = $settingscontroller->load_settings($this->_instance, 'activity');
         }
 
         $lockreadaccessoptions = SettingsService::get_ivs_read_access_options();
 
-        /** @var \mod_ivs\settings\SettingsDefinition $settingsdefinition */
-        foreach ($settingsdefinitions as $settingsdefinition) {
-            $settingscontroller::add_vis_setting_to_form($settingsdefinition->type, $parentsettings, $settingsdefinition, $mform,
-                    false, $lockreadaccessoptions);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced',get_string('ivs_player_settings_main', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/playerfeatures',get_string('ivs_player_settings_features', 'ivs'),$mform);
+        $ivsplayersettings = \mod_ivs\settings\SettingsService::ivs_get_player_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayersettings,$activiysettings,$mform,$parentsettings,$lockreadaccessoptions);
 
-            if (isset($activiysettings[$settingsdefinition->name])) {
-                if (!$parentsettings[$settingsdefinition->name]->locked) {
-                    $mform->setDefault($settingsdefinition->name . "[value]",
-                            $activiysettings[$settingsdefinition->name]->value);
-                    $mform->setDefault($settingsdefinition->name . "[locked]",
-                            $activiysettings[$settingsdefinition->name]->locked);
-                } else {
-                    $mform->setDefault($settingsdefinition->name . "[value]",
-                            $parentsettings[$settingsdefinition->name]->value);
-                    $mform->setDefault($settingsdefinition->name . "[locked]",
-                            $parentsettings[$settingsdefinition->name]->locked);
-                }
-            } else {
-                $mform->setDefault($settingsdefinition->name . "[value]",
-                        $parentsettings[$settingsdefinition->name]->value);
-                $mform->setDefault($settingsdefinition->name . "[locked]",
-                        $parentsettings[$settingsdefinition->name]->locked);
-            }
-        }
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/notification',get_string('ivs_player_settings_notification', 'ivs'),$mform);
+        $ivsplayernotificationsettings = \mod_ivs\settings\SettingsService::ivs_get_player_notification_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayernotificationsettings,$activiysettings,$mform,$parentsettings,$lockreadaccessoptions);
 
-        $mform->addElement('header', 'mod_ivs/match_config_video_test', get_string('ivs_match_config_video_test', 'ivs'));
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/controls',get_string('ivs_player_settings_controls', 'ivs'),$mform);
+        $ivsplayercontrolssettings = \mod_ivs\settings\SettingsService::ivs_get_player_control_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayercontrolssettings,$activiysettings,$mform,$parentsettings,$lockreadaccessoptions);
 
-        // Assessment Mode.
-        $attemptoptions = array(
-                AssessmentConfig::ASSESSMENT_TYPE_FORMATIVE => get_string('ivs_match_config_assessment_mode_formative', 'ivs'));
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced',get_string('ivs_player_settings_advanced', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_comments',get_string('ivs_player_settings_advanced_comments', 'ivs'),$mform);
+        $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_comments_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$activiysettings,$mform,$parentsettings,$lockreadaccessoptions);
 
-        $mform->addElement('select', 'match_config_assessment_mode', get_string('ivs_match_config_mode', 'ivs'),
-                $attemptoptions);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_match',get_string('ivs_player_settings_advanced_match', 'ivs'),$mform);
+        $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$activiysettings,$mform,$parentsettings,$lockreadaccessoptions);
+
+        $mform->addElement('header', 'mod_ivs/misc', get_string('ivs_player_settings_misc', 'ivs'));
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
@@ -200,18 +200,27 @@ class mod_ivs_mod_form extends moodleform_mod {
 
     public function validation($data, $files) {
 
+
         $errors = [];
         if (!is_numeric($data['annotation_audio_max_duration']['value'])) {
             $errors['numeric'] = get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+          \core\notification::error(get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs'));
         }
 
         if ($data['annotation_audio_max_duration']['value'] > IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION || $data['annotation_audio_max_duration']['value'] < 0) {
             $errors['range'] = get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+          \core\notification::error(get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs'));
         }
 
-        if (!empty($errors)) {
-            \core\notification::error(get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs'));
+        $unsupportedvideotype = ExternalSourceVideoHost::parseExternalVideoSourceUrl($data['external_video_source']);
+
+        if (!empty($data['external_video_source'])){
+          if ( $unsupportedvideotype['type'] == ExternalSourceVideoHost::TYPE_UNSUPPORTED){
+            $errors['unsupported_video'] = get_string('ivs_setting_external_video_source_validation', 'mod_ivs');
+            \core\notification::error(get_string('ivs_setting_external_video_source_validation', 'mod_ivs'));
+          }
         }
+
 
         return $errors;
     }
@@ -238,19 +247,24 @@ class mod_ivs_mod_form extends moodleform_mod {
                     $options);
             $defaultvalues['video_file'] = $draftitemid;
         }
-
         if (!empty($defaultvalues['videourl'])) {
-
             $parts = explode("://", $defaultvalues['videourl']);
-            if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
+
+
+          if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
                 $defaultvalues['opencast_video'] = $parts[1];
-            } else if ($parts[0] == "PanoptoFileVideoHost") {
+          }
+          else if ($parts[0] == "PanoptoFileVideoHost") {
                 $defaultvalues['panopto_video_json_field'] = $parts[1];
                 $decodedvalues = json_decode($parts[1]);
                 if (!empty($decodedvalues)) {
                     $defaultvalues['panopto_video'] = $decodedvalues->videoname[0];
                 }
-            }
+          }else if ($parts[0] == "ExternalSourceVideoHost") {
+
+            $externalsourceinfo = json_decode($parts[1]);
+            $defaultvalues['external_video_source'] = $externalsourceinfo->originalstring;
+          }
         }
 
     }

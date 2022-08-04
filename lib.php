@@ -23,6 +23,7 @@
  */
 
 use mod_ivs\settings\SettingsService;
+use mod_ivs\upload\ExternalSourceVideoHost;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -90,16 +91,22 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $ivs->id = $DB->insert_record('ivs', $ivs);
 
     $DB->set_field('course_modules', 'instance', $ivs->id, array('id' => $ivs->coursemodule));
-
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
+    } else if (!empty($ivs->external_video_source)) {
+      $sourceinfo = ExternalSourceVideoHost::parseExternalVideoSourceUrl($ivs->external_video_source);
+      if ($sourceinfo['type'] != ExternalSourceVideoHost::TYPE_UNSUPPORTED){
+        $ivs->videourl = $sourceinfo['idstring'];
+      }
     } else if (!empty($ivs->sample_video)) {
         $ivs->videourl = 'TestingFileVideoHost://' . $ivs->id;
     } else {
         $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->id;
     }
+
+
     $DB->update_record('ivs', $ivs);
 
     $videohost = \mod_ivs\upload\VideoHostFactory::create(null, $ivs);
@@ -134,9 +141,15 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
-    } else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) &&
-      substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) != 'PanoptoFileVideoHost') {
-        $ivs->videourl = $mform->get_current()->videourl;
+    } else if (!empty($ivs->external_video_source)) {
+        $sourceinfo = ExternalSourceVideoHost::parseExternalVideoSourceUrl($ivs->external_video_source);
+        if ($sourceinfo['type'] != ExternalSourceVideoHost::TYPE_UNSUPPORTED){
+          $ivs->videourl = $sourceinfo['idstring'];
+        }
+      } # Was macht diese Abfrage? Leider nicht verständlich
+          else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) &&
+          substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) != 'PanoptoFileVideoHost') {
+              $ivs->videourl = $mform->get_current()->videourl;
     } else {
         $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->id;
     }

@@ -86,4 +86,16 @@ class TestingFileVideoHost implements IVideoHost {
     public function getcrossorigintag() {
         return 'crossorigin="anonymous"';
     }
+
+
+  public function rendermediacontainer($PAGE) {
+
+    $renderer = $PAGE->get_renderer('ivs');
+
+    $renderable = new \mod_ivs\output\mediacontainer\html5_video_view($this->get_video(), $this->getcrossorigintag());
+    return $renderer->render($renderable);
+
+  }
+
+
 }

@@ -347,27 +347,41 @@ class IvsMatchControllerBase {
                 $answerdata['is_evaluated'] = true;
                 break;
             case "single_choice_question":
-                $checkedid = $answerdata['question_data']['checked_id'];
-                $correctanswer = null;
-                $myansweriscorrect = false;
-                foreach ($question['type_data']['options'] as $o) {
-                    if ($o["is_correct"] && $o['id'] == $checkedid) {
-                        $myansweriscorrect = true;
-                    }
-                    if ($o["is_correct"]) {
-                        $correctanswer = $o['id'];
-                    }
-                }
+              $checked_ids = explode(",",$answerdata['question_data']['checked_id']);
+              $correct_answer = NULL;
+              $my_answer_is_correct = FALSE;
 
-                // Add items to object.
-                $answerdata['is_correct'] = $myansweriscorrect;
-                if ($addsolution) {
-                    $answerdata['solution_data'] = [
-                            'correct_id' => $correctanswer
-                    ];
+              $correct_ids = [];
+              $wrongs_ids = [];
+
+
+              foreach ($question['type_data']['options'] as $o) {
+                if ($o["is_correct"]) {
+                  if(in_array($o['id'], $checked_ids)) {
+                    $correct_ids[] = $o['id'];
+                  }else{
+                    $wrongs_ids[] = $o['id'];
+                  }
+                }else{
+                  if(in_array($o['id'], $checked_ids)) {
+                    $wrongs_ids[] = $o['id'];
+                  }else{
+                    $correct_ids[] = $o['id'];
+                  }
                 }
-                $answerdata['is_evaluated'] = true;
-                break;
+              }
+
+              //add items to object
+              $answerdata['is_correct'] = count($wrongs_ids) == 0;
+
+              if($addsolution) {
+                $answerdata['solution_data'] = [
+                  'correct_ids' => $correct_ids,
+                  'wrong_ids' => $wrongs_ids,
+                ];
+              }
+              $answerdata['is_evaluated'] = TRUE;
+              break;
             case "text_question":
                 $answerdata['is_correct'] = true;
                 $answerdata['is_evaluated'] = false;

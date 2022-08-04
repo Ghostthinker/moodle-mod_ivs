@@ -35,7 +35,7 @@ class VideoHostFactory {
      * @param \stdClass $ivs
      * @param null $course
      *
-     * @return \mod_ivs\upload\MoodleFileVideoHost|\mod_ivs\upload\OpenCastFileVideoHost|\mod_ivs\upload\PanoptoFileVideoHost|\mod_ivs\upload\TestingFileVideoHost
+     * @return \mod_ivs\upload\MoodleFileVideoHost|\mod_ivs\upload\OpenCastFileVideoHost|\mod_ivs\upload\PanoptoFileVideoHost|\mod_ivs\upload\TestingFileVideoHost|\mod_ivs\upload\ExternalSourceVideoHost
      */
     public static function create($cm, $ivs, $course = null) {
 
@@ -51,6 +51,8 @@ class VideoHostFactory {
                 return new TestingFileVideoHost($cm, $ivs);
             case 'PanoptoFileVideoHost':
                 return new PanoptoFileVideoHost($cm, $ivs, $course);
+            case 'ExternalSourceVideoHost':
+                return new ExternalSourceVideoHost($cm, $ivs);
         }
     }
 }

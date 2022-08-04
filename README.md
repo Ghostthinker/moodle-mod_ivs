@@ -26,6 +26,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.12
+* added Youtube, Vimeo and external source support
+* improved ivs setting pages
+* ``ep5 version 2.4``
+
 ### v1.11
 * annotation preview
 * export video comments

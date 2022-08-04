@@ -43,46 +43,38 @@ class SettingsCourseForm extends moodleform {
         global $CFG;
 
         $mform = $this->_form;
-        $mform->addElement('header', 'mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'));
 
         $courseid = $this->_customdata['course_id'];
 
-        $settingsdefinitions = \mod_ivs\settings\SettingsService::get_settings_definitions();
         $settingscontroller = new SettingsService();
         $globalsettings = $settingscontroller->get_settings_global();
         $coursesettings = $settingscontroller->load_settings($courseid, 'course');
 
         $lockreadaccessoptions = SettingsService::get_ivs_read_access_options();
 
-        /** @var \mod_ivs\settings\SettingsDefinition $settingsdefinition */
-        foreach ($settingsdefinitions as $settingsdefinition) {
 
-            $settingscontroller::add_vis_setting_to_form($settingsdefinition->type, $globalsettings, $settingsdefinition, $mform,
-                    true, $lockreadaccessoptions);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/playerfeatures',get_string('ivs_player_settings_features', 'ivs'),$mform);
+        $ivsplayersettings = \mod_ivs\settings\SettingsService::ivs_get_player_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayersettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
 
-            if (isset($coursesettings[$settingsdefinition->name])) {
-                if (!$globalsettings[$settingsdefinition->name]->locked) {
-                    $mform->setDefault($settingsdefinition->name . "[value]",
-                            $coursesettings[$settingsdefinition->name]->value);
-                    $mform->setDefault($settingsdefinition->name . "[locked]",
-                            $coursesettings[$settingsdefinition->name]->locked);
-                } else {
-                    $mform->setDefault($settingsdefinition->name . "[value]",
-                            $globalsettings[$settingsdefinition->name]->value);
-                    $mform->setDefault($settingsdefinition->name . "[locked]",
-                            $globalsettings[$settingsdefinition->name]->locked);
-                }
-            } else {
-                $mform->setDefault($settingsdefinition->name . "[value]",
-                        $globalsettings[$settingsdefinition->name]->value);
-                $mform->setDefault($settingsdefinition->name . "[locked]",
-                        $globalsettings[$settingsdefinition->name]->locked);
-            }
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/notification',get_string('ivs_player_settings_notification', 'ivs'),$mform);
+        $ivsplayernotificationsettings = \mod_ivs\settings\SettingsService::ivs_get_player_notification_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayernotificationsettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
 
-        }
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/controls',get_string('ivs_player_settings_controls', 'ivs'),$mform);
+        $ivsplayercontrolssettings = \mod_ivs\settings\SettingsService::ivs_get_player_control_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayercontrolssettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
 
-        $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced',get_string('ivs_player_settings_advanced', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_comments',get_string('ivs_player_settings_advanced_comments', 'ivs'),$mform);
+        $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_comments_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
 
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_match',get_string('ivs_player_settings_advanced_match', 'ivs'),$mform);
+        $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
+        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
+        $mform->closeHeaderBefore('ivssubmitbutton');
+        $mform->addElement('submit', 'ivssubmitbutton', get_string('savechanges'));
     }
 
     /**

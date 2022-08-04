@@ -15,52 +15,52 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Interface class for all possible file video hosts
+ * Output class for rendering annotation audio player
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
-namespace mod_ivs\upload;
+// Standard GPL and phpdocs.
+namespace mod_ivs\output\mediacontainer;
+
+use mod_ivs\IvsHelper;
+use mod_ivs\upload\IVideoHost;
+use renderable;
+use renderer_base;
+use templatable;
+use stdClass;
 
 /**
- * Interface IVideoHost
+ * Class youtube_video_view
  */
-interface IVideoHost {
+class youtube_video_view implements renderable, templatable {
 
     /**
-     * Get the video
-     * @return mixed
+     * @var \mod_ivs\annotation|null
      */
-    public function get_video();
+    public $youtubeid = null;
 
     /**
-     * Save video data
-     * @param \stdClass $data
+     * annotation_audio_player_view constructor.
+     *
+     * @param \mod_ivs\annotation $annotation
      */
-    public function save_video($data);
+    public function __construct($youtubeid) {
+        $this->youtubeid = $youtubeid;
+    }
 
     /**
-     * Get the thumbnail
+     * Export this data so it can be used as the context for a mustache template.
+     * @param \renderer_base $output
+     *
+     * @return \stdClass
      */
-    public function get_thumbnail();
+    public function export_for_template(renderer_base $output) {
+        $data = new stdClass();
 
-    /**
-     * Prerender function
-     */
-    public function prerender(&$urliframe);
-
-    /**
-     * Get the cross origin tag
-     * @return string
-     */
-    public function getcrossorigintag();
-
-  /**
-   * Get embedded video wrapper
-   * @return mixed
-   */
-    public function rendermediacontainer($page);
-
+        $data->youtubeid = $this->youtubeid;
+        return $data;
+    }
 }

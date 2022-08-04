@@ -55,14 +55,14 @@ if ((!empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https'
     $httpschema = 'http';
 }
 
-$backendService = new \mod_ivs\BackendService();
+$backendservice = new \mod_ivs\BackendService();
 if (!isset($_SERVER['HTTP_HOST'])) {
-    $backendService->ivs_backend_error_exit('No http host found');
+    $backendservice->ivs_backend_error_exit('No http host found');
 }
 $httphost = $_SERVER['HTTP_HOST'];
 
 if (!isset($_SERVER['REQUEST_URI'])) {
-    $backendService->ivs_backend_error_exit('No Request uri found');
+    $backendservice->ivs_backend_error_exit('No Request uri found');
 }
 $requesturi = strtok($_SERVER["REQUEST_URI"], '?');
 
@@ -78,11 +78,11 @@ $videoid = $args[1];
 $postdata = array();
 
 if (!\mod_ivs\IvsHelper::access_player($videoid)) {
-    $backendService->ivs_backend_error_exit('No access to the player');
+    $backendservice->ivs_backend_error_exit('No access to the player');
 }
 
 if (!isset($_SERVER['REQUEST_METHOD'])) {
-    $backendService->ivs_backend_error_exit('No Request method found');
+    $backendservice->ivs_backend_error_exit('No Request method found');
 }
 
 $requestmethod = $_SERVER['REQUEST_METHOD'];
@@ -92,13 +92,13 @@ switch ($endpoint) {
         if ($requestbody = file_get_contents('php://input')) {
             $postdata = json_decode($requestbody);
         }
-        $backendService->ivs_backend_comments($args, $postdata, $requestmethod);
+        $backendservice->ivs_backend_comments($args, $postdata, $requestmethod);
         break;
     case 'playbackcommands':
         if ($requestbody = file_get_contents('php://input')) {
             $postdata = json_decode($requestbody);
         }
-        $backendService->ivs_backend_playbackcommands($args, $postdata, $requestmethod);
+        $backendservice->ivs_backend_playbackcommands($args, $postdata, $requestmethod);
         break;
     case 'match_questions':
     case 'match_answers':

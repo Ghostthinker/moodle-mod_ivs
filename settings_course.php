@@ -90,6 +90,7 @@ if ($fromform = $mform->get_data()) {
 } else {
 
     print $OUTPUT->header();
+    echo $OUTPUT->heading(get_string('ivs_player_settings', 'ivs'));
     $mform->display();
     print $OUTPUT->footer();
 }

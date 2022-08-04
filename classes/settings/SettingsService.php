@@ -25,7 +25,14 @@
 
 namespace mod_ivs\settings;
 
+use admin_setting_configcheckbox;
+use admin_setting_configcheckbox_with_lock;
+use admin_setting_configselect;
+use admin_setting_configselect_with_lock;
+use admin_setting_heading;
 use lang_string;
+use mod_ivs\admin_setting_configtext_ivs_custom;
+use mod_ivs\admin_setting_configtext_ivs_custom_with_lock;
 
 /**
  * Class SettingsService
@@ -60,85 +67,136 @@ class SettingsService {
         return $lockreadaccessoptions;
     }
 
-    /**
-     * Get all settings
-     *
-     * @return array
-     */
-    public static function get_settings_definitions() {
+    public static function ivs_render_activity_settings($settings,$coursesettings,&$mform,$globalsettings,$lockreadaccessoptions){
+        foreach ($settings as $settingsdefinition) {
+
+            self::add_vis_setting_to_form($settingsdefinition->type, $globalsettings, $settingsdefinition, $mform,
+                    true, $lockreadaccessoptions);
+
+            if (isset($coursesettings[$settingsdefinition->name])) {
+                if (!$globalsettings[$settingsdefinition->name]->locked) {
+                    $mform->setDefault($settingsdefinition->name . "[value]",
+                            $coursesettings[$settingsdefinition->name]->value);
+                    $mform->setDefault($settingsdefinition->name . "[locked]",
+                            $coursesettings[$settingsdefinition->name]->locked);
+                } else {
+                    $mform->setDefault($settingsdefinition->name . "[value]",
+                            $globalsettings[$settingsdefinition->name]->value);
+                    $mform->setDefault($settingsdefinition->name . "[locked]",
+                            $globalsettings[$settingsdefinition->name]->locked);
+                }
+            } else {
+                $mform->setDefault($settingsdefinition->name . "[value]",
+                        $globalsettings[$settingsdefinition->name]->value);
+                $mform->setDefault($settingsdefinition->name . "[locked]",
+                        $globalsettings[$settingsdefinition->name]->locked);
+            }
+
+        }
+
+    }
+
+    public static function ivs_add_new_activity_settings_heading($heading,$text,&$mform){
+        $mform->addElement('header', $heading, $text);
+    }
+
+    public static function ivs_add_new_settings_heading($heading,$text,&$settings){
+        $settings->add(new admin_setting_heading($heading, $text, ''));
+    }
+
+    public static function ivs_add_settings($playersettings,&$settings){
+        foreach ($playersettings as $playersetting) {
+
+            switch ($playersetting->type) {
+                case 'checkbox':
+                    if ($playersetting->lockedsite) {
+                        $settings->add(new admin_setting_configcheckbox_with_lock("mod_ivs/" . $playersetting->name,
+                                $playersetting->title, get_string($playersetting->description . '_help', 'ivs'),
+                                ['value' => $playersetting->default]));
+                    } else {
+                        $settings->add(new admin_setting_configcheckbox($playersetting->name, $playersetting->title,
+                                $playersetting->description, ['value' => $playersetting->default]));
+                    }
+                    break;
+                case 'select':
+                    if ($playersetting->lockedsite) {
+                        $settings->add(new admin_setting_configselect_with_lock("mod_ivs/" . $playersetting->name,
+                                $playersetting->title,
+                                get_string($playersetting->description . '_help', 'ivs'), ['value' => $playersetting->default, 'locked' => 0], $playersetting->options));
+
+                    } else {
+                        $settings->add(new admin_setting_configselect("mod_ivs/" . $playersetting->name, $playersetting->name,
+                                get_string($playersetting->description . '_help', 'ivs'), $playersetting->default, $playersetting->options));
+
+                    }
+                    break;
+                case 'text':
+                    if ($playersetting->lockedsite) {
+                        $settings->add(new admin_setting_configtext_ivs_custom_with_lock("mod_ivs/" . $playersetting->name,
+                                $playersetting->title,
+                                get_string($playersetting->description . '_help', 'ivs'), ['value' => $playersetting->default], PARAM_INT));
+
+                    } else {
+                        $settings->add(new admin_setting_configtext_ivs_custom("mod_ivs/" . $playersetting->name, $playersetting->title,
+                                get_string($playersetting->description . '_helpcd', 'ivs'), $playersetting->default), PARAM_INT);
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    public static function ivs_get_player_advanced_video_source_settings(&$settings){
+        $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_opencast_external_files_enabled',
+                get_string('ivs_setting_opencast_external_files_title', 'ivs'),
+                get_string('ivs_setting_opencast_external_files_help', 'ivs'), 1));
+
+        $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_panopto_external_files_enabled',
+                get_string('ivs_setting_panopto_external_files_title', 'ivs'),
+                get_string('ivs_setting_panopto_external_files_help', 'ivs'), 1));
+
+        $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_opencast_internal_files_enabled',
+                get_string('ivs_setting_opencast_internal_files_title', 'ivs'),
+                get_string('ivs_setting_opencast_internal_files_help', 'ivs'), 1));
+
+        $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_external_sources_enabled',
+                get_string('ivs_setting_external_sources_title', 'ivs'),
+                get_string('ivs_setting_external_sources_help', 'ivs'), 1));
+    }
+
+
+    public static function ivs_get_player_advanced_match_settings(){
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT,
+                get_string('ivs_setting_single_choice_question_random_default', 'ivs'),
+                'ivs_setting_single_choice_question_random_default',
+                'checkbox',
+                1,
+                true,
+                true);
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_PLAYER_ACCESSIBILITY,
+                get_string('ivs_setting_accessibility', 'ivs'),
+                'ivs_setting_accessibility',
+                'checkbox',
+                0,
+                true,
+                true);
+
+        return $settings;
+
+    }
+
+    public static function ivs_get_player_advanced_comments_settings(){
 
         $lockreadaccessoptions = self::get_ivs_read_access_options();
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_ANNOTATIONS_ENABLED,
-                get_string('ivs_setting_annotations_enabled', 'ivs'),
-                'ivs_setting_annotations_enabled',
-                'checkbox',
-                1,
-                true,
-                true);
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_USER_NOTIFICATION_SETTINGS,
-                get_string('ivs_setting_user_notification_settings', 'ivs'),
-                'ivs_setting_user_notification_settings',
-                'checkbox',
-                1,
-                true,
-                true
-        );
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_MATCH_QUESTION_ENABLED,
-                get_string('ivs_setting_match_question', 'ivs'),
-                'ivs_setting_match_question',
-                'checkbox',
-                0,
-                true,
-                true);
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_PLAYER_PLAYBACKRATE,
-                get_string('ivs_setting_playbackrate_enabled', 'ivs'),
-                'ivs_setting_playbackrate_enabled',
-                'checkbox',
-                0,
-                true,
-                true);
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_PLAYBACKCOMMANDS_ENABLED,
-                get_string('ivs_setting_playbackcommands', 'ivs'),
-                'ivs_setting_playbackcommands',
-                'checkbox',
-                0,
-                true,
-                true);
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_BUTTONS_HOVER_ENABLED,
-                get_string('ivs_setting_annotation_buttons', 'ivs'),
-                'ivs_setting_annotation_buttons',
-                'checkbox',
-                0,
-                true,
-                true);
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_ANNOTATION_READMORE_ENABLED,
-                get_string('ivs_setting_annotation_readmore', 'ivs'),
-                'ivs_setting_annotation_readmore',
-                'checkbox',
-                0,
-                true,
-                true);
 
         $settings[] = new SettingsDefinition(
                 SettingsDefinition::SETTING_ANNOTATION_REALM_DEFAULT_ENABLED,
                 get_string('ivs_setting_annotation_realm_default', 'ivs'),
                 'ivs_setting_annotation_realm_default',
                 'checkbox',
-                0,
+                1,
                 true,
                 true);
 
@@ -154,11 +212,54 @@ class SettingsService {
         );
 
         $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT,
-                get_string('ivs_setting_single_choice_question_random_default', 'ivs'),
-                'ivs_setting_single_choice_question_random_default',
+                SettingsDefinition::SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION,
+                get_string('ivs_setting_annotation_audio_max_duration', 'ivs'),
+                'ivs_setting_annotation_audio_max_duration',
+                'text',
+                120,
+                true,
+                true
+        );
+
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_PLAYER_ANNOTATION_COMMENT_PREVIEW_OFFSET,
+                get_string('ivs_setting_annotation_comment_preview_offset', 'ivs'),
+                'ivs_setting_annotation_comment_preview_offset',
+                'text',
+                3,
+                true,
+                true
+        );
+
+        return $settings;
+
+    }
+    public static function ivs_get_player_control_settings(){
+
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_PLAYER_PLAYBACKRATE,
+                get_string('ivs_setting_playbackrate_enabled', 'ivs'),
+                'ivs_setting_playbackrate_enabled',
+                'checkbox',
+                1,
+                true,
+                true);
+
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_ANNOTATION_READMORE_ENABLED,
+                get_string('ivs_setting_annotation_readmore', 'ivs'),
+                'ivs_setting_annotation_readmore',
                 'checkbox',
                 0,
+                true,
+                true);
+
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_BUTTONS_HOVER_ENABLED,
+                get_string('ivs_setting_annotation_buttons', 'ivs'),
+                'ivs_setting_annotation_buttons',
+                'checkbox',
+                1,
                 true,
                 true);
 
@@ -167,14 +268,43 @@ class SettingsService {
                 get_string('ivs_setting_autohide_controlbar', 'ivs'),
                 'ivs_setting_autohide_controlbar',
                 'checkbox',
+                1,
+                true,
+                true);
+
+        return $settings;
+    }
+
+    public static function ivs_get_player_notification_settings(){
+
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_USER_NOTIFICATION_SETTINGS,
+                get_string('ivs_setting_user_notification_settings', 'ivs'),
+                'ivs_setting_user_notification_settings',
+                'checkbox',
                 0,
+                true,
+                true
+        );
+
+        return $settings;
+    }
+
+    public static function ivs_get_player_settings(){
+
+        $settings[] = new SettingsDefinition(
+                SettingsDefinition::SETTING_ANNOTATIONS_ENABLED,
+                get_string('ivs_setting_annotations_enabled', 'ivs'),
+                'ivs_setting_annotations_enabled',
+                'checkbox',
+                1,
                 true,
                 true);
 
         $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_PLAYER_ACCESSIBILITY,
-                get_string('ivs_setting_accessibility', 'ivs'),
-                'ivs_setting_accessibility',
+                SettingsDefinition::SETTING_MATCH_QUESTION_ENABLED,
+                get_string('ivs_setting_match_question', 'ivs'),
+                'ivs_setting_match_question',
                 'checkbox',
                 0,
                 true,
@@ -185,29 +315,40 @@ class SettingsService {
                 get_string('ivs_setting_annotation_audio', 'ivs'),
                 'ivs_setting_annotation_audio',
                 'checkbox',
-                0,
+                1,
                 true,
                 true);
 
         $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION,
-                get_string('ivs_setting_annotation_audio_max_duration', 'ivs'),
-                'ivs_setting_annotation_audio_max_duration',
-                'text',
-                120,
-                true,
-                true
-                );
-
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_PLAYER_ANNOTATION_COMMENT_PREVIEW_OFFSET,
-                get_string('ivs_setting_annotation_comment_preview_offset', 'ivs'),
-                'ivs_setting_annotation_comment_preview_offset',
-                'text',
+                SettingsDefinition::SETTING_PLAYBACKCOMMANDS_ENABLED,
+                get_string('ivs_setting_playbackcommands', 'ivs'),
+                'ivs_setting_playbackcommands',
+                'checkbox',
                 0,
                 true,
-                true
-        );
+                true);
+
+        return $settings;
+    }
+
+    /**
+     * Get all settings
+     *
+     * @return array
+     */
+    public static function get_settings_definitions() {
+
+        $playersettings = self::ivs_get_player_settings();
+        $advancedmatchsettings = self::ivs_get_player_advanced_match_settings();
+        $advancedcommentsettings = self::ivs_get_player_advanced_comments_settings();
+        $controlsettings = self::ivs_get_player_control_settings();
+        $notificationsettings = self::ivs_get_player_notification_settings();
+
+        $settings = array_merge($playersettings,
+                $advancedmatchsettings,
+                $advancedcommentsettings,
+                $controlsettings,
+                $notificationsettings);
 
         return $settings;
     }

@@ -4,8 +4,13 @@
 }
 
 #page-admin-setting-modsettingivs .adminsettingsflags {
-    float: none !important;
-    margin-left: 200px !important;
+    right: 0;
+    padding-top: 0.5%;
+}
+
+#fitem_id_ivssubmitbutton{
+    float: left;
+    margin-top: 2%;
 }
 
 .ivs-questions .question-listing form.form-inline {

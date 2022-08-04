@@ -38,67 +38,29 @@ $settings = new admin_settingpage($section, get_string('settings', 'ivs'), 'mood
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot . '/mod/ivs/lib.php');
 
-    // IVS-Settings.
-    $settings->add(new admin_setting_heading('mod_ivs/ivssettings', get_string('ivs_settings', 'ivs'), ''));
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/playersettings',get_string('ivs_player_settings', 'ivs'),$settings);
+    $ivsplayersettings = \mod_ivs\settings\SettingsService::ivs_get_player_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayersettings,$settings);
 
-    $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_opencast_external_files_enabled',
-            get_string('ivs_setting_opencast_external_files_title', 'ivs'),
-            get_string('ivs_setting_opencast_external_files_help', 'ivs'), 1));
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/notification',get_string('ivs_player_settings_notification', 'ivs'),$settings);
+    $ivsplayernotificationsettings = \mod_ivs\settings\SettingsService::ivs_get_player_notification_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayernotificationsettings,$settings);
 
-    $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_panopto_external_files_enabled',
-      get_string('ivs_setting_panopto_external_files_title', 'ivs'),
-      get_string('ivs_setting_panopto_external_files_help', 'ivs'), 1));
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/controls',get_string('ivs_player_settings_controls', 'ivs'),$settings);
+    $ivsplayercontrolssettings = \mod_ivs\settings\SettingsService::ivs_get_player_control_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayercontrolssettings,$settings);
 
-    $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_opencast_internal_files_enabled',
-            get_string('ivs_setting_opencast_internal_files_title', 'ivs'),
-            get_string('ivs_setting_opencast_internal_files_help', 'ivs'), 1));
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/advanced',get_string('ivs_player_settings_advanced', 'ivs'),$settings);
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/advanced_comments',get_string('ivs_player_settings_advanced_comments', 'ivs'),$settings);
+    $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_comments_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayeradvancedcommentssettings,$settings);
 
-    // Player-Settings.
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/advanced_match',get_string('ivs_player_settings_advanced_match', 'ivs'),$settings);
+    $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayeradvancedcommentssettings,$settings);
 
-    $settings->add(new admin_setting_heading('mod_ivs/playersettings', get_string('ivs_player_settings', 'ivs'), ''));
-
-    $ivssettings = \mod_ivs\settings\SettingsService::get_settings_definitions();
-
-    foreach ($ivssettings as $playersetting) {
-
-        switch ($playersetting->type) {
-            case 'checkbox':
-                if ($playersetting->lockedsite) {
-                    $settings->add(new admin_setting_configcheckbox_with_lock("mod_ivs/" . $playersetting->name,
-                            $playersetting->title, get_string($playersetting->description . '_help', 'ivs'),
-                            ['value' => $playersetting->default]));
-                } else {
-                    $settings->add(new admin_setting_configcheckbox($playersetting->name, $playersetting->title,
-                            $playersetting->description, ['value' => $playersetting->default]));
-                }
-                break;
-            case 'select':
-                if ($playersetting->lockedsite) {
-                    $settings->add(new admin_setting_configselect_with_lock("mod_ivs/" . $playersetting->name,
-                      $playersetting->title,
-                            get_string($playersetting->description . '_help', 'ivs'), ['value' => $playersetting->default, 'locked' => 0], $playersetting->options));
-
-                } else {
-                    $settings->add(new admin_setting_configselect("mod_ivs/" . $playersetting->name, $playersetting->name,
-                            get_string($playersetting->description . '_help', 'ivs'), $playersetting->default, $playersetting->options));
-
-                }
-                break;
-            case 'text':
-                if ($playersetting->lockedsite) {
-                    $settings->add(new admin_setting_configtext_ivs_custom_with_lock("mod_ivs/" . $playersetting->name,
-                            $playersetting->title,
-                            get_string($playersetting->description . '_help', 'ivs'), ['value' => $playersetting->default], PARAM_INT));
-
-                } else {
-                    $settings->add(new admin_setting_configtext_ivs_custom("mod_ivs/" . $playersetting->name, $playersetting->title,
-                            get_string($playersetting->description . '_helpcd', 'ivs'), $playersetting->default), PARAM_INT);
-                }
-
-                break;
-        }
-    }
-
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/advanced_video_source',get_string('ivs_player_settings_advanced_video_source', 'ivs'),$settings);
+    \mod_ivs\settings\SettingsService::ivs_get_player_advanced_video_source_settings($settings);
 
 }
 

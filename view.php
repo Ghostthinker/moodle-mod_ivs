@@ -28,8 +28,7 @@ use mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\settings\SettingsService;
 use mod_ivs\MoodleLicenseController;
 use mod_ivs\IvsHelper;
-
-
+use mod_ivs\upload\ExternalSourceVideoHost;
 
 // Replace ivs with the name of your module and remove this line.
 
@@ -164,7 +163,7 @@ if (empty($embedded)) {
         }
     }
 
-    if (empty($videourl)) {
+    if (empty($videourl) && !$videohost instanceof ExternalSourceVideoHost) {
         echo get_string('ivs_video_config_error', 'ivs');
         echo $OUTPUT->footer();
         exit;
@@ -408,12 +407,21 @@ if (empty($embedded)) {
 
     $lang = IvsHelper::get_language();
 
+    //load annotation
+    $annotation = \mod_ivs\annotation::retrieve_from_db($cid, false);
+    $starttime = 0;
+    if ($annotation) {
+        $starttime = $annotation->get_timestamp();
+    }
+
     $playerconfig = array(
             'overlay_mode' => false,
             'lang' => $lang,
             'align_top' => false,
+'           startTime' => $starttime,
             'hide_when_inactive' => (int) $activitysettings['hide_when_inactive']->value,
             'list_item_buttons_hover_enabled' => (int) $activitysettings['list_item_buttons_hover_enabled']->value,
+
             'current_userdata' => array(
                     'name' => fullname($USER),
                     'picture' => $userpictureurl,
@@ -595,14 +603,7 @@ if (empty($embedded)) {
     <div class="edubreakplayer" id="edubreakplayer"
          style="width:100%; min-height:200px"
          data-nid="<?php echo $cm->instance ?>">
-        <div class="ep5-media">
-            <video <?php echo $crossorigintag?> class="ep5-media-video" width="100%"
-                   preload="metadata">
-                <source src="<?php echo $videourl ?>" type="video/mp4"
-                />
-                <div>Sorry, your browser or device is not supported!</div>
-            </video>
-        </div>
+         <?php echo $videohost->rendermediacontainer($PAGE)?>
     </div>
 
     <?php
