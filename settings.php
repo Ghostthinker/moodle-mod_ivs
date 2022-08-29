@@ -28,7 +28,6 @@ use mod_ivs\admin_setting_configtext_ivs_custom_with_lock;
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/adminlib.php');
-require_login(null, false);
 
 $ADMIN->add('modsettings', new admin_category('interactive_video_suite_settings', get_string('modulecategory', 'ivs'),
         $module->is_enabled() === false));
