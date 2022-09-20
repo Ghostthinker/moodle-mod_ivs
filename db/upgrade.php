@@ -102,8 +102,8 @@ function xmldb_ivs_upgrade($oldversion) {
 
 
     if($oldversion < 2022072902){
-        $DB->execute("UPDATE {ivs_settings} SET value = NOT value WHERE name = 'default_random_question' OR name = 'list_item_buttons_hover_enabled' OR name = 'hide_when_inactive' OR name = 'annotation_realm_default_enabled'");
-        $DB->execute("UPDATE {config_plugins} SET value = NOT value WHERE name = 'default_random_question' OR name = 'list_item_buttons_hover_enabled' OR name = 'hide_when_inactive' OR name = 'annotation_realm_default_enabled'");
+        $updateservice = new \mod_ivs\UpdateService();
+        $updateservice->settingInvertUpdate();
         upgrade_mod_savepoint(true, 2022072902, 'ivs');
     }
 

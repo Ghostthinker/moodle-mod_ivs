@@ -26,9 +26,6 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
-### v1.13
-* Bugfix for cli installation
-
 ### v1.12
 * added Youtube, Vimeo and external source support
 * improved ivs setting pages
