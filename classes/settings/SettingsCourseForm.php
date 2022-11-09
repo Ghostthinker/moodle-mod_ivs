@@ -52,27 +52,37 @@ class SettingsCourseForm extends moodleform {
 
         $lockreadaccessoptions = SettingsService::get_ivs_read_access_options();
 
-
-        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/playerfeatures',get_string('ivs_player_settings_features', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/playerfeatures',
+                get_string('ivs_player_settings_features', 'ivs'), $mform);
         $ivsplayersettings = \mod_ivs\settings\SettingsService::ivs_get_player_settings();
-        SettingsService::ivs_render_activity_settings($ivsplayersettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
+        SettingsService::ivs_render_activity_settings($ivsplayersettings, $coursesettings, $mform, $globalsettings,
+                $lockreadaccessoptions);
 
-        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/notification',get_string('ivs_player_settings_notification', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/notification',
+                get_string('ivs_player_settings_notification', 'ivs'), $mform);
         $ivsplayernotificationsettings = \mod_ivs\settings\SettingsService::ivs_get_player_notification_settings();
-        SettingsService::ivs_render_activity_settings($ivsplayernotificationsettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
+        SettingsService::ivs_render_activity_settings($ivsplayernotificationsettings, $coursesettings, $mform, $globalsettings,
+                $lockreadaccessoptions);
 
-        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/controls',get_string('ivs_player_settings_controls', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/controls',
+                get_string('ivs_player_settings_controls', 'ivs'), $mform);
         $ivsplayercontrolssettings = \mod_ivs\settings\SettingsService::ivs_get_player_control_settings();
-        SettingsService::ivs_render_activity_settings($ivsplayercontrolssettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
+        SettingsService::ivs_render_activity_settings($ivsplayercontrolssettings, $coursesettings, $mform, $globalsettings,
+                $lockreadaccessoptions);
 
-        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced',get_string('ivs_player_settings_advanced', 'ivs'),$mform);
-        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_comments',get_string('ivs_player_settings_advanced_comments', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced',
+                get_string('ivs_player_settings_advanced', 'ivs'), $mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_comments',
+                get_string('ivs_player_settings_advanced_comments', 'ivs'), $mform);
         $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_comments_settings();
-        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
+        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings, $coursesettings, $mform, $globalsettings,
+                $lockreadaccessoptions);
 
-        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_match',get_string('ivs_player_settings_advanced_match', 'ivs'),$mform);
+        \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_match',
+                get_string('ivs_player_settings_advanced_match', 'ivs'), $mform);
         $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
-        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$coursesettings,$mform,$globalsettings,$lockreadaccessoptions);
+        SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings, $coursesettings, $mform, $globalsettings,
+                $lockreadaccessoptions);
         $mform->closeHeaderBefore('ivssubmitbutton');
         $mform->addElement('submit', 'ivssubmitbutton', get_string('savechanges'));
     }

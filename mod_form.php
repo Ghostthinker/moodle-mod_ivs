@@ -117,7 +117,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         if ((int) $opencastexternalfilesenabled) {
 
             try {
-                $opencastvideos = $this->get_videos_for_select();
+                $opencastvideos = $this->get_opencast_videos_for_select();
                 if ($opencastvideos && count($opencastvideos) > 0) {
                     $select =
                             $mform->addElement('select', 'opencast_video', get_string('ivs_setting_opencast_menu_title', 'ivs'),
@@ -142,16 +142,33 @@ class mod_ivs_mod_form extends moodleform_mod {
                     ));
         }
 
-      $externalSourcesEnabled = get_config('mod_ivs', 'ivs_external_sources_enabled');
-      if ((int) $externalSourcesEnabled) {
-        $mform->addElement('text', 'external_video_source', get_string('ivs_setting_external_source_menu_title', 'ivs'),
-          ['size' => '64']);
-        if (!empty($CFG->formatstringstriptags)) {
-          $mform->setType('external_video_source', PARAM_TEXT);
-        } else {
-          $mform->setType('external_video_source', PARAM_CLEANHTML);
+        $kalturafilesenabled = get_config('mod_ivs', 'ivs_kaltura_external_files_enabled');
+        if ((int) $kalturafilesenabled) {
+            require_once($CFG->dirroot . '/mod/ivs/classes/KalturaService.php');
+            try {
+                $kalturavideos = $this->get_kaltura_videos_for_select();
+                if ($kalturavideos && count($kalturavideos) > 0) {
+                    $select =
+                            $mform->addElement('select', 'kaltura_video', get_string('ivs_setting_kaltura_menu_title', 'ivs'),
+                                    $kalturavideos);
+                }
+
+            } catch (Exception $e) {
+                \core\notification::error($e->getMessage());
+            }
         }
-      }
+
+        $externalsourcesenabled = get_config('mod_ivs', 'ivs_external_sources_enabled');
+        if ((int) $externalsourcesenabled) {
+            $mform->addElement('text', 'external_video_source', get_string('ivs_setting_external_source_menu_title', 'ivs'),
+                    ['size' => '64']);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('external_video_source', PARAM_TEXT);
+            } else {
+                $mform->setType('external_video_source', PARAM_CLEANHTML);
+            }
+        }
+
 
 
         // Grade settings.
@@ -199,8 +216,6 @@ class mod_ivs_mod_form extends moodleform_mod {
     }
 
     public function validation($data, $files) {
-
-
         $errors = [];
         if (!is_numeric($data['annotation_audio_max_duration']['value'])) {
             $errors['numeric'] = get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
@@ -250,21 +265,21 @@ class mod_ivs_mod_form extends moodleform_mod {
         if (!empty($defaultvalues['videourl'])) {
             $parts = explode("://", $defaultvalues['videourl']);
 
-
-          if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
+            if ($parts[0] == "OpenCastFileVideoHost" || $parts[0] == "SwitchCastFileVideoHost") {
                 $defaultvalues['opencast_video'] = $parts[1];
-          }
-          else if ($parts[0] == "PanoptoFileVideoHost") {
+            } else if ($parts[0] == "PanoptoFileVideoHost") {
                 $defaultvalues['panopto_video_json_field'] = $parts[1];
                 $decodedvalues = json_decode($parts[1]);
                 if (!empty($decodedvalues)) {
                     $defaultvalues['panopto_video'] = $decodedvalues->videoname[0];
                 }
-          }else if ($parts[0] == "ExternalSourceVideoHost") {
+            } else if ($parts[0] == "KalturaFileVideoHost") {
+                $defaultvalues['kaltura_video'] = $parts[1];
 
-            $externalsourceinfo = json_decode($parts[1]);
-            $defaultvalues['external_video_source'] = $externalsourceinfo->originalstring;
-          }
+            } else if  ($parts[0] == "ExternalSourceVideoHost") {
+                $externalsourceinfo = json_decode($parts[1]);
+                $defaultvalues['external_video_source'] = $externalsourceinfo->originalstring;
+            }
         }
 
     }
@@ -274,7 +289,7 @@ class mod_ivs_mod_form extends moodleform_mod {
      *
      * @return array|void
      */
-    public function get_videos_for_select() {
+    public function get_opencast_videos_for_select() {
 
         global $COURSE;
         $publishedvideos = array();
@@ -308,6 +323,32 @@ class mod_ivs_mod_form extends moodleform_mod {
                         $publishedvideos[$video->identifier] = $video->title;
                     }
                 }
+            }
+        }
+
+        return $publishedvideos;
+    }
+
+    /**
+     * Get all videos from opencast
+     *
+     * @return array|void
+     */
+    public function get_kaltura_videos_for_select() {
+        global $COURSE, $CFG;
+
+        $publishedvideos = array();
+
+        if (!file_exists($CFG->dirroot . '/local/kaltura/API/KalturaClient.php')) {
+            return $publishedvideos;
+        }
+
+        $kalturaservice = new KalturaService();
+        $results = current($kalturaservice->getMediaList($COURSE->id));
+
+        if (!empty($results)) {
+            foreach ($results as $entry) {
+                $publishedvideos[$entry->rootEntryId] = $entry->name;
             }
         }
 

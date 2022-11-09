@@ -256,7 +256,6 @@ $string['ivs_license_data_policy'] =
         "Data protection: Your privacy is important to us. To enable us to create a custom-made IVS-Player for you, only pseudonymized usage statistics are transferred via an encrypted connection. For detailed information please check our AGBs.";
 $string['ivs_package_active'] = "Active license";
 $string['ivs_activity_licence_error'] = "Please activate a valid license for your instance first. Follow the instructions in the plugin settings of the IVS-Plugin.
-
 If you do not have access, please contact your system administrator.";
 $string['ivs_package_button_label'] = "Go to IVS Shop";
 $string['ivs_course_title'] = "Course title";
@@ -361,6 +360,9 @@ $string['ivs_usage_instance_info'] = 'When purchasing an IVS Flat, please note t
 $string['ivs_setting_external_sources_title'] = 'Embed videos from external source';
 $string['ivs_setting_external_sources_help'] = 'You can choose external sources to upload videos.';
 $string['ivs_setting_external_source_menu_title'] = 'External video';
+$string['ivs_setting_kaltura_external_files_title'] = 'Use Kaltura video source';
+$string['ivs_setting_kaltura_external_files_help'] = 'You can use kaltura as video source.';
+$string['ivs_setting_kaltura_menu_title'] = 'Kaltura Video';
 $string['ivs_setting_external_video_source_validation'] = 'Unsupported external video source. Please check the url and make sure the video has public access.';
 $string['ivs_player_settings_notification'] = 'Notification';
 $string['ivs_player_settings_controls'] = 'Controls & Appearance';

@@ -26,6 +26,12 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.14
+* added Kaltura support
+
+### v1.13
+* fixed upgrade issue
+
 ### v1.12
 * added Youtube, Vimeo and external source support
 * improved ivs setting pages
