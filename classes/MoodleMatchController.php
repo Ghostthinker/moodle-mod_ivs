@@ -888,7 +888,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         return[
             AssessmentConfig::ASSESSMENT_TYPE_NONE => get_string('ivs_match_config_assessment_mode_none', 'ivs'),
             AssessmentConfig::ASSESSMENT_TYPE_QUIZ => get_string('ivs_match_config_assessment_mode_quiz', 'ivs'),
-            AssessmentConfig::ASSESSMENT_TYPE_TIMING => get_string('ivs_match_config_assessment_mode_timing', 'ivs'),
+            //AssessmentConfig::ASSESSMENT_TYPE_TIMING => get_string('ivs_match_config_assessment_mode_timing', 'ivs'),
         ];
     }
 
