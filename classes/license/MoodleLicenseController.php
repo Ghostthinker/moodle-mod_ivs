@@ -25,6 +25,7 @@ namespace mod_ivs\license;
 
 use ArrayIterator;
 use curl;
+use mod_ivs\StatisticsService;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,6 +38,7 @@ define('IVS_CORE_API_CALLBACK_ACTIVATE', '/client/activate');
 define('IVS_CORE_API_CALLBACK_RELEASE', '/client/release');
 define('IVS_CORE_API_CALLBACK_USAGE', '/client/usage');
 define('IVS_CORE_API_CALLBACK_INSTANCE', '/client/instances');
+define('IVS_CORE_API_CALLBACK_STATISTIC', '/client/statistic');
 define('IVS_CORE_CRON_WAITING_TIME', 129600);
 define('IVS_LICENCSE_ACTIVE', 1);
 define('IVS_LICENCSE_OVERBOOKED', 2);
@@ -165,6 +167,8 @@ class MoodleLicenseController implements ILicenseController
         if ($this->cron_runtime_too_old()) {
             $this->send_usage();
             $this->set_last_runtime();
+            $statisticservice = new StatisticsService();
+            $statisticservice->statisticChanged();
         }
         if (empty($context) && !empty($status->active)) {
             return true;
@@ -903,6 +907,7 @@ class MoodleLicenseController implements ILicenseController
                 "activate" => IVS_CORE_API_CALLBACK_ACTIVATE,
                 "release" => IVS_CORE_API_CALLBACK_RELEASE,
                 "instance" => IVS_CORE_API_CALLBACK_INSTANCE,
+                "statistic" => IVS_CORE_API_CALLBACK_STATISTIC,
         ];
         $path = $pathavailable[$type];
         if (empty($path)) {

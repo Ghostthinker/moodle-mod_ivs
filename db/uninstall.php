@@ -26,5 +26,8 @@
  * Custom uninstallation procedure
  */
 function xmldb_ivs_uninstall() {
+
+  $statisticService = new \mod_ivs\StatisticsService();
+  $statisticService->triggerDeinstallationRequest();
     return true;
 }

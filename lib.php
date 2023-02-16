@@ -31,6 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * Example constant, you probably want to remove this :-)
  */
 define('IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION', 300);
+define('IVS_MAX_ATTEMPT_OPTION', 10);
 
 /* Moodle core API */
 
@@ -56,10 +57,12 @@ function ivs_supports($feature) {
         case FEATURE_SHOW_DESCRIPTION:
             return true;
         case FEATURE_GRADE_HAS_GRADE:
-            return false;
+            return true;
         case FEATURE_GRADE_OUTCOMES:
-            return false;
+            return true;
         case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
             return true;
         case $featurePurpose:
             return MOD_PURPOSE_COLLABORATION;
@@ -722,4 +725,72 @@ function ivs_get_license_controller() {
     }
 
     return $lc;
+}
+
+function ivs_update_grades($ivs, $take, $nullifnone=true){
+    global $CFG, $DB;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    $gradebookservice = new \mod_ivs\gradebook\GradebookService();
+    $userid = $take->userid;
+    if (!$gradebookservice->ivs_gradebook_enabled($ivs)){
+        return;
+    }
+
+    $moodlematchcontroller = new \mod_ivs\MoodleMatchController();
+
+    $takes = $moodlematchcontroller->match_takes_get_by_user_and_video_db($take->userid, $take->videoid, $take->videoid);
+    if ($takes) {
+        $scoreinfo = $gradebookservice->ivs_gradebook_get_score_info_by_takes($takes, $ivs);
+
+        $grade = new stdClass();
+        $grade->userid = $take->userid;
+        $grade->rawgrade = $scoreinfo['score'];
+
+        ivs_grade_item_update($ivs, $grade);
+    }
+}
+
+
+/**
+ * Updates grade item for ivs activity
+ * @param $ivs
+ * @param null $grade
+ * @return int|null
+ */
+function ivs_grade_item_update($ivs, $grades = NULL)
+{
+
+    global $CFG;
+    $gradebookservice = new \mod_ivs\gradebook\GradebookService();
+    $access =  $gradebookservice->ivs_gradebook_enabled($ivs);
+
+    if (!$access){
+        return NULL;
+    }
+
+
+    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+        require_once($CFG->libdir . '/gradelib.php');
+    }
+
+    $params = array('itemname' => $ivs->name, 'idnumber' => $ivs->id);
+
+    if (!empty($ivs->grade)){
+        if ($ivs->grade > 0) {
+            $params['gradetype'] = GRADE_TYPE_VALUE;
+            $params['grademax']  = $ivs->grade;
+            $params['grademin']  = 0;
+
+        } else {
+            $params['gradetype'] = GRADE_TYPE_NONE;
+        }
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+
+    return grade_update('mod/ivs', $ivs->course, 'mod', 'ivs', $ivs->id, 0, $grades, $params);
 }

@@ -24,6 +24,8 @@
 
 namespace mod_ivs;
 
+use ltiservice_gradebookservices\local\service\gradebookservices;
+use mod_ivs\gradebook\GradebookService;
 use mod_ivs\ivs_match\question\QuestionSummary;
 use mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\ivs_match\IvsMatchControllerBase;
@@ -39,8 +41,10 @@ use mod_ivs\IvsHelper;
 use mod_ivs\output\match\question_click_answer_view;
 use mod_ivs\output\match\question_single_choice_answer_view;
 use mod_ivs\output\match\question_text_answer_view;
+use mod_ivs\settings\SettingsDefinition;
 use mod_ivs\settings\SettingsService;
 use moodle_url;
+use stdClass;
 
 /**
  * Class MoodleMatchController
@@ -486,7 +490,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
      * @return bool
      * @throws \coding_exception
      */
-    private function has_edit_access($videoid) {
+    public function has_edit_access($videoid) {
 
         $coursemodule = get_coursemodule_from_instance('ivs', $videoid, 0, false, MUST_EXIST);
         $context = \context_module::instance($coursemodule->id);
@@ -658,17 +662,20 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
      */
     public function match_video_get_config_db($contextid, $videoid = null) {
 
-        $mc = new MatchConfig();
-        $mc->assessmenttype = AssessmentConfig::ASSESSMENT_TYPE_FORMATIVE;
-        $mc->rate = 100;
-        $mc->attempts = 1;
-        $mc->allow_repeat_answers = true;
-        $mc->player_controls_enabled = true;
-        $mc->show_solution = false;
-        $mc->show_feedback = true;
+        global $DB;
+        $ivs = $DB->get_record('ivs', array('id' => $contextid), '*', MUST_EXIST);
+        $moodlematchcontroller = new MoodleMatchController();
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $ivs->course);
 
-        return $mc;
-
+        if ($activitysettings['exam_mode_enabled']->value) {
+            if ($activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_QUIZ) {
+                return $moodlematchcontroller->get_quiz_match_config($ivs);
+            } else if($activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_TIMING) {
+                return $moodlematchcontroller->get_timing_match_config($ivs);
+            }
+        }
+        return $moodlematchcontroller->get_formative_match_config($ivs, $activitysettings['match_question_enabled']->value);
     }
 
     /**
@@ -738,7 +745,13 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 throw new MatchTakeException();
             }
             $take->id = $id;
+        }else{
+            $DB->update_record('ivs_matchtake', $dbdata, true);
         }
+
+        $ivs = $DB->get_record('ivs', array('id' => $take->videoid), '*', MUST_EXIST);
+        ivs_update_grades($ivs, $take);
+
         return $take;
 
     }
@@ -786,16 +799,31 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
         global $DB, $USER;
 
+        $contextid = $videoid;
         if (!$userid) {
-
             $userid = $USER->id;
         }
 
-        $records = $DB->get_records('ivs_matchtake', array(
-                'video_id' => $videoid,
-                'user_id' => $userid,
-                'context_id' => $contextid
-        ));
+
+        $params = [
+            'video_id' => $videoid,
+            'user_id' => $userid,
+            'context_id' => $contextid,
+        ];
+
+        $sql = "SELECT *
+                  FROM {ivs_matchtake} 
+                 WHERE video_id = :video_id
+                       AND user_id = :user_id
+                       AND context_id = :context_id";
+
+        if (!empty($status)){
+            $sql .= " AND status IN ('new', 'progress')";
+        }
+
+
+
+        $records = $DB->get_recordset_sql($sql, $params);
 
         $takes = array();
 
@@ -853,6 +881,18 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
     }
 
     /**
+     * Returns assessment type options
+     * @return array
+     */
+    public function get_assessment_type_options(){
+        return[
+            AssessmentConfig::ASSESSMENT_TYPE_NONE => get_string('ivs_match_config_assessment_mode_none', 'ivs'),
+            AssessmentConfig::ASSESSMENT_TYPE_QUIZ => get_string('ivs_match_config_assessment_mode_quiz', 'ivs'),
+            AssessmentConfig::ASSESSMENT_TYPE_TIMING => get_string('ivs_match_config_assessment_mode_timing', 'ivs'),
+        ];
+    }
+
+    /**
      * Get an array of assessment configs
      *
      * @param int $userid
@@ -864,31 +904,18 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
     public function assessment_config_get_by_user_and_video($userid, $videoid, $includesimulation = false) {
 
         $assessmentconfig = [];
+        global $DB;
+        $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
+        $moodlematchcontroller = new MoodleMatchController();
 
-        if ($this->has_edit_access($videoid)) {
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($videoid, $ivs->course);
 
-            $assconf = new AssessmentConfig();
-            $assconf->context_id = null;
-            $assconf->context_label = get_string("ivs_match_context_label", 'ivs');
-            $assconf->matchConfig = $this->match_video_get_config_db($videoid);
-            $assconf->takes_left = -1;
-            $assconf->takes = [];
-            $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
-            $assconf->status_description = get_string("ivs_match_context_label_help", 'ivs');
-            $assessmentconfig[] = $assconf;
-
+        if ($activitysettings['exam_mode_enabled']->value != 0 || $activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_TIMING) {
+            $assessmentconfig = $moodlematchcontroller->get_videotest_assessment_config_by_user($userid, $ivs);
+        }else{
+            $assessmentconfig = $moodlematchcontroller->get_formative_assessment_config($userid, $ivs);
         }
-
-        $assconf = new AssessmentConfig();
-        $assconf->context_id = $videoid;
-        $assconf->context_label = get_string("ivs_match_config_assessment_mode_formative", 'ivs');
-        $assconf->matchConfig = $this->match_video_get_config_db($videoid);
-        $assconf->takes_left = 1;
-        $assconf->takes = $this->match_takes_get_by_user_and_video_db($userid, $videoid, $videoid);
-        $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
-        $assconf->status_description = get_string("ivs_match_config_assessment_mode_formative_help", 'ivs');
-
-        $assessmentconfig[] = $assconf;
 
         return $assessmentconfig;
     }
@@ -933,7 +960,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             $singlechoicedata['selected_answer'] = '-';
             $singlechoicedata['last_selected_answer'] = '-';
 
-            if ($answer['answers'][1]['user_id'] === $user->id) {
+            if (!empty($answer['answers'][1]) && $answer['answers'][1]['user_id'] === $user->id) {
 
                 $userid = $user->id;
                 $answers = $controller->match_question_answers_get_by_question_and_user_db($answer['question']['nid'], $userid);
@@ -978,22 +1005,20 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $singechoiceanswerindex = 0;
 
         if (empty($answer['answers'][0])) {
-            $checkedid = $answer['answers'][1]['question_data']['checked_id'];
+            $checkedids = explode(',', $answer['answers'][1]['question_data']['checked_id']);
         } else {
-            $checkedid = $answer['answers'][0]['question_data']['checked_id'];
+            $checkedids = explode(',', $answer['answers'][0]['question_data']['checked_id']);
         }
 
         $singlechoicequestions = $answer['question']['type_data']['options'];
-
+        $selected_answers = [];
         foreach ($singlechoicequestions as $question) {
-            $singechoiceanswerindex++;
-            if ($question['id'] == $checkedid) {
-                break;
+            if (in_array($question['id'], $checkedids)){
+            $selected_answers[] = $question['description'];
             }
-
         }
 
-        return $singechoiceanswerindex;
+        return implode(', ', $selected_answers);
     }
 
     /** returns index of last selected single choice answer
@@ -1337,7 +1362,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             $data->first = '-';
             $data->last = '-';
             $data->retries = '-';
-            if ($value['answers'][1]['user_id'] === $courseuser->id) {
+            if (!empty($value['answers'][1]) && $value['answers'][1]['user_id'] === $courseuser->id) {
 
                 $userid = $courseuser->id;
                 $answers = $controller->match_question_answers_get_by_question_and_user_db($value['question']['nid'], $userid);
@@ -1403,4 +1428,340 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         return $data;
     }
 
+    private function get_formative_assessment_config($userid, $ivs) {
+
+        $videoid = $ivs->id;
+
+        if ($this->has_edit_access($videoid)) {
+
+            $assconf = new AssessmentConfig();
+            $assconf->context_id = null;
+            $assconf->context_label = get_string("ivs_match_context_label", 'ivs');
+            $assconf->matchConfig = $this->match_video_get_config_db($videoid);
+            $assconf->takes_left = -1;
+            $assconf->takes = [];
+            $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
+            $assconf->status_description = get_string("ivs_match_context_label_help", 'ivs');
+            $assessmentconfig[] = $assconf;
+
+        }
+
+        $assconf = new AssessmentConfig();
+        $assconf->context_id = $videoid;
+        $assconf->context_label = $this->get_ivs_videotest_context_label($ivs);
+        $assconf->matchConfig = $this->match_video_get_config_db($videoid);
+        $assconf->takes_left = 1;
+        $assconf->takes = $this->match_takes_get_by_user_and_video_db($userid, $videoid, $videoid);
+        $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
+        $assconf->status_description = get_string("ivs_match_config_assessment_mode_formative_help", 'ivs');
+
+        $assessmentconfig[] = $assconf;
+
+        return $assessmentconfig;
+
+        }
+
+    private function get_videotest_assessment_config_by_user($userid, $ivs) {
+
+        $contextid = $ivs->id;
+        $videoid = $ivs->id;
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($videoid, $ivs->course);
+
+        if ($this->has_edit_access($videoid)) {
+
+            $assconf = new AssessmentConfig();
+            $assconf->context_id = null;
+            $assconf->context_label = get_string("ivs_match_context_label", 'ivs');
+            $assconf->matchConfig = $this->match_video_get_config_db($videoid);
+            $assconf->takes_left = $this->get_remaining_attempts($userid, $videoid, $contextid);
+            $assconf->takes = [];
+            $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
+            $assconf->status_description = get_string("ivs_match_context_label_help", 'ivs');
+            $assessmentconfig[] = $assconf;
+
+        }
+
+        $assconf = new AssessmentConfig();
+        $assconf->context_id = $videoid;
+        $assconf->context_label = $this->get_ivs_videotest_context_label($ivs);
+        $assconf->matchConfig = $this->match_video_get_config_db($videoid);
+        $assconf->takes_left = $activitysettings['exam_mode_enabled']->value ? $this->get_remaining_attempts($userid, $videoid, $contextid) : 1;
+        $assconf->takes = $this->match_takes_get_by_user_and_video_db($userid, $videoid, $contextid);
+
+        $num_takes = count($assconf->takes);
+        $already_passed = FALSE;
+
+        if ($num_takes == 0) {
+            $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
+            $assconf->status_description = get_string("ivs_match_config_status_not_started_label", 'ivs');
+        }
+        else {
+
+            $take_in_progress = NULL;
+
+            /** @var MatchTake $take */
+            foreach ($assconf->takes as $take) {
+
+                if(!$take->is_completed()) {
+                    $take_in_progress = $take;
+                }
+            }
+
+            $gradebookservice = new GradebookService();
+            $scoreinfo = $gradebookservice->ivs_gradebook_get_score_info_by_takes($assconf->takes, $ivs);
+
+            if ($scoreinfo['score'] >= $assconf->matchConfig->rate){
+                $already_passed = TRUE;
+            }
+
+            if ($already_passed) {
+                $assconf->status_description = get_string("ivs_match_config_status_passed_label", 'ivs') . $scoreinfo['desc'] . $scoreinfo['score'] . '%';
+                if($assconf->takes_left > 0) {
+                    $assconf->status = AssessmentConfig::TAKES_LEFT_COMPLETED_SUCCESS;
+                }else{
+                    if($assconf->matchConfig->assessment_type == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
+                        $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_SUCCESS_NO_SUMMARY;
+                    }else{
+                        $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_SUCCESS;
+                    }
+                }
+            }
+            elseif ($assconf->takes_left == 0) {
+                $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_FAILED;
+                $assconf->status_description = get_string("ivs_match_config_status_failed_label", 'ivs') . $scoreinfo['desc'] . $scoreinfo['score'] . '%';
+            }else{
+                $assconf->status = AssessmentConfig::TAKES_LEFT_PROGRESS;
+                if($take_in_progress) {
+                    $assconf->status_description = get_string("ivs_match_config_status_progress_label", 'ivs');
+                }else{
+                    $assconf->status_description = get_string("ivs_match_config_status_not_passed_label", 'ivs') .  $scoreinfo['desc'] . $scoreinfo['score']. '%';
+                }
+            }
+        }
+
+        $assessmentconfig[] = $assconf;
+
+        return $assessmentconfig;
+    }
+
+    private function get_quiz_match_config($ivs) {
+        global $DB;
+        $gradebookservice = new GradebookService();
+        $course = $DB->get_record('course', array('id' => $ivs->course), '*', MUST_EXIST);
+        $gradesettings = $gradebookservice->ivs_get_grade_settings($ivs);
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $course->id);
+
+        $mc = new MatchConfig();
+
+        $mc->assessment_type = 'TAKES';
+        $mc->allow_repeat_answers = false;
+        $mc->player_controls_enabled = (int) $activitysettings['player_controls_enabled']->value;
+        $mc->rate = !empty($gradesettings) ? (int)$gradesettings->gradepass : 100;
+        $mc->attempts = $activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS]->value;
+        $mc->show_feedback = false;
+        $mc->show_solution = false;
+
+        return $mc;
+    }
+
+    private function get_formative_match_config($ivs) {
+
+        $mc = new MatchConfig();
+
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $ivs->course);
+
+        $mc->assessment_type = $activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_QUIZ ? 'TAKES' : 'TIMING_TAKES';
+        $mc->rate = 100;
+        $mc->attempts = 0;
+        $mc->allow_repeat_answers = true;
+        $mc->player_controls_enabled = (int) $activitysettings['player_controls_enabled']->value;
+        $mc->show_solution = true;
+        $mc->show_feedback = false;
+
+        return $mc;
+    }
+
+    private function get_timing_match_config($ivs) {
+        global $DB;
+        $gradebookservice = new GradebookService();
+        $course = $DB->get_record('course', array('id' => $ivs->course), '*', MUST_EXIST);
+        $gradesettings = $gradebookservice->ivs_get_grade_settings($ivs);
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $course->id);
+
+        $mc = new MatchConfig();
+
+        $mc->assessment_type = 'TIMING_TAKES';
+        $mc->allow_repeat_answers = false;
+        $mc->player_controls_enabled = (int) $activitysettings['player_controls_enabled']->value;
+        $mc->rate = !empty($gradesettings) ? (int)$gradesettings->gradepass : 100;
+        $mc->attempts = $activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS]->value;
+        $mc->show_feedback = $activitysettings[SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_FEEDBACK]->value;
+        $mc->show_solution = $activitysettings[SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_SOLUTION]->value;
+
+        return $mc;
+    }
+
+    private function get_ivs_videotest_context_label($ivs) {
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $ivs->course);
+
+        switch ($activitysettings['match_question_enabled']->value){
+            case AssessmentConfig::ASSESSMENT_TYPE_QUIZ:
+                return get_string("ivs_match_config_assessment_mode_quiz", 'ivs');
+            case AssessmentConfig::ASSESSMENT_TYPE_TIMING:
+                return get_string("ivs_match_config_assessment_mode_timing", 'ivs');
+            default:
+                if (!$activitysettings['exam_mode_enabled']->value){
+                    return get_string("ivs_match_config_assessment_mode_formative", 'ivs');
+                }
+        }
+        return get_string("ivs_match_context_label", 'ivs');
+    }
+
+
+    public function match_timing_type_get_db($ivs, $skip_access = FALSE) {
+
+
+        if(!empty($ivs->match_config)) {
+            $data = json_decode($ivs->match_config, TRUE);
+
+            if(!empty($data['timing_types'])) {
+                return $data['timing_types'];
+            }
+
+        }
+        return [];
+    }
+
+    public function match_timing_type_insert_db($videoid, $data, $user_id = NULL, $skip_access = FALSE) {
+        global $DB;
+
+        $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
+
+        return $this->saveTimingType($data, $ivs, $skip_access);
+
+    }
+
+    public function match_timing_type_update_db($videoid, $data, $user_id = NULL, $skip_access = FALSE) {
+        global $DB;
+
+        $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
+
+        return $this->saveTimingType($data, $ivs, $skip_access);
+    }
+
+    public function match_timing_type_delete_db($videoid, $timing_type_id, $skip_access = FALSE) {
+        global $DB;
+
+        $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
+
+        if (!$this->has_edit_access($videoid) && !$skip_access){
+            throw new MatchQuestionAccessDeniedException(null, "Access denied");
+        }
+
+        if(empty($ivs->match_config)) {
+            $match_settings = [];
+        }else {
+            $match_settings = json_decode($ivs->match_config, TRUE);
+        }
+
+        //check if command id exists
+        foreach ($match_settings['timing_types'] as $k => $c) {
+            if ($c['id'] === $timing_type_id) {
+                unset($match_settings['timing_types'][$k]);
+            }
+        }
+
+        //normalize keys
+        $match_settings['timing_types'] = array_values($match_settings['timing_types']);
+
+        $ivs->match_config = json_encode((array) $match_settings);
+        $DB->insert_record('ivs', $ivs);
+
+    }
+
+    protected function saveTimingType($post_data, $ivs, $skip_access = FALSE) {
+        global $DB;
+
+        $videoid = $ivs->id;
+
+        if (!$this->has_edit_access($videoid) && !$skip_access){
+            throw new MatchQuestionAccessDeniedException(null, "Access denied");
+        }
+
+        $timing_types = $this->match_timing_type_get_db($ivs, $skip_access);
+
+        $post_data = (object) $post_data;
+
+
+        //parse data
+        $id = $post_data->id;
+
+        if (strlen($id) == 0) {
+            //generate uuid
+            $id = uniqid();
+        }
+
+
+        $timing_type['type'] = $post_data->type;
+
+        $timing_type['timestamp'] = $post_data->timestamp;
+        $timing_type['duration'] = $post_data->duration;
+        $timing_type['title'] = $post_data->title;
+        $position = explode(',', $post_data->btn['position']);
+        $new_pos = [];
+        foreach ($position as $pos){
+            $new_pos[] = $pos;
+        }
+
+        $timing_type = [
+            'title' => $post_data->title,
+            'duration' => $post_data->duration,
+            'weight' => $post_data->weight,
+            'btn' => [
+                'label' =>  $post_data->btn['label'],
+                'position' =>  implode(',', $new_pos),
+                'shortcut' =>  $post_data->btn['shortcut'],
+                'score' =>  $post_data->btn['score'],
+                'style' =>  $post_data->btn['style'],
+                'description' => $post_data->btn['description']
+            ]
+        ];
+
+        $timing_type['id'] = $id;
+
+
+
+
+        //check existing id
+        $is_new = TRUE;
+        foreach ($timing_types as $k => $c) {
+            if ($c['id'] === $id) {
+                $timing_types[$k] = $timing_type;
+                $is_new = FALSE;
+            }
+        }
+        if ($is_new) {
+            $timing_types[] = $timing_type;
+        }
+
+        //save node
+
+        if(empty($ivs->match_config)) {
+            $match_settings = [];
+        }else {
+            $match_settings = json_decode($ivs->match_config, TRUE);
+        }
+
+        $match_settings['timing_types'] = $timing_types;
+
+        $ivs->match_config = json_encode((array) $match_settings);
+        $DB->update_record('ivs', $ivs);
+        return $timing_type;
+
+    }
 }

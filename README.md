@@ -26,6 +26,12 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.15
+* added Gradebook integration
+* added Multiple-choice questions to Quiz-mode
+* added exam mode 
+* minor bug fixes
+
 ### v1.14
 * added Kaltura support
 

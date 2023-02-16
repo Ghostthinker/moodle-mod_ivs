@@ -171,7 +171,11 @@ $string['ivs_setting_annotation_realm_default_help'] =
 $string['filearea_videos'] = "Video";
 $string['ivs_setting_match_question'] = "Video questions (match)";
 $string['ivs_setting_match_question_help'] =
-        "In-video questions: Use single-choice and open questions to test learners’ prior knowledge and understanding directly in the video. When the question appears, the video stops; learners cannot continue until the question is answered (correctly).";
+        "In quiz mode, you use different question types (including single/multiple choice questions and free text questions) to test learners' prior knowledge and understanding directly in the video. When the question appears, the video is paused and learners cannot continue until the question is answered (correctly).
+
+Timing mode tests knowledge and reaction to the video scenes shown. These can be identified by the learners at the right time via buttons.
+
+Translated with www.DeepL.com/Translator (free version)";
 $string['ivs:edit_match_questions'] = "Edit video questions";
 $string['ivs:create_match_answers'] = "Create video test answers";
 $string['ivs:access_match_reports'] = "Access video test reports";
@@ -199,9 +203,9 @@ $string['ivs_match_question_answer_menu_label_first_single_choice_answer'] = "Fi
 $string['ivs_match_question_answer_menu_label_single_choice_retries'] = "Retries";
 $string['ivs_match_question_answer_menu_label_last_single_choice_answer'] = "Last attempt: correct";
 $string['ivs_match_question_answer_menu_label_single_choice_correct'] = "Correct";
-$string['ivs_match_question_answer_menu_label_last_single_choice_selected_answer'] = "Selected answer";
+$string['ivs_match_question_answer_menu_label_last_single_choice_selected_answer'] = "Selected answer(s)";
 $string['ivs_match_question_summary_title'] = "Overview by questions";
-$string['ivs_match_question_summary_question_type_single'] = "Single-choice question";
+$string['ivs_match_question_summary_question_type_single'] = "Single-/ multiple choice question";
 $string['ivs_match_question_summary_question_type_click'] = "Click question";
 $string['ivs_match_question_summary_question_type_text'] = "Essay";
 $string['ivs_match_question_summary_question_id'] = "Question ID";
@@ -373,3 +377,58 @@ $string['ivs_player_settings_advanced_video_source'] = 'Video sources';
 $string['ivs_player_settings_features'] = 'Player Features';
 $string['ivs_player_settings_misc'] = 'Misc settings';
 $string['ivs_player_settings_main'] = 'IVS Player options';
+$string['ivs_player_settings_statistics'] = 'Usage statistics';
+$string['ivs_statistics_title'] = 'Send statistics';
+$string['ivs_statistics_help'] = 'Submit statistics on the use of the IVS to Ghostthinker. Only static data and no personal data will be submitted. Thank you for helping us to advance the Interactive Video Suite and further increase the added value for learners.';
+$string['ivs_statistics'] = 'Statistics';
+$string['ivs_videohosts_label'] = 'Videohosts';
+$string['ivs_match_takes_label'] = 'Completed videotests';
+$string['ivs_activities_label'] = 'IVS activities';
+$string['ivs_activities_courses_label'] = 'Courses with IVS activities';
+$string['ivs_comments_label'] = 'IVS comments';
+$string['ivs_audio_comments_label'] = 'IVS audio comments';
+$string['ivs_match_question_label'] = 'IVS match questions';
+$string['ivs_match_question_types_label'] = 'IVS match questions types';
+$string['statistic_info_general'] = 'General statistics';
+$string['statistic_info_text'] = 'Here is an overview of relevant statistics of the use of the Interactive Video Suite. In order to support Ghostthinker in advancing the IVS, this data can also be transmitted. Please activate the transmission in the admin plugin settings';
+$string['ivs_setting_exam_mode'] = 'Exam mode';
+$string['ivs_setting_exam_mode_help'] = 'Results of the video test count in the Moodle Gradebook';
+$string['statistic_info_text'] = 'Here is an overview of relevant statistics of the use of the Interactive Video Suite. In order to support Ghostthinker in advancing the IVS, this data can also be transmitted. Please activate the transmission in the admin plugin settings';
+$string['statistic_info_text'] = 'Here is an overview of relevant statistics of the use of the Interactive Video Suite. In order to support Ghostthinker in advancing the IVS, this data can also be transmitted. Please activate the transmission in the admin plugin settings';
+$string['ivs_setting_exam_mode'] = 'Exam mode';
+$string['ivs_setting_exam_mode_help'] = 'Results of the video test count in the Moodle Gradebook';
+$string['ivs_attemptsallowed'] = 'Allowed attempts';
+$string['ivs_grademethod'] = 'Grading method';
+$string['ivs_grademethod_best_attempt'] = 'Best attempt';
+$string['ivs_grademethod_average'] = 'Average';
+$string['ivs_grademethod_first_attempt'] = 'First attempt';
+$string['ivs_grademethod_last_attempt'] = 'Last attempt';
+$string['ivs_gradepass'] = 'Grade to pass';
+$string['ivs_attempts'] = 'Allowed attempts';
+$string['ivs_gradepass_help'] = 'This setting determines the minimum grade required to pass. The value is used in activity completion and in the gradebook.';
+$string['ivs_attempts_help'] = 'How often are users allowed to take the video test?';
+$string['ivs_grademethod_help'] = 'If multiple attempts are allowed, the following methods are available to calculate the final test score:
+
+* Best attempt
+* Average
+* First attempt (all other attempts are ignored)
+* Last attempt (all other attempts are ignored)';
+$string['ivs_grade'] = 'Grade';
+$string['ivs_match_config_assessment_mode_none'] = "Deactivated";
+$string['ivs_match_config_assessment_mode_quiz'] = "Quiz-Mode";
+$string['ivs_match_config_assessment_mode_timing'] = "Timing-Mode";
+$string['ivs_match_config_grade_mode_best_score_label'] = "Best score is ";
+$string['ivs_match_config_grade_mode_average_score_label'] = "Average score is ";
+$string['ivs_match_config_grade_mode_first_attempt_score_label'] = "First attempt score is ";
+$string['ivs_match_config_grade_mode_last_attempt_score_label'] = "Last attempt score is ";
+$string['ivs_match_config_status_passed_label'] = "Passed - ";
+$string['ivs_match_config_status_not_started_label'] = "Not startet";
+$string['ivs_match_config_status_failed_label'] = "Failed, no attempts left - ";
+$string['ivs_match_config_status_progress_label'] = "Attempt in progress";
+$string['ivs_match_config_status_not_passed_label'] = "Not passed - ";
+$string['ivs_setting_player_controls_enabled'] = "Allow navigation in the video test";
+$string['ivs_setting_player_controls_enabled_help'] = "Specify whether users can navigate forwards or backwards within the video.";
+$string['ivs_setting_player_show_videotest_feedback'] = "Show results for learners directly";
+$string['ivs_setting_player_show_videotest_feedback_help'] = "Show results for learners directly after answering a video test question.";
+$string['ivs_setting_player_show_videotest_solution'] = "Show summary of results for learners at the end";
+$string['ivs_setting_player_show_videotest_solution_help'] = "Show summary of results for learners at the end";

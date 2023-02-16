@@ -99,4 +99,11 @@ class MatchTake {
      */
     public $evaluated = false;
 
+    /**
+     * @var bool
+     */
+    public function is_completed(){
+        return $this->completed > 0;
+    }
+
 }

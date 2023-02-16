@@ -103,6 +103,7 @@ switch ($endpoint) {
     case 'match_questions':
     case 'match_answers':
     case "match_context":
+    case "timing-types":
         $mc = new MoodleMatchController();
         array_shift($args);
         if ($requestbody = file_get_contents('php://input')) {

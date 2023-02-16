@@ -54,5 +54,12 @@ $tasks = array(
                 'minute' => '0',
                 'hour' => '0',
                 'day' => '*',         // Every day.
-        )
+        ),
+          array(
+            'classname' => 'mod_ivs\task\ivs_plugin_statistic',
+            'blocking' => 0,        // Do not change to 1. Other tasks will be blocked.
+            'minute' => '0',
+            'hour' => '0',
+            'day' => '*',         // Every day.
+          )
 );

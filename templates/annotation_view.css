@@ -234,6 +234,12 @@
     animation: lds-dual-ring 1.2s linear infinite;
 }
 
+.ep5-match-take-info-box{
+    overflow: auto;
+    max-height: 353px;
+}
+
+
 @keyframes lds-dual-ring {
     0% {
         transform: rotate(0deg);

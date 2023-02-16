@@ -34,8 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class UpdateService {
 
-    private \moodle_database $database;
-    private \moodle_transaction $transaction;
+    private $database;
 
     /**
      * UpdateService constructor.
@@ -43,9 +42,11 @@ class UpdateService {
     public function __construct() {
         global $DB;
         $this->database = $DB;
-        $this->transaction = $this->database->start_delegated_transaction();
     }
 
+    /**
+     * @return void
+     */
     public function settingInvertUpdate() {
 
         $ivssettings =
@@ -53,27 +54,40 @@ class UpdateService {
 
         $configplugins =
                 $this->database->get_records_sql("SELECT * FROM {config_plugins} WHERE (name = 'default_random_question' OR name = 'list_item_buttons_hover_enabled' OR name = 'hide_when_inactive' OR name = 'annotation_realm_default_enabled') AND plugin = 'mod_ivs'");
-        try {
-            if (!empty($ivssettings)) {
-                foreach ($ivssettings as $ivssetting) {
-                    $invertedvalue = (integer) !$ivssetting->value;
-                    $this->database->execute("UPDATE {ivs_settings} SET value = :value WHERE target_id = :target_id",
-                            ['value' => $invertedvalue, 'target_id' => $ivssetting->target_id]);
-                }
+
+        if (!empty($ivssettings)) {
+            foreach ($ivssettings as $ivssetting) {
+                $invertedvalue = (integer) !$ivssetting->value;
+                $this->database->execute("UPDATE {ivs_settings} SET value = :value WHERE target_id = :target_id",
+                        ['value' => $invertedvalue, 'target_id' => $ivssetting->target_id]);
             }
-            if (!empty($configplugins)) {
-                foreach ($configplugins as $configplugin) {
-                    $invertedvalue = (integer) !$configplugin->value;
-                    $this->database->execute("UPDATE {config_plugins} SET value = :value WHERE id = :id AND plugin = 'mod_ivs'",
-                            ['value' => $invertedvalue, 'id' => $configplugin->id]);
-                }
+        }
+        if (!empty($configplugins)) {
+            foreach ($configplugins as $configplugin) {
+                $invertedvalue = (integer) !$configplugin->value;
+                $this->database->execute("UPDATE {config_plugins} SET value = :value WHERE id = :id AND plugin = 'mod_ivs'",
+                        ['value' => $invertedvalue, 'id' => $configplugin->id]);
             }
-        } catch (\dml_exception $e) {
-            $this->transaction->rollback($e);
         }
 
-        $this->transaction->allow_commit();
+    }
 
+    /**
+     * Adds a new column to ivs_videocomments table and migrate existing comments for the correct value
+     *
+     * @return void
+     */
+    public function alterVideocommentTableForCommentType() {
+        $this->database->execute("ALTER TABLE {ivs_videocomment} ADD comment_type VARCHAR(255) DEFAULT 'comment'");
+
+        $allcomments = $this->database->get_records_sql("SELECT id FROM {ivs_videocomment}");
+        foreach ($allcomments as $comment) {
+            $an = \mod_ivs\annotation::retrieve_from_db($comment->id);
+            if (!empty($an->load_audio_annotation())) {
+                $this->database->execute("UPDATE {ivs_videocomment} SET comment_type = :comment_type WHERE id = :id",
+                        ['comment_type' => 'audio_comment', 'id' => $comment->id]);
+            }
+        }
     }
 
 }

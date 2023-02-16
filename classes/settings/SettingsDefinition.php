@@ -77,6 +77,48 @@ class SettingsDefinition {
     /**
      * @var string
      */
+
+    const SETTING_PLAYER_EXAM_ENABLED = 'exam_mode_enabled';
+
+    /**
+     * @var string
+     */
+
+    const SETTING_PLAYER_CONTROLS_ENABLED = 'player_controls_enabled';
+
+    /**
+     * @var string
+     */
+
+    const SETTING_PLAYER_SHOW_VIDEOTEST_FEEDBACK = 'show_videotest_feedback';
+    /**
+     * @var string
+     */
+
+    const SETTING_PLAYER_SHOW_VIDEOTEST_SOLUTION = 'show_videotest_solution';
+
+    /**
+     * @var string
+     */
+
+    const SETTING_PLAYER_VIDEOTEST_GRADE_TO_PASS = 'videotest_grade_to_pass';
+
+    /**
+     * @var string
+     */
+
+    const SETTING_PLAYER_VIDEOTEST_ATTEMPTS = 'videotest_attempts';
+
+    /**
+     * @var string
+     */
+
+    const SETTING_PLAYER_VIDEOTEST_GRADE_METHOD = 'videotest_grade_method_options';
+
+    /**
+     * @var string
+     */
+
     const SETTING_PLAYER_LOCK_REALM = 'lock_realm_enabled';
 
     /**

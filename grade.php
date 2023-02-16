@@ -22,16 +22,20 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
-defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . "../../../config.php");
 
 require_login();
 
-$id = required_param('id', PARAM_INT);// Course module ID.
-// Item number may be != 0 for activities that allow more than one grade per user.
-$itemnumber = optional_param('itemnumber', 0, PARAM_INT);
-$userid = optional_param('userid', 0, PARAM_INT); // Graded user ID (optional).
+$id = required_param('id', PARAM_INT);          // Course module ID
+$itemnumber = optional_param('itemnumber', 0, PARAM_INT); // Item number, may be != 0 for activities that allow more than one grade per user
+$userid = optional_param('userid', 0, PARAM_INT); // Graded user ID (optional)
+$cm = get_coursemodule_from_id('ivs', $id, 0, false, MUST_EXIST);
 
-// In the simplest case just redirect to the view page.
+$moodlematchcontroller = new \mod_ivs\MoodleMatchController();
+if ($moodlematchcontroller->has_edit_access($cm->instance)){
+    redirect(new moodle_url('/mod/ivs/questions.php', array('id' => $id), 'question-types'));
+}
 redirect('view.php?id=' . $id);
+
+

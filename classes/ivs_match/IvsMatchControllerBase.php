@@ -24,6 +24,9 @@
 
 namespace mod_ivs\ivs_match;
 
+use mod_ivs\ivs_match\MatchResponse;
+use mod_ivs\ivs_match\MatchTake;
+use mod_ivs\ivs_match\MatchConfig;
 use mod_ivs\ivs_match\exception\MatchAlreadyAnsweredException;
 use mod_ivs\ivs_match\exception\MatchNoConfigException;
 use mod_ivs\ivs_match\exception\MatchQuestionException;
@@ -62,7 +65,7 @@ class IvsMatchControllerBase {
      */
     public function handle_request($endpoint, $patharguments, $method, $postdata) {
 
-        $videonid = $patharguments[0];
+        $videoId = $patharguments[0];
         if ($endpoint == "match_answers") {
             return $this->handle_answers_requests($patharguments, $method, $postdata);
         }
@@ -75,20 +78,28 @@ class IvsMatchControllerBase {
             }
         }
 
+        if ($endpoint == "timing-types") {
+            try {
+                return $this->handleTimingTypeRequests($patharguments, $method, $postdata);
+            } catch (\Exception $e) {
+                return new MatchResponse(['message' => $e->getMessage()], 401);
+            }
+        }
+
         // Handle get.
         switch (strtoupper($method)) {
             case "GET":
                 $takeid = optional_param('take_id', '', PARAM_ALPHANUMEXT);
                 // GET ANSWERS.
                 try {
-                    $questions = $this->load_questions_for_user_by_video($videonid, null, $takeid);
+                    $questions = $this->load_questions_for_user_by_video($videoId, null, $takeid);
                 } catch (exception\MatchQuestionAccessDeniedException $e) {
                     return new MatchResponse(['message' => $e->getMessage()], 403);
                 }
                 return new MatchResponse(array_values($questions));
             case "POST":
                 try {
-                    $response = $this->ivsmatchinterface->match_question_insert_db($videonid, $postdata);
+                    $response = $this->ivsmatchinterface->match_question_insert_db($videoId, $postdata);
                     return new MatchResponse($response);
                 } catch (exception\MatchQuestionAccessDeniedException $e) {
                     return new MatchResponse(['message' => $e->getMessage()], 403);
@@ -97,7 +108,7 @@ class IvsMatchControllerBase {
             case "PUT":
 
                 try {
-                    $response = $this->ivsmatchinterface->match_question_update_db($videonid, $postdata);
+                    $response = $this->ivsmatchinterface->match_question_update_db($videoId, $postdata);
                 } catch (exception\MatchQuestionAccessDeniedException $e) {
                     return new MatchResponse(['message' => $e->getMessage()], 403);
                 } catch (exception\MatchQuestionNotFoundException $e) {
@@ -164,6 +175,7 @@ class IvsMatchControllerBase {
     protected function handle_context_requests($patharguments, $method, $postdata) {
 
         $videonid = $patharguments[0];
+        $action = $patharguments[1];
         $contextid = $patharguments[2];
         $uid = $this->ivsmatchinterface->get_current_user_id();
 
@@ -172,13 +184,90 @@ class IvsMatchControllerBase {
                 $assessmentconfig = $this->ivsmatchinterface->assessment_config_get_by_user_and_video($uid, $videonid);
                 return new MatchResponse($assessmentconfig);
             case "POST":
-                $take = $this->get_match_take_for_user($uid, $videonid, $contextid);
-                return new MatchResponse($take);
+                if($action == 'start') {
+                    $take = $this->get_match_take_for_user($uid, $videonid, $contextid);
+                    return new \mod_ivs\ivs_match\MatchResponse($take);
+                }elseif ($action == 'finish') {
+
+                    $this->finish_match_take_for_user($uid, $videonid, $contextid, $postdata);
+
+                    $assessmentconfig = $this->ivsmatchinterface->assessment_config_get_by_user_and_video($uid, $videonid);
+                    return new MatchResponse($assessmentconfig);
+
+                }
                 break;
             case "PUT":
                 break;
             case "DELETE":
                 break;
+        }
+    }
+
+    protected function handleTimingTypeRequests($patharguments, $method, $postdata) {
+
+        global $DB;
+        $videoid = $patharguments[0];
+
+        switch (strtoupper($method)) {
+            case "GET":
+                $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
+                $assessmentconfig = $this->ivsmatchinterface->match_timing_type_get_db($ivs);
+
+                return new MatchResponse($assessmentconfig);
+            case "POST":
+                try {
+                    $response = $this->ivsmatchinterface->match_timing_type_insert_db($videoid, $postdata);
+                    return new MatchResponse($response);
+                } catch (exception\MatchQuestionAccessDeniedException $e) {
+                    return new MatchResponse(['message' => $e->getMessage()], 403);
+                }
+                break;
+            case "PUT":
+
+                try {
+                    $response = $this->ivsmatchinterface->match_timing_type_update_db($videoid, $postdata);
+
+                    //update edited timing questions
+                    $timingquestions = $this->ivsmatchinterface->match_questions_get_by_video_db($videoid);
+
+                    foreach($timingquestions as $timingquestion){
+                        if($timingquestion['type'] == 'timing_question'){
+                            if($postdata['id'] == $timingquestion['type_data']['timing_type_id']){
+                                $timingquestion['duration'] = $postdata['duration'] * 1000;
+                                $this->ivsmatchinterface->match_question_update_db($videoid, $timingquestion);
+                            }
+                        }
+                    }
+                } catch (exception\MatchQuestionAccessDeniedException $e) {
+                    return new MatchResponse(['message' => $e->getMessage()], 403);
+                } catch (exception\MatchQuestionNotFoundException $e) {
+                    return new MatchResponse(['message' => $e->getMessage()], 404);
+                } catch (\Exception $e) {
+                    return new MatchResponse(['message' => $e->getMessage()], 401);
+                }
+                return new MatchResponse($response);
+
+            case "DELETE":
+                $timingtypeid = $patharguments[1];
+                try {
+                    $response = $this->ivsmatchinterface->match_timing_type_delete_db($videoid, $timingtypeid);
+
+                    //delete all related timing match questions
+                    $timingquestions = $this->ivsmatchinterface->match_questions_get_by_video_db($videoid);
+
+                    foreach($timingquestions as $timingquestion){
+                        if($timingquestion['type'] == 'timing_question'){
+                            if($timingtypeid == $timingquestion['type_data']['timing_type_id']){
+                                $this->ivsmatchinterface->match_question_delete_db($timingquestion['nid']);
+                            }
+                        }
+                    }
+                } catch (exception\MatchQuestionAccessDeniedException $e) {
+                    return new MatchResponse(['message' => $e->getMessage()], 403);
+                } catch (exception\MatchQuestionNotFoundException $e) {
+                    return new MatchResponse(['message' => $e->getMessage()], 404);
+                }
+                return new MatchResponse($response);
         }
     }
 
@@ -206,6 +295,7 @@ class IvsMatchControllerBase {
             $takeid = $postdata['take_id'];
             $questionid = $postdata['question_id'];
 
+
             $matchtake = $this->ivsmatchinterface->match_take_get_db($takeid);
 
             $matchconfig = $this->ivsmatchinterface->match_video_get_config_db($matchtake->contextid, $matchtake->videoid);
@@ -218,17 +308,6 @@ class IvsMatchControllerBase {
             if (!$savematch && !$skipaccess) {
                 $response['solution_data'] = $solution;
                 return $response;
-            }
-
-            if (!$matchconfig->allow_repeat_answers) {
-
-                $answerexisting =
-                        $this->ivsmatchinterface->match_question_answer_get_by_question_and_user_db($questionid, $userid,
-                                $skipaccess);
-
-                if (!empty($answerexisting)) {
-                    throw new MatchAlreadyAnsweredException();
-                }
             }
 
             $response = $this->ivsmatchinterface->match_question_answer_insert_db($videoid, $postdata, $userid, $skipaccess);
@@ -257,10 +336,6 @@ class IvsMatchControllerBase {
 
         $matchconf = $this->ivsmatchinterface->match_video_get_config_db($matchtake->contextid, $matchtake->videoid);
 
-        if ($matchconf->assessmenttype == AssessmentConfig::ASSESSMENT_TYPE_FORMATIVE) {
-            return $this->evaluate_formative_take($matchtake);
-        }
-
         $takeanswers = $this->ivsmatchinterface->match_question_answers_get_by_take($takeid);
 
         $questions = $this->ivsmatchinterface->match_questions_get_by_video_db($matchtake->videoid, 'timecode', true);
@@ -283,7 +358,7 @@ class IvsMatchControllerBase {
             // Score.
             $matchtake->score = $numcorrect * 100 / $numanswered;
             $matchtake->completed = time();
-            $matchtake->status = $matchconf->has_passed($matchtake->score) ? MatchTake::STATUS_PASSED : MatchTake::STATUS_FAILED;
+            $matchtake->status = $matchconf->haspassed($matchtake->score) ? MatchTake::STATUS_PASSED : MatchTake::STATUS_FAILED;
 
         } else {
             $matchtake->status = MatchTake::STATUS_PROGRESS;
@@ -296,6 +371,29 @@ class IvsMatchControllerBase {
         // Save take and return it.
 
         return $matchtake;
+
+    }
+
+    /**
+     * Calculate succeeded match timing interaction and update finished match take
+     * @param $user_id
+     * @param $video_id
+     * @param $context_id
+     * @param $post_data
+     * @throws \edubreak_match\exception\MatchNoConfigException
+     */
+    public function finish_match_take_for_user($user_id, $video_id, $context_id, $post_data) {
+
+        $take_id = $post_data['take_id'];
+
+        $match_take = $this->ivsmatchinterface->match_take_get_db($take_id);
+        $match_conf = $this->ivsmatchinterface->match_video_get_config_db($context_id, $video_id);
+
+        $match_take->score = 100 / ($post_data['correct'] + $post_data['incorrect']) * $post_data['correct'];
+        $match_take->completed = time();
+        $match_take->status = $match_conf->hasPassed($match_take->score ) ?  MatchTake::STATUS_PASSED : MatchTake::STATUS_FAILED;
+
+        $this->ivsmatchinterface->match_take_update_db($match_take);
 
     }
 
@@ -475,7 +573,7 @@ class IvsMatchControllerBase {
         $numcompleted = 0;
 
         foreach ($usertakes as $take) {
-            if ($take->completed > 0) {
+            if ($take->is_completed()) {
                 $numcompleted++;
             }
         }
@@ -516,21 +614,12 @@ class IvsMatchControllerBase {
         $mt->contextid = $contextid;
         $mt->created = time();
         $mt->changed = time();
+        $mt->score = 0;
         $mt->evaluated = 0;
 
         $this->ivsmatchinterface->match_take_insert_db($mt);
 
         return $mt;
 
-    }
-
-    /**
-     * Evaluate a match take
-     * @param \stdClass $matchtake
-     *
-     * @return mixed
-     */
-    private function evaluate_formative_take($matchtake) {
-        return $matchtake;
     }
 }

@@ -55,11 +55,19 @@ if ($ADMIN->fulltree) {
     \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayeradvancedcommentssettings,$settings);
 
     \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/advanced_match',get_string('ivs_player_settings_advanced_match', 'ivs'),$settings);
-    $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
-    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayeradvancedcommentssettings,$settings);
+    $ivsplayeradvancedmatchsettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayeradvancedmatchsettings,$settings);
+
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/grades',get_string('ivs_grade', 'ivs'),$settings);
+    $ivsplayergradesettings = \mod_ivs\settings\SettingsService::ivs_get_player_grade_settings();
+    \mod_ivs\settings\SettingsService::ivs_add_settings($ivsplayergradesettings,$settings);
 
     \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/advanced_video_source',get_string('ivs_player_settings_advanced_video_source', 'ivs'),$settings);
     \mod_ivs\settings\SettingsService::ivs_get_player_advanced_video_source_settings($settings);
+
+    \mod_ivs\settings\SettingsService::ivs_add_new_settings_heading('mod_ivs/statistics',
+            get_string('ivs_player_settings_statistics', 'ivs'), $settings);
+    \mod_ivs\settings\SettingsService::ivs_usage_statistic_settings($settings);
 
 }
 
@@ -69,6 +77,10 @@ $settings = null;
 
 $ADMIN->add('interactive_video_suite_settings', new admin_externalpage('admin_settings_license', get_string('ivs_license', 'ivs'),
         $CFG->wwwroot . '/mod/ivs/admin/admin_settings_license.php',
+        'moodle/site:config'));
+
+$ADMIN->add('interactive_video_suite_settings', new admin_externalpage('statistics', get_string('ivs_statistics', 'ivs'),
+        $CFG->wwwroot . '/mod/ivs/admin/statistics.php',
         'moodle/site:config'));
 
 

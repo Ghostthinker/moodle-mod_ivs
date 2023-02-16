@@ -33,6 +33,10 @@ use admin_setting_heading;
 use lang_string;
 use mod_ivs\admin_setting_configtext_ivs_custom;
 use mod_ivs\admin_setting_configtext_ivs_custom_with_lock;
+use mod_ivs\gradebook\GradebookService;
+use mod_ivs\ivs_match\AssessmentConfig;
+use mod_ivs\MoodleMatchController;
+use stdClass;
 
 /**
  * Class SettingsService
@@ -67,11 +71,11 @@ class SettingsService {
         return $lockreadaccessoptions;
     }
 
-    public static function ivs_render_activity_settings($settings,$coursesettings,&$mform,$globalsettings,$lockreadaccessoptions){
+    public static function ivs_render_activity_settings($settings,$coursesettings,&$mform,$globalsettings,$options = NULL){
         foreach ($settings as $settingsdefinition) {
 
             self::add_vis_setting_to_form($settingsdefinition->type, $globalsettings, $settingsdefinition, $mform,
-                    true, $lockreadaccessoptions);
+                    true, $options);
 
             if (isset($coursesettings[$settingsdefinition->name])) {
                 if (!$globalsettings[$settingsdefinition->name]->locked) {
@@ -168,25 +172,97 @@ class SettingsService {
                 get_string('ivs_setting_kaltura_external_files_help', 'ivs'), 1));
     }
 
+    public static function ivs_usage_statistic_settings(&$settings) {
 
-    public static function ivs_get_player_advanced_match_settings(){
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT,
-                get_string('ivs_setting_single_choice_question_random_default', 'ivs'),
-                'ivs_setting_single_choice_question_random_default',
-                'checkbox',
-                1,
-                true,
-                true);
-        $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_PLAYER_ACCESSIBILITY,
-                get_string('ivs_setting_accessibility', 'ivs'),
-                'ivs_setting_accessibility',
-                'checkbox',
-                0,
-                true,
-                true);
+        $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_statistics',
+                get_string('ivs_statistics_title', 'ivs'),
+                get_string('ivs_statistics_help', 'ivs'), 1));
+    }
 
+    public static function ivs_get_player_grade_settings() {
+
+        $gradebookservice = new GradebookService();
+
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_TO_PASS,
+            get_string('ivs_gradepass', 'ivs'),
+            'ivs_gradepass',
+            'text',
+            100,
+            true,
+            true
+        );
+
+
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS,
+            get_string('ivs_attemptsallowed', 'ivs'),
+            'ivs_attempts',
+            'select',
+            0,
+            true,
+            true,
+            $gradebookservice->ivs_get_attempt_options()
+        );
+
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_METHOD,
+            get_string('ivs_grademethod', 'ivs'),
+            'ivs_grademethod',
+            'select',
+            0,
+            true,
+            true,
+            $gradebookservice->ivs_get_grade_method_options()
+        );
+
+
+        return $settings;
+    }
+
+
+    public static function ivs_get_player_advanced_match_settings() {
+
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_MATCH_SINGLE_CHOICE_QUESTION_RANDOM_DEFAULT,
+            get_string('ivs_setting_single_choice_question_random_default', 'ivs'),
+            'ivs_setting_single_choice_question_random_default',
+            'checkbox',
+            1,
+            true,
+            true);
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_CONTROLS_ENABLED,
+            get_string('ivs_setting_player_controls_enabled', 'ivs'),
+            'ivs_setting_player_controls_enabled',
+            'checkbox',
+            0,
+            true,
+            true);
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_FEEDBACK,
+            get_string('ivs_setting_player_show_videotest_feedback', 'ivs'),
+            'ivs_setting_player_show_videotest_feedback',
+            'checkbox',
+            0,
+            true,
+            true);
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_SOLUTION,
+            get_string('ivs_setting_player_show_videotest_solution', 'ivs'),
+            'ivs_setting_player_show_videotest_solution',
+            'checkbox',
+            1,
+            true,
+            true);
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_EXAM_ENABLED,
+            get_string('ivs_setting_exam_mode', 'ivs'),
+            'ivs_setting_exam_mode',
+            'checkbox',
+            0,
+            true,
+            true);
         return $settings;
 
     }
@@ -296,6 +372,8 @@ class SettingsService {
 
     public static function ivs_get_player_settings(){
 
+        $moodlematchcontroller = new MoodleMatchController();
+
         $settings[] = new SettingsDefinition(
                 SettingsDefinition::SETTING_ANNOTATIONS_ENABLED,
                 get_string('ivs_setting_annotations_enabled', 'ivs'),
@@ -306,13 +384,15 @@ class SettingsService {
                 true);
 
         $settings[] = new SettingsDefinition(
-                SettingsDefinition::SETTING_MATCH_QUESTION_ENABLED,
-                get_string('ivs_setting_match_question', 'ivs'),
-                'ivs_setting_match_question',
-                'checkbox',
-                0,
-                true,
-                true);
+            SettingsDefinition::SETTING_MATCH_QUESTION_ENABLED,
+            get_string('ivs_setting_match_question', 'ivs'),
+            'ivs_setting_match_question',
+            'select',
+            0,
+            true,
+            true,
+            $moodlematchcontroller->get_assessment_type_options()
+        );
 
         $settings[] = new SettingsDefinition(
                 SettingsDefinition::SETTING_PLAYER_ANNOTATION_AUDIO,
@@ -332,6 +412,15 @@ class SettingsService {
                 true,
                 true);
 
+        $settings[] = new SettingsDefinition(
+            SettingsDefinition::SETTING_PLAYER_ACCESSIBILITY,
+            get_string('ivs_setting_accessibility', 'ivs'),
+            'ivs_setting_accessibility',
+            'checkbox',
+            0,
+            true,
+            true);
+
         return $settings;
     }
 
@@ -347,12 +436,14 @@ class SettingsService {
         $advancedcommentsettings = self::ivs_get_player_advanced_comments_settings();
         $controlsettings = self::ivs_get_player_control_settings();
         $notificationsettings = self::ivs_get_player_notification_settings();
+        $gradesettings = self::ivs_get_player_grade_settings();
 
         $settings = array_merge($playersettings,
                 $advancedmatchsettings,
                 $advancedcommentsettings,
                 $controlsettings,
-                $notificationsettings);
+                $notificationsettings,
+                $gradesettings);
 
         return $settings;
     }
@@ -445,6 +536,7 @@ class SettingsService {
      * @return array
      */
     public function get_settings_global() {
+        global $DB;
         $defs = self::get_settings_definitions();
         $settings = [];
         $conf = get_config('mod_ivs');
@@ -470,7 +562,7 @@ class SettingsService {
      *
      * @return array
      */
-    public function get_rarent_settings_for_activity($courseid = null) {
+    public function get_parent_settings_for_activity($courseid = null) {
         $settingsglobal = $this->get_settings_global();
 
         $settingscourse = $this->load_settings($courseid, 'course');
@@ -576,10 +668,9 @@ class SettingsService {
                 $mform->setType($settingdefinition->name . "[parent_value]", PARAM_INT);
                 break;
             case "select":
-                $availablefromgroup[] = &$mform->createElement('select', 'value', '', $options, $attributes);
+                $availablefromgroup[] = &$mform->createElement('select', 'value', '', $options[$settingdefinition->name], $attributes);
                 $mform->setType($settingdefinition->name . "[parent_value]", PARAM_TEXT);
-                $defaultsuffix = get_string('defaultsettinginfo', 'admin',
-                        $settingdefinition->options[$globalsettings[$settingdefinition->name]->value]);
+                $defaultsuffix = get_string('defaultsettinginfo', 'admin', $settingdefinition->options[$globalsettings[$settingdefinition->name]->value]);
                 $availablefromgroup[] = $mform->createElement('html', '<label class="text-muted">' . $defaultsuffix . '</label>');
                 break;
             case "text":
@@ -617,8 +708,9 @@ class SettingsService {
      * @param mixed $ivs
      */
     public function process_activity_settings_form($ivs) {
+        global $DB;
 
-        $parentsettings = $this->get_rarent_settings_for_activity($ivs->course);
+        $parentsettings = $this->get_parent_settings_for_activity($ivs->course);
 
         foreach ((array) $ivs as $key => $vals) {
 
@@ -642,8 +734,17 @@ class SettingsService {
                 $setting->locked = 0;
 
                 $this->save_setting($setting);
+
             }
+            $gradebookservice = new GradebookService();
+            $gradebookservice->ivs_set_grade_to_pass_activity_setting($ivs, $key, $vals);
+
+
         }
+
+        //Init Grade
+        ivs_grade_item_update($ivs, NULL);
+
     }
 
 }

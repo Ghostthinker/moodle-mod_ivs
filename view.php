@@ -26,6 +26,7 @@
 
 use mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\settings\SettingsService;
+use mod_ivs\gradebook\GradebookService;
 use mod_ivs\MoodleLicenseController;
 use mod_ivs\IvsHelper;
 use mod_ivs\upload\ExternalSourceVideoHost;
@@ -58,7 +59,6 @@ if ($id) {
     error('You must specify a course_module ID or an instance ID');
 }
 
-
 $activitycontext = \context_module::instance($id);
 
 $settingscontroller = new SettingsService();
@@ -69,7 +69,7 @@ $videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs, $course);
 
 $videourl = $videohost->get_video();
 
-$matchenabled = $activitysettings['match_question_enabled']->value;
+$match_type = $activitysettings['match_question_enabled']->value;
 
 $annotationsenabled = $activitysettings['annotations_enabled']->value;
 
@@ -79,13 +79,12 @@ $userroles = get_user_roles($context, $USER->id);
 $courseservice = new \mod_ivs\CourseService();
 $members = $courseservice->get_course_members($course->id);
 
-if ($matchenabled) {
+if ($match_type) {
     $permissionsavematch = has_capability('mod/ivs:create_match_answers', $activitycontext);
     if (!$permissionsavematch) {
         \core\notification::info(get_string('ivs_disabled_saving_match_result', 'ivs'));
     }
 }
-
 
 if (!empty($members)) {
 
@@ -247,7 +246,7 @@ if (empty($embedded)) {
                 <?php print get_string('ivs:view:comment_overview', 'ivs'); ?></a>
         </div>
 
-        <?php if ($matchenabled && has_capability('mod/ivs:access_match_reports', $activitycontext)): ?>
+        <?php if ($match_type && has_capability('mod/ivs:access_match_reports', $activitycontext)): ?>
 
             <!-- Questions URL -->
 
@@ -509,7 +508,7 @@ if (empty($embedded)) {
 
     $matchcontroller = new \mod_ivs\MoodleMatchController();
 
-    if ($matchenabled) {
+    if ($match_type) {
 
         $assessmentconfig =
             $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
@@ -535,20 +534,43 @@ if (empty($embedded)) {
                 ]
         );
 
+        if(!ivs_may_edit_match_questions($activitycontext) && (int) $activitysettings['exam_mode_enabled']->value) {
+            $playerconfig['plugins']['edubreak_match']['lock_play_button'] = true;
+        }
+
+
         $playerconfig['plugins']['edubreak_match_question_choice'] = [
                 'feedback_text_enabled' => true,
                 'feedback_video_enabled' => true,
                 'default_options' => 3,
                 'max_allowed_choices' => 5,
-                'default_random_question' => (int) $activitysettings['default_random_question']->value,
+                'default_random_question' => (int) $activitysettings['default_random_question']->value
         ];
         $playerconfig['plugins']['edubreak_match_question_click'] = array(
                 'feedback_enabled' => true
         );
         $playerconfig['plugins']['edubreak_match_question_text'] = array(
                 'default_max_length' => 500,
-                'feedabck_enabled' => true
+                'feedback_enabled' => true
         );
+    }
+
+    if ($match_type == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
+        $playerconfig['plugins']['edubreak_match_question_timing'] = [
+            "show_realtime_results" => true,
+            "score_enabled" => true,
+            "question_duration_enabled" => true,
+        ];
+
+        unset( $playerconfig['plugins']['edubreak_match_question_choice']);
+        unset( $playerconfig['plugins']['edubreak_match_question_click']);
+        $playerconfig['plugins']['edubreak_match']['show_create_button'] = false;
+
+        //disable timline previews when users are may not edit questions
+        if(!ivs_may_edit_match_questions($activitycontext)) {
+            $playerconfig['plugins']['edubreak_match']['show_timeline'] = false;
+            $playerconfig['plugins']['edubreak_match']['lock_play_button'] = true;
+        }
     }
 
     if (!$annotationsenabled) {

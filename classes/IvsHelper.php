@@ -131,4 +131,27 @@ class IvsHelper {
         $lang = $currentlanguage;
         return stripos($lang, '_') ? substr($lang, 0, stripos($lang, '_')) : $lang;
     }
+
+    public static function get_ivs_activities_by_course_and_type($courseId) {
+        global $DB;
+        $activityType = $DB->get_record('modules', array('name' => 'ivs'));
+        $records = $DB->get_records('course_modules', array('course' => $courseId, 'module' => $activityType->id));
+        $activities = [];
+        foreach($records as $cm){
+            $activities[] = $DB->get_record('ivs', array('id' => $cm->instance), '*', MUST_EXIST);
+        }
+
+        return $activities;
+    }
+
+    public static function get_ivs_activities_by_instance_and_type() {
+        global $DB;
+        $activityType = $DB->get_record('modules', array('name' => 'ivs'));
+        $records = $DB->get_records('course_modules', array('module' => $activityType->id));
+        $activities = [];
+        foreach($records as $cm){
+            $activities[] = $DB->get_record('ivs', array('id' => $cm->instance), '*', MUST_EXIST);
+        }
+        return $activities;
+    }
 }

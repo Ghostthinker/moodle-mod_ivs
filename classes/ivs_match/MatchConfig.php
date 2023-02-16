@@ -32,7 +32,7 @@ class MatchConfig {
     /**
      * @var string
      */
-    public $assessmenttype = AssessmentConfig::ASSESSMENT_TYPE_TAKES;
+    public $assessment_type = AssessmentConfig::ASSESSMENT_TYPE_QUIZ;
 
     /**
      * @var int
@@ -65,25 +65,6 @@ class MatchConfig {
     public $show_feedback = false;
 
     /**
-     * Create match config object from array
-     *
-     * @param array $ar
-     * @return MatchConfig
-     */
-    public static function from_array($ar) {
-        $mc = new MatchConfig();
-
-        if (array_key_exists('attempts', $ar)) {
-            $mc->attempts = $ar['attempts'];
-        }
-
-        if (array_key_exists('rate', $ar)) {
-            $mc->rate = $ar['rate'];
-        }
-        return $mc;
-    }
-
-    /**
      * Check if the attempts are limited
      * @return bool
      */
@@ -97,7 +78,7 @@ class MatchConfig {
      *
      * @return bool
      */
-    public function has_passed($score) {
+    public function hasPassed(float $score) {
         return $score >= $this->rate;
     }
 }

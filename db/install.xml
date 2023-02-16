@@ -40,6 +40,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="additional_data" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Additinal comment data als json"/>
         <FIELD NAME="access_view" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Access roles, groups, users for the comment data als json"/>
+        <FIELD NAME="comment_type" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" DEFAULT="comment" COMMENT="Access roles, groups, users for the comment data als json"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

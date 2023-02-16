@@ -22,6 +22,7 @@
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
 
+use mod_ivs\gradebook\GradebookService;
 use mod_ivs\settings\SettingsCourseForm;
 
 require_once('../../config.php');
@@ -83,6 +84,10 @@ if ($fromform = $mform->get_data()) {
             $setting->locked = isset($vals['locked']) ? $vals['locked'] : 0;
 
             $settingscontroller->save_setting($setting);
+
+            $gradebookservice = new GradebookService();
+            $gradebookservice->ivs_set_grade_to_pass_course_setting($courseid, $key, $vals);
+
         }
     }
 
@@ -94,4 +99,3 @@ if ($fromform = $mform->get_data()) {
     $mform->display();
     print $OUTPUT->footer();
 }
-

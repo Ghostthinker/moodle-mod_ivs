@@ -62,12 +62,28 @@ class AssessmentConfig {
     /**
      * @var string
      */
-    const ASSESSMENT_TYPE_TAKES = 'TAKES';      // Multiple takes, takes count as score unit, one take at a time.
+    const ASSESSMENT_TYPE_FORMATIVE = 'FORMATIVE'; // No takes, a formative training.
+
 
     /**
      * @var string
      */
-    const ASSESSMENT_TYPE_FORMATIVE = 'FORMATIVE'; // No takes, a formative training.
+    const ASSESSMENT_TYPE_NONE = 0;      // Multiple takes, takes count as score unit, one take at a time.
+
+    /**
+     * @var string
+     */
+    const ASSESSMENT_TYPE_QUIZ = 1;      // Multiple takes, takes count as score unit, one take at a time.
+
+    /**
+     * @var string
+     */
+    const ASSESSMENT_TYPE_TIMING = 2; //
+
+    /**
+     * @var string
+     */
+    const NO_TAKES_LEFT_COMPLETED_SUCCESS_NO_SUMMARY = 'NO_TAKES_LEFT_COMPLETED_SUCCESS_NO_SUMMARY'; //
 
     /**
      * @var int

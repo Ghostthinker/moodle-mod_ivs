@@ -37,7 +37,7 @@ function xmldb_ivs_upgrade($oldversion) {
     global $DB,$CFG;
 
     $dbman = $DB->get_manager();
-
+    $updateservice = new \mod_ivs\UpdateService();
     if ($oldversion < 2020050524) {
         $switchcastexternalfilesenabled =
           get_config('mod_ivs', 'ivs_switchcast_external_files_enabled');
@@ -102,9 +102,14 @@ function xmldb_ivs_upgrade($oldversion) {
 
 
     if($oldversion < 2022072902){
-        $updateservice = new \mod_ivs\UpdateService();
+
         $updateservice->settingInvertUpdate();
         upgrade_mod_savepoint(true, 2022072902, 'ivs');
+    }
+
+    if($oldversion < 2022110800){
+        $updateservice->alterVideocommentTableForCommentType();
+        upgrade_mod_savepoint(true, 2022110800, 'ivs');
     }
 
     return true;

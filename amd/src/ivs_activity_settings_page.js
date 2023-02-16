@@ -2,14 +2,34 @@ define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/m
     let selectedPanoptoVideo = '';
     return {
         init: function (panopto_data) {
-            // register 'enable video question' change event
-            $('#id_match_question_enabled_value').change(function () {
-                set_display_option('#id_match_question_enabled_value', 'playbackrate_enabled');
+
+            //hide and update gradepass core function with separate videotest gradepass setting
+            //Please note: The actual setting for grade to pass will be hidden und manipulated by the
+            //activity setting which can be locked in the activity, course and system settings.
+            $('#id_modstandardgrade').hide();
+
+
+            //Hide Settings depending on other settings
+            $('#id_exam_mode_enabled_value').change(function () {
+                set_display_option('#id_exam_mode_enabled_value', '#id_mod_ivsgrades');
+                return;
+            });
+  //Hide Settings depending on other settings
+            $('#id_annotations_enabled_value').change(function () {
+                set_display_option('#id_annotations_enabled_value', '#id_mod_ivsnotification');
                 return;
             });
 
-            $('#id_annotations_enabled_value').change(function () {
-                set_display_option('#id_annotations_enabled_value', 'user_notification_settings');
+            set_display_option('#id_annotations_enabled_value', '#id_mod_ivsnotification');
+            set_display_option('#id_exam_mode_enabled_value', '#id_mod_ivsgrades');
+            set_display_option_timing_mode( '#id_match_question_enabled_value', '#fgroup_id_show_videotest_feedback');
+            set_display_option_timing_mode('#id_match_question_enabled_value', '#fgroup_id_show_videotest_solution');
+
+             $('#id_match_question_enabled_value').change(function () {
+                             //Show timing mode checkboxes
+                 set_display_option_timing_mode( $('#id_match_question_enabled_value'), '#fgroup_id_show_videotest_feedback');
+                 set_display_option_timing_mode($('#id_match_question_enabled_value'), '#fgroup_id_show_videotest_solution');
+
                 return;
             });
 
@@ -98,12 +118,22 @@ define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/m
 /**
  * set 'adjust playback speed' visibility depending on 'enable video question' checkbox
  */
-function set_display_option(field,dataGroupname) {
+function set_display_option(field,element) {
     if (!$(field).is(":checked")) {
-        $('[data-groupname='+dataGroupname+']').css('display', 'none');
+        $(element).css('display', 'none');
     } else {
-        $('[data-groupname='+dataGroupname+']').css('display', '');
+        $(element).css('display', '');
     }
 }
 
 
+/**
+ * hide and show timing mode settings
+ */
+function set_display_option_timing_mode(field, element) {
+    if ($(field).val() != 2){
+        $(element).css('display', 'none');
+    } else {
+        $(element).css('display', '');
+    }
+}

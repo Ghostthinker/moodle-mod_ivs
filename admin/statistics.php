@@ -15,19 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * File for the setting the version
+ * This file is used to render the admin statistics page
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_ivs';
 
-$plugin->release = 'v1.15.850';
-$plugin->version = 2023021300;
-$plugin->requires = 2014051200;
-$plugin->maturity = MATURITY_BETA;
-$plugin->cron = 0;
-$plugin->dependencies = array();
+require(__DIR__ . '/../../../config.php');
+
+global $DB;
+
+require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/outputcomponents.php');
+
+require_login(null, false);
+admin_externalpage_setup('statistics');
+
+$heading = get_string('modulecategory', 'ivs') . ' ' . get_string('ivs_statistics', 'ivs');
+
+$PAGE->set_title($heading);
+$PAGE->set_heading($heading);
+$PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/statistics.css'));
+echo $OUTPUT->header();
+$renderer = $PAGE->get_renderer('ivs');
+
+$renderable = new \mod_ivs\output\statistics_view();
+echo $renderer->render($renderable);
+
+
+echo $renderer->footer();
+

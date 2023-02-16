@@ -51,6 +51,8 @@ class MediaController {
     }
 
     private function handle_post($patharguments, $files) {
+        global $DB;
+
         $videoid = $patharguments[0];
         $annotationid = $patharguments[1];
 
@@ -67,6 +69,10 @@ class MediaController {
         }
 
         $response = $annotation->to_player_comment();
+
+        $DB->execute("UPDATE {ivs_videocomment} SET comment_type = :comment_type WHERE id = :id",
+                ['comment_type' => 'audio_comment', 'id' => $annotation->get_id()]);
+
         $this->backendService->ivs_backend_exit($response, 200);
 
     }

@@ -15,19 +15,38 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * File for the setting the version
+ * Class for calculate the usage
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2017 onwards Ghostthinker GmbH (https://ghostthinker.de/)
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_ivs';
+namespace mod_ivs\task;
 
-$plugin->release = 'v1.15.850';
-$plugin->version = 2023021300;
-$plugin->requires = 2014051200;
-$plugin->maturity = MATURITY_BETA;
-$plugin->cron = 0;
-$plugin->dependencies = array();
+use mod_ivs\StatisticsService;
+
+/**
+ * Class ivs_plugin_usage
+ */
+class ivs_plugin_statistic extends \core\task\scheduled_task {
+
+    /**
+     * Get the name from the plugin
+     *
+     * @return mixed
+     */
+    public function get_name() {
+        return get_string('ivs_plugin', 'mod_ivs');
+    }
+
+    /**
+     * Implements the execute function
+     */
+    public function execute() {
+        $statisticService = new StatisticsService();
+        $statisticService->statisticChanged();
+    }
+
+}
