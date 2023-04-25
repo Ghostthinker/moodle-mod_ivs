@@ -22,13 +22,13 @@ define(['jquery', 'core/notification', 'core/custom_interaction_events', 'core/m
 
             set_display_option('#id_annotations_enabled_value', '#id_mod_ivsnotification');
             set_display_option('#id_exam_mode_enabled_value', '#id_mod_ivsgrades');
-            set_display_option_timing_mode( '#id_match_question_enabled_value', '#fgroup_id_show_videotest_feedback');
-            set_display_option_timing_mode('#id_match_question_enabled_value', '#fgroup_id_show_videotest_solution');
+            set_display_option_timing_mode( '#id_match_question_enabled_value', '#fgroup_id_show_realtime_results');
+            set_display_option_timing_mode('#id_match_question_enabled_value', '#fgroup_id_show_timing_take_summary');
 
              $('#id_match_question_enabled_value').change(function () {
                              //Show timing mode checkboxes
-                 set_display_option_timing_mode( $('#id_match_question_enabled_value'), '#fgroup_id_show_videotest_feedback');
-                 set_display_option_timing_mode($('#id_match_question_enabled_value'), '#fgroup_id_show_videotest_solution');
+                 set_display_option_timing_mode( $('#id_match_question_enabled_value'), '#fgroup_id_show_realtime_results');
+                 set_display_option_timing_mode($('#id_match_question_enabled_value'), '#fgroup_id_show_timing_take_summary');
 
                 return;
             });

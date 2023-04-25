@@ -110,6 +110,36 @@
         </div>
     {{/single_choice_question}}
 
+    <!--Click Question Answers-->
+    {{#timing_question}}
+        <div class="answers">
+            <table class="generaltable table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col" colspan="2">{{id_label}}<span class="answers-header-details">{{id}}</span></th>
+                    <th scope="col" colspan="1">{{type_label}}<span class="answers-header-details">{{question_type}}</span></th>
+                    <th scope="col" colspan="2">{{title_label}}<span class="answers-header-details">{{{label}}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col" colspan="5">{{question_label}}<span class="answers-header-details">{{{question}}}</span></th>
+                </tr>
+                <tr>
+                    <th scope="col">{{name}}</th>
+                    <th scope="col">{{user_id}}</th>
+                    <th scope="col">{{first_click_answer}}</th>
+                    <th scope="col">{{click_retries}}</th>
+                    <th scope="col" class="odd">{{last_click_answer}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#answers}}
+                    {{{.}}}
+                {{/answers}}
+                </tbody>
+            </table>
+        </div>
+    {{/timing_question}}
+
     <!--Items per Pager-->
     <div class="question-answers-footer">
         <form class="form-inline">

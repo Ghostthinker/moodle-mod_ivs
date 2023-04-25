@@ -25,6 +25,7 @@
  */
 
 use mod_ivs\ivs_match\AssessmentConfig;
+use mod_ivs\settings\SettingsDefinition;
 use mod_ivs\settings\SettingsService;
 use mod_ivs\gradebook\GradebookService;
 use mod_ivs\MoodleLicenseController;
@@ -192,6 +193,9 @@ if (empty($embedded)) {
 
     <div>
         <style>
+            .activity-header{
+                display: none !important;
+            }
             .edubreak-responsive-iframe {
                 width: 100%;
                 height: 70vh;
@@ -557,7 +561,7 @@ if (empty($embedded)) {
 
     if ($match_type == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
         $playerconfig['plugins']['edubreak_match_question_timing'] = [
-            "show_realtime_results" => true,
+            "show_realtime_results" => (int) $activitysettings['show_realtime_results']->value,
             "score_enabled" => true,
             "question_duration_enabled" => true,
         ];

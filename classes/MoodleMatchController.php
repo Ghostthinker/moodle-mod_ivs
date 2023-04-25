@@ -26,6 +26,7 @@ namespace mod_ivs;
 
 use ltiservice_gradebookservices\local\service\gradebookservices;
 use mod_ivs\gradebook\GradebookService;
+use mod_ivs\ivs_match\MatchTimingType;
 use mod_ivs\ivs_match\question\QuestionSummary;
 use mod_ivs\ivs_match\AssessmentConfig;
 use mod_ivs\ivs_match\IvsMatchControllerBase;
@@ -37,8 +38,11 @@ use mod_ivs\ivs_match\exception\MatchTakeException;
 use mod_ivs\ivs_match\IIvsMatch;
 use mod_ivs\ivs_match\MatchConfig;
 use mod_ivs\ivs_match\MatchTake;
+use mod_ivs\ivs_match\timing\MatchTimingTakeResult;
 use mod_ivs\IvsHelper;
 use mod_ivs\output\match\question_click_answer_view;
+use mod_ivs\output\match\timing_question_answer_view;
+use mod_ivs\output\match\timing_type_answer_view;
 use mod_ivs\output\match\question_single_choice_answer_view;
 use mod_ivs\output\match\question_text_answer_view;
 use mod_ivs\settings\SettingsDefinition;
@@ -106,7 +110,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             throw new MatchQuestionNotFoundException();
         }
 
-        return $this->record_to_player_question((array) $questionfromdb);
+        $questionfromdb =  $this->record_to_player_question((array) $questionfromdb);
+        return $questionfromdb;
 
     }
 
@@ -128,6 +133,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         foreach ($questionsfromdb as $question) {
             $questions[$question->id] = $this->record_to_player_question((array) $question);
         }
+
+        $questions = $this->match_questions_reformat_timing_questions($videoid, $questions);
 
         return $questions;
     }
@@ -156,6 +163,9 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         foreach ($records as $question) {
             $questions[$question->id] = $this->record_to_player_question((array) $question);
         }
+
+        $questions = $this->match_questions_reformat_timing_questions($videoid, $questions);
+
         return $questions;
     }
 
@@ -389,6 +399,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         foreach ($record as $answer) {
             $answers[$answer->id] = $this->record_to_player_answer((array) $answer);
         }
+
         return $answers;
     }
 
@@ -434,6 +445,53 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 'question' => $question,
                 'userData' => $question['userdata'],
                 'answers' => [$first, $last]
+        );
+
+        return $detail;
+    }
+
+    /**
+     * Gets all necessary data for reporting
+     *
+     * @param int $questionid
+     * @param int $userid
+     * @param bool $skipaccess
+     * @return array
+     * @throws \mod_ivs\ivs_match\exception\MatchQuestionAccessDeniedException
+     * @throws \mod_ivs\ivs_match\exception\MatchQuestionNotFoundException
+     */
+    public function match_question_answers_get_by_timing_type_and_user_for_reporting($currenttimingtype, $userid, $videoid, $skipaccess = false) {
+
+        //get all answers by timing type
+        $timingtypeanswers = $this->match_question_answers_get_by_timing_type_and_user_db($currenttimingtype->id, $userid, $videoid, $skipaccess);
+        $detail = [];
+
+        $counterfirst = 0;
+        $counterlast = 0;
+
+        foreach ($timingtypeanswers as $questionid => $answers){
+            if (!empty($answers)){
+                $answers = array_values($answers);
+                if ($answers[0]['is_correct']){
+                    $counterfirst++;
+                }
+                if (end($answers)['is_correct']){
+                    $counterlast++;
+                }
+            }
+        }
+
+        $detail = array(
+
+            'userid' => $userid,
+            'type' => 'timing_question',
+            'videoid' => $videoid,
+            'question' => [
+                'nid' => $currenttimingtype->id,
+                'title' => $currenttimingtype->title,
+                'question_body' => $currenttimingtype->description,
+            ],
+            'answers' => [$counterfirst, $counterlast]
         );
 
         return $detail;
@@ -888,7 +946,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         return[
             AssessmentConfig::ASSESSMENT_TYPE_NONE => get_string('ivs_match_config_assessment_mode_none', 'ivs'),
             AssessmentConfig::ASSESSMENT_TYPE_QUIZ => get_string('ivs_match_config_assessment_mode_quiz', 'ivs'),
-            //AssessmentConfig::ASSESSMENT_TYPE_TIMING => get_string('ivs_match_config_assessment_mode_timing', 'ivs'),
+            AssessmentConfig::ASSESSMENT_TYPE_TIMING => get_string('ivs_match_config_assessment_mode_timing', 'ivs'),
         ];
     }
 
@@ -903,7 +961,6 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
      */
     public function assessment_config_get_by_user_and_video($userid, $videoid, $includesimulation = false) {
 
-        $assessmentconfig = [];
         global $DB;
         $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
         $moodlematchcontroller = new MoodleMatchController();
@@ -1053,6 +1110,16 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
     }
 
     /**
+     * Get the title from a match question
+     * @param array $question
+     *
+     * @return mixed
+     */
+    public function get_match_question_timing_title($timingtype) {
+        return !empty($timingtype->description) ? ($timingtype->title . ': ' . shorten_text($timingtype->description)) : $timingtype->label;
+    }
+
+    /**
      * Get question summary raw data
      *
      * @param array $question
@@ -1149,6 +1216,15 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                         round($questionsummary->last_attempt_correct * 100 / $questionsummary->num_students_participation, 0) .
                         '%';
                 break;
+            case 'timing_question':
+                $data->question_type = get_string('ivs_match_question_summary_question_type_timing', 'ivs');
+                $data->question_first_try = $questionsummary->num_students_participation == 0 ? '0%' :
+                    round($questionsummary->first_attempt_correct * 100 / $questionsummary->num_students_participation, 0) .
+                    '%';
+                $data->question_last_try = $questionsummary->num_students_participation == 0 ? '0%' :
+                    round($questionsummary->last_attempt_correct * 100 / $questionsummary->num_students_participation, 0) .
+                    '%';
+                break;
         }
 
         $data->question_answered = $questionsummary->num_students_participation . ' / ' . $questionsummary->num_students_total;
@@ -1233,6 +1309,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $data->text_question = false;
         $data->single_choice_question = false;
         $data->click_question = false;
+        $data->timing_question = false;
+        $timing_types = false;
 
         for ($i = $offset; $i < $offset + $perpage; $i++) {
             if ($i == $totalcount) {
@@ -1257,6 +1335,18 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                     $data->single_choice_question = true;
                     $renderable = new question_single_choice_answer_view($answer, $answerusers[$i]);
                     break;
+                case 'timing_question':
+                    $data->question_type = get_string('ivs_match_question_summary_question_type_timing', 'ivs');
+                    $data->timing_question = true;
+                    $url = $_SERVER['REQUEST_URI'];
+                    if (strpos($url, 'question_answers.php')){
+                        $renderable = new timing_question_answer_view($answer, $answerusers[$i]);
+                        $timing_types = true;
+                    }else{
+                        $renderable = new timing_type_answer_view($answer, $answerusers[$i]);
+                    }
+
+                    break;
             }
 
             if (!empty($output)) {
@@ -1273,14 +1363,28 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         }
         if (!empty($output)) {
             // Render all Questions in Dropdown.
-            foreach ($questions as $question) {
+            if ($timing_types){
+                foreach ($questions as $question) {
 
-                $label = $controller->get_match_question_title($question);
+                    $label = $controller->get_match_question_title($question);
 
-                $questionurl = new moodle_url('/mod/ivs/question_answers.php?id=' . $cmid . '&vid=' . $videoid . '&qid=' .
-                        $question['nid'] . '&perpage=10');
-                $selected = required_param('qid', PARAM_INT) == $question['nid'] ? 'selected' : '';
-                $data->dropdown_options[] = '<option value="' . $questionurl . '" ' . $selected . '>' . $label . '</option>';
+                    $questionurl = new moodle_url('/mod/ivs/question_answers.php?id=' . $cmid . '&vid=' . $videoid . '&qid=' .
+                            $question['nid'] . '&perpage=10');
+                    $selected = required_param('qid', PARAM_INT) == $question['nid'] ? 'selected' : '';
+                    $data->dropdown_options[] = '<option value="' . $questionurl . '" ' . $selected . '>' . $label . '</option>';
+                }
+            }else{
+                $timingtypes = $controller->match_timing_type_get_db($videoid);
+                foreach ($timingtypes as $timingtype) {
+
+                    $label = $controller->get_match_question_timing_title($timingtype);
+
+                    $questionurl = new moodle_url('/mod/ivs/question_type_answers.php?id=' . $cmid . '&vid=' . $videoid . '&qid=' .
+                        $timingtype->id . '&perpage=10');
+                    $qid = required_param('qid', PARAM_ALPHANUMEXT);
+                    $selected = $qid == $timingtype->id ? 'selected' : '';
+                    $data->dropdown_options[] = '<option value="' . $questionurl . '" ' . $selected . '>' . $label . '</option>';
+                }
             }
 
             // Render Pager Options in Dropdown.
@@ -1310,7 +1414,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $data->single_choice_correct = get_string("ivs_match_question_answer_menu_label_single_choice_correct", 'ivs');
         $data->single_choice_selected_answer =
                 get_string("ivs_match_question_answer_menu_label_last_single_choice_selected_answer", 'ivs');
-
+        $data->first_timing_answer = get_string("ivs_match_question_answer_menu_label_first_timing_answer", 'ivs');
+        $data->last_timing_answer = get_string("ivs_match_question_answer_menu_label_last_timing_answer", 'ivs');
         return $data;
     }
 
@@ -1428,6 +1533,105 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         return $data;
     }
 
+    /**
+     * Get all answers for a timing questions
+     * @param array $answer
+     * @param \stdClass $courseuser
+     *
+     * @return \stdClass
+     */
+    public function get_question_answers_data_timing_type($answer, $courseuser) {
+        $data = new \stdClass;
+
+        $user = IvsHelper::get_user($courseuser->id);
+        $controller = $this;
+
+        $data->fullname = $user['fullname'];
+        $data->id = $courseuser->id;
+
+        foreach ($answer as $key => $value) {
+
+            $questions = $controller->match_questions_get_by_video_db($value['videoid']);
+            $timingquestioncount = 0;
+            foreach($questions as $question){
+                if ($value['question']['nid'] == $question['type_data']['timing_type_id']){
+                    $timingquestioncount++;
+                }
+            }
+
+
+            $data->first = '0/' . $timingquestioncount;
+            $data->last = '0/' . $timingquestioncount;
+            $data->retries = '-';
+
+            $takes = $controller->match_takes_get_by_user_and_video_db($user['user']->id, $value['videoid'], $value['videoid']);
+            $numtakes = count($takes);
+
+
+
+            if ($numtakes > 0) {
+                $data->retries = $numtakes - 1;
+                if ($value['userid'] === $courseuser->id) {
+                    $data->first = $value['answers'][0] . '/' . $timingquestioncount;
+                    $data->last = $value['answers'][1] . '/' . $timingquestioncount;
+                    break;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Get all answers for a timing questions
+     * @param array $answer
+     * @param \stdClass $courseuser
+     *
+     * @return \stdClass
+     */
+    public function get_question_answers_data_timing_question($answer, $courseuser) {
+        $data = new \stdClass;
+
+        $user = IvsHelper::get_user($courseuser->id);
+
+        $data->fullname = $user['fullname'];
+        $data->id = $courseuser->id;
+
+        $controller = $this;
+
+        foreach ($answer as $key => $value) {
+
+            $data->first = '-';
+            $data->last = '-';
+            $data->retries = '-';
+            if (!empty($value['answers'][1]) && $value['answers'][1]['user_id'] === $courseuser->id) {
+
+                $userid = $courseuser->id;
+                $answers = $controller->match_question_answers_get_by_question_and_user_db($value['question']['nid'], $userid);
+                $numanswers = count($answers);
+
+                if ($numanswers > 0) {
+                    $data->retries = $numanswers - 1;
+
+                    $lastanswer = $value['answers'][1];
+                    if (!empty($value['answers'][0])) {
+                        $firstanswer = $value['answers'][0];
+                    } else {
+                        $firstanswer = $value['answers'][1];
+                    }
+
+                    $data->first = !empty($firstanswer['is_correct']) ? 1 : 0;
+                    $data->last = !empty($lastanswer['is_correct']) ? 1 : 0;
+
+                }
+
+                break;
+
+            }
+        }
+
+        return $data;
+    }
+
     private function get_formative_assessment_config($userid, $ivs) {
 
         $videoid = $ivs->id;
@@ -1468,6 +1672,9 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $settingscontroller = new SettingsService();
         $activitysettings = $settingscontroller->get_settings_for_activity($videoid, $ivs->course);
 
+        $gradebookservice = new GradebookService();
+        $grade_methods = $gradebookservice->ivs_get_grade_method_options();
+
         if ($this->has_edit_access($videoid)) {
 
             $assconf = new AssessmentConfig();
@@ -1488,9 +1695,15 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $assconf->matchConfig = $this->match_video_get_config_db($videoid);
         $assconf->takes_left = $activitysettings['exam_mode_enabled']->value ? $this->get_remaining_attempts($userid, $videoid, $contextid) : 1;
         $assconf->takes = $this->match_takes_get_by_user_and_video_db($userid, $videoid, $contextid);
+        $assconf->grade_method = $grade_methods[$activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_METHOD]->value];
+        $assconf->exam_enabled = (int)$activitysettings[SettingsDefinition::SETTING_PLAYER_EXAM_ENABLED]->value;
 
         $num_takes = count($assconf->takes);
         $already_passed = FALSE;
+
+        if ($assconf->matchConfig->is_timing_mode()){
+            $assconf->matchConfig->rate .= $this->get_success_rate_points_label($videoid, $assconf);
+        }
 
         if ($num_takes == 0) {
             $assconf->status = AssessmentConfig::TAKES_LEFT_NEW;
@@ -1508,35 +1721,18 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 }
             }
 
-            $gradebookservice = new GradebookService();
-            $scoreinfo = $gradebookservice->ivs_gradebook_get_score_info_by_takes($assconf->takes, $ivs);
+            $score = $gradebookservice->ivs_gradebook_get_score_by_takes($assconf->takes, $ivs);
 
-            if ($scoreinfo['score'] >= $assconf->matchConfig->rate){
+            if ($score >= $assconf->matchConfig->rate){
                 $already_passed = TRUE;
             }
 
-            if ($already_passed) {
-                $assconf->status_description = get_string("ivs_match_config_status_passed_label", 'ivs') . $scoreinfo['desc'] . $scoreinfo['score'] . '%';
-                if($assconf->takes_left > 0) {
-                    $assconf->status = AssessmentConfig::TAKES_LEFT_COMPLETED_SUCCESS;
-                }else{
-                    if($assconf->matchConfig->assessment_type == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
-                        $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_SUCCESS_NO_SUMMARY;
-                    }else{
-                        $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_SUCCESS;
-                    }
-                }
+            if ($assconf->matchConfig->is_quiz_mode()){
+                $this->get_quiz_status($assconf, $already_passed, $score, $take_in_progress);
             }
-            elseif ($assconf->takes_left == 0) {
-                $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_FAILED;
-                $assconf->status_description = get_string("ivs_match_config_status_failed_label", 'ivs') . $scoreinfo['desc'] . $scoreinfo['score'] . '%';
-            }else{
-                $assconf->status = AssessmentConfig::TAKES_LEFT_PROGRESS;
-                if($take_in_progress) {
-                    $assconf->status_description = get_string("ivs_match_config_status_progress_label", 'ivs');
-                }else{
-                    $assconf->status_description = get_string("ivs_match_config_status_not_passed_label", 'ivs') .  $scoreinfo['desc'] . $scoreinfo['score']. '%';
-                }
+
+            if ($assconf->matchConfig->is_timing_mode()){
+                $this->get_timing_status($assconf, $already_passed, $ivs);
             }
         }
 
@@ -1544,6 +1740,51 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
         return $assessmentconfig;
     }
+
+    private function get_quiz_status(&$assconf, $already_passed, $score, $take_in_progress) {
+
+        if ($already_passed) {
+            $assconf->status_description = get_string("ivs_match_config_status_passed_label", 'ivs') . $score . '%';
+            $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_SUCCESS;
+            if($assconf->takes_left > 0 || $assconf->matchConfig->attempts == 0) {
+                $assconf->status = AssessmentConfig::TAKES_LEFT_COMPLETED_SUCCESS;
+            }
+        }
+        elseif ($assconf->takes_left == 0) {
+            $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_FAILED;
+            $assconf->status_description = get_string("ivs_match_config_status_failed_label", 'ivs') . $score. '%';
+        }else{
+            $assconf->status = AssessmentConfig::TAKES_LEFT_PROGRESS;
+            if($take_in_progress) {
+                $assconf->status_description = get_string("ivs_match_config_status_progress_label", 'ivs');
+            }else{
+                $assconf->status_description = get_string("ivs_match_config_status_not_passed_label", 'ivs') . $score . '%';
+            }
+        }
+    }
+
+    private function get_timing_status(&$assconf, $already_passed, $ivs) {
+        $gradebookservice = new GradebookService();
+
+        if ($already_passed) {
+            $assconf->status_description = get_string("ivs_match_config_timing_status_passed_label", 'ivs');
+            $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_SUCCESS_NO_SUMMARY;
+            if($assconf->takes_left > 0 || $assconf->matchConfig->attempts == 0) {
+                $assconf->status = AssessmentConfig::TAKES_LEFT_COMPLETED_SUCCESS;
+            }
+        }
+        elseif ($assconf->takes_left == 0) {
+            $assconf->status = AssessmentConfig::NO_TAKES_LEFT_COMPLETED_FAILED;
+            $assconf->status_description = get_string("ivs_match_config_timing_status_not_passed_label", 'ivs');
+        }else{
+            $assconf->status = AssessmentConfig::TAKES_LEFT_PROGRESS;
+            $assconf->status_description = get_string("ivs_match_config_timing_status_not_passed_label", 'ivs');
+        }
+
+        $assconf->status_description .= $gradebookservice->get_rendered_timing_take_summary($assconf->takes, $ivs);
+    }
+
+
 
     private function get_quiz_match_config($ivs) {
         global $DB;
@@ -1599,8 +1840,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $mc->player_controls_enabled = (int) $activitysettings['player_controls_enabled']->value;
         $mc->rate = !empty($gradesettings) ? (int)$gradesettings->gradepass : 100;
         $mc->attempts = $activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS]->value;
-        $mc->show_feedback = $activitysettings[SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_FEEDBACK]->value;
-        $mc->show_solution = $activitysettings[SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_SOLUTION]->value;
+        $mc->show_feedback = $activitysettings[SettingsDefinition::SETTING_PLAYER_SHOW_REALTIME_RESULTS]->value;
+        $mc->show_solution = false;
 
         return $mc;
     }
@@ -1623,18 +1864,21 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
     }
 
 
-    public function match_timing_type_get_db($ivs, $skip_access = FALSE) {
+    public function match_timing_type_get_db($videoid, $skip_access = FALSE) {
+        global $DB;
+        $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
 
+        $timingtypes = [];
 
         if(!empty($ivs->match_config)) {
-            $data = json_decode($ivs->match_config, TRUE);
+            $matchconfig = json_decode($ivs->match_config, TRUE);
 
-            if(!empty($data['timing_types'])) {
-                return $data['timing_types'];
+            foreach ($matchconfig['timing_types'] as $timingtype){
+                $timingtypes[] = new MatchTimingType($timingtype);
             }
 
         }
-        return [];
+        return $timingtypes;
     }
 
     public function match_timing_type_insert_db($videoid, $data, $user_id = NULL, $skip_access = FALSE) {
@@ -1663,25 +1907,15 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             throw new MatchQuestionAccessDeniedException(null, "Access denied");
         }
 
-        if(empty($ivs->match_config)) {
-            $match_settings = [];
-        }else {
-            $match_settings = json_decode($ivs->match_config, TRUE);
-        }
+        $matchtimingtypes = $this->match_timing_type_get_db($videoid, TRUE);
 
         //check if command id exists
-        foreach ($match_settings['timing_types'] as $k => $c) {
-            if ($c['id'] === $timing_type_id) {
-                unset($match_settings['timing_types'][$k]);
+        foreach ($matchtimingtypes as $i => $matchtimingtype) {
+            if ($matchtimingtype->id === $timing_type_id) {
+                unset($matchtimingtypes[$i]);
             }
         }
-
-        //normalize keys
-        $match_settings['timing_types'] = array_values($match_settings['timing_types']);
-
-        $ivs->match_config = json_encode((array) $match_settings);
-        $DB->insert_record('ivs', $ivs);
-
+        $this->update_timing_types($ivs, $matchtimingtypes);
     }
 
     protected function saveTimingType($post_data, $ivs, $skip_access = FALSE) {
@@ -1693,11 +1927,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             throw new MatchQuestionAccessDeniedException(null, "Access denied");
         }
 
-        $timing_types = $this->match_timing_type_get_db($ivs, $skip_access);
 
         $post_data = (object) $post_data;
-
-
         //parse data
         $id = $post_data->id;
 
@@ -1707,18 +1938,18 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         }
 
 
-        $timing_type['type'] = $post_data->type;
+        $timing_type_array['type'] = $post_data->type;
 
-        $timing_type['timestamp'] = $post_data->timestamp;
-        $timing_type['duration'] = $post_data->duration;
-        $timing_type['title'] = $post_data->title;
+        $timing_type_array['timestamp'] = $post_data->timestamp;
+        $timing_type_array['duration'] = $post_data->duration;
+        $timing_type_array['title'] = $post_data->title;
         $position = explode(',', $post_data->btn['position']);
         $new_pos = [];
         foreach ($position as $pos){
             $new_pos[] = $pos;
         }
 
-        $timing_type = [
+        $timing_type_array = [
             'title' => $post_data->title,
             'duration' => $post_data->duration,
             'weight' => $post_data->weight,
@@ -1731,37 +1962,144 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 'description' => $post_data->btn['description']
             ]
         ];
+        $timing_type_array['id'] = $id;
 
-        $timing_type['id'] = $id;
+        $matchtimingtype = new MatchTimingType($timing_type_array);
+
+        $timing_types = $this->match_timing_type_get_db($videoid, $skip_access);
 
 
-
-
-        //check existing id
         $is_new = TRUE;
-        foreach ($timing_types as $k => $c) {
-            if ($c['id'] === $id) {
-                $timing_types[$k] = $timing_type;
+        foreach ($timing_types as &$timing_type) {
+            if ($timing_type->id == $matchtimingtype->id) {
+                $timing_type = $matchtimingtype;
                 $is_new = FALSE;
             }
         }
+
         if ($is_new) {
-            $timing_types[] = $timing_type;
+
+            $timing_types[] = $matchtimingtype;
         }
 
-        //save node
+        $this->update_timing_types($ivs, $timing_types);
 
+        return $matchtimingtype;
+
+    }
+
+    private function update_timing_types($ivs, $matchtimingtypes = []) {
+
+        global $DB;
         if(empty($ivs->match_config)) {
             $match_settings = [];
         }else {
             $match_settings = json_decode($ivs->match_config, TRUE);
         }
 
-        $match_settings['timing_types'] = $timing_types;
+        $matchtimingtypesjson = array_map( function ($timingtype){
+            return $timingtype->to_player_json();
+        }, $matchtimingtypes);
 
-        $ivs->match_config = json_encode((array) $match_settings);
+        $match_settings['timing_types'] = $matchtimingtypesjson;
+        $ivs->match_config = json_encode($match_settings);
         $DB->update_record('ivs', $ivs);
-        return $timing_type;
 
+    }
+
+    private function get_success_rate_points_label($videoid, $assconf) {
+        $successratelabel = '';
+        $pointstotal = 0;
+
+        global $DB;
+        $matchcontroller = new MoodleMatchController();
+        $matchquestions = $DB->get_records('ivs_matchquestion', array('video_id' => $videoid));
+        $timingtypes = $matchcontroller->match_timing_type_get_db($videoid);
+        foreach ($matchquestions as $matchquestion) {
+            $type_data = unserialize($matchquestion->type_data);
+            $timingtype = MatchTimingTakeResult::find_object_by_id($type_data['timing_type_id'], $timingtypes);
+            $pointstotal += $timingtype->score;
+        }
+
+
+        $pointstosuccess = $pointstotal / 100 * $assconf->matchConfig->rate;
+        $successratelabel = '% (' . $pointstosuccess . ' ' . get_string('ivs_grademethod_timing_take_summary_points', 'ivs') . ')';
+        return $successratelabel;
+    }
+
+    private function match_questions_reformat_timing_questions($videoid, $questions) {
+
+        $timingtypes = $this->match_timing_type_get_db($videoid);
+        $formatedquestions = [];
+
+        foreach($questions as $question){
+            if ($question['type'] === 'timing_question'){
+
+                foreach($timingtypes as $timingtype){
+                    if ($timingtype->id === $question['type_data']['timing_type_id']){
+                        $question['title'] = $this->match_format_question_time($question['timestamp']) . ' - ' . $this->match_format_question_time($question['timestamp'] + $question['duration']) . ' ' . $timingtype->title;
+                        $question['question_body'] = $timingtype->description;
+                        break;
+                    }
+                }
+            }
+            $formatedquestions[$question['nid']] = $question;
+        }
+        return $formatedquestions;
+    }
+
+    private function match_format_question_time($milliseconds) {
+            return sprintf('%02d:%02d', floor(($milliseconds % 3600000) / 60000), floor(($milliseconds % 60000) / 1000));
+    }
+
+    private function match_question_answers_get_by_timing_type_and_user_db( $timingtypeid, $userid, $videoid, $skipaccess) {
+
+
+        $matchquestions = $this->match_questions_get_by_video_db($videoid);
+
+        foreach ($matchquestions as $questionId => $question){
+            if ($question['type'] !== 'timing_question'){
+                unset($matchquestions[$questionId]);
+                continue;
+            }
+
+            if ($question['type_data']['timing_type_id'] !== $timingtypeid){
+                unset($matchquestions[$questionId]);
+            }
+        }
+
+
+        global $DB;
+        $timingtypeanswers = [];
+        foreach($matchquestions as $id => $matchquestion){
+
+
+            $record = $DB->get_records('ivs_matchanswer', array(
+                'question_id' => $id,
+                'user_id' => $userid
+            ));
+
+            $answers = [];
+            foreach ($record as $answer) {
+                $answers[$answer->id] = $this->record_to_player_answer((array) $answer);
+            }
+            $timingtypeanswers[$id] = $answers;
+        }
+
+        return $timingtypeanswers;
+    }
+
+    public function match_timing_get_current_timing_type($instance, $qid)
+    {
+        //Get current timing type
+        $timingtypes = $this->match_timing_type_get_db($instance);
+        $currenttimingtype = null;
+        foreach ($timingtypes as $timingtype){
+            if ($timingtype->id === $qid){
+                $currenttimingtype = $timingtype;
+                break;
+            }
+        }
+        return $currenttimingtype;
     }
 }

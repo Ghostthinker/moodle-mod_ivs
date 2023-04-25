@@ -170,6 +170,8 @@ class StatisticsService {
                 $this->database->count_records_sql("SELECT COUNT(id) FROM {ivs_matchquestion} WHERE type='click_question'");
         $questiontypes['text_question'] =
                 $this->database->count_records_sql("SELECT COUNT(id) FROM {ivs_matchquestion} WHERE type='text_question'");
+        $questiontypes['timing_question'] =
+            $this->database->count_records_sql("SELECT COUNT(id) FROM {ivs_matchquestion} WHERE type='timing_question'");
         return $questiontypes;
     }
 

@@ -78,7 +78,7 @@ class UpdateService {
      * @return void
      */
     public function alterVideocommentTableForCommentType() {
-        $this->database->execute("ALTER TABLE {ivs_videocomment} ADD comment_type VARCHAR(255) DEFAULT 'comment'");
+        $this->database->execute("ALTER TABLE {ivs_videocomment} ADD COLUMN IF NOT EXISTS comment_type VARCHAR(255) DEFAULT 'comment'");
 
         $allcomments = $this->database->get_records_sql("SELECT id FROM {ivs_videocomment}");
         foreach ($allcomments as $comment) {

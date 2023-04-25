@@ -26,6 +26,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.16
+* added Timing Mode 
+* bug fixes
+* ``ep5 version 2.6``
+
 ### v1.15
 * added Gradebook integration
 * added Multiple-choice questions to Quiz-mode

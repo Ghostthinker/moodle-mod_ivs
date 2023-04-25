@@ -251,6 +251,10 @@ class mod_ivs_mod_form extends moodleform_mod {
           }
         }
 
+        if ($data['videotest_grade_to_pass']['value'] > 100 || $data['videotest_grade_to_pass']['value'] < 0) {
+            $errors['range'] = get_string('ivs_setting_grade_to_pass_validation', 'mod_ivs');
+            \core\notification::error(get_string('ivs_setting_grade_to_pass_validation', 'mod_ivs'));
+        }
 
         return $errors;
     }

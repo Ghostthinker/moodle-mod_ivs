@@ -242,7 +242,7 @@ interface IIvsMatch {
      */
     public function assessment_config_get_by_user_and_video($userid, $videoid, $includesimulation = false);
 
-    public function match_timing_type_get_db($ivs, $skip_access = FALSE);
+    public function match_timing_type_get_db($videoid, $skip_access = FALSE);
     public function match_timing_type_insert_db($videoid, $data, $user_id = NULL, $skip_access = FALSE);
     public function match_timing_type_update_db($videoid, $data, $user_id = NULL, $skip_access = FALSE);
     public function match_timing_type_delete_db($videoid, $timingtypeid, $skip_access = FALSE);

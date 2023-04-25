@@ -18,6 +18,7 @@ namespace mod_ivs;
 
 use admin_setting_configtext;
 use admin_setting_flag;
+use mod_ivs\settings\SettingsDefinition;
 
 class admin_setting_configtext_ivs_custom_with_lock extends admin_setting_configtext {
     /**
@@ -36,13 +37,28 @@ class admin_setting_configtext_ivs_custom_with_lock extends admin_setting_config
     }
 
     public function validate($data) {
-        if (!is_numeric($data)) {
-            return get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+
+
+        if ($this->name == SettingsDefinition::SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION){
+            if (!is_numeric($data)) {
+                return get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+            }
+
+            if ($data > IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION || $data < 0) {
+                return get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+            }
         }
 
-        if ($data > IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION || $data < 0) {
-            return get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
+        if ($this->name == SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_TO_PASS){
+            if (!is_numeric($data)) {
+                return get_string('ivs_setting_grade_to_pass_validation', 'mod_ivs');
+            }
+
+            if ($data > 100 || $data < 0) {
+                return get_string('ivs_setting_grade_to_pass_validation', 'mod_ivs');
+            }
         }
+
         return true;
     }
 }

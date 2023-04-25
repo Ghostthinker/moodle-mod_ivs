@@ -81,4 +81,13 @@ class MatchConfig {
     public function hasPassed(float $score) {
         return $score >= $this->rate;
     }
+
+    public function is_timing_mode()
+    {
+        return $this->assessment_type === 'TIMING_TAKES';
+    }
+
+    public function is_quiz_mode(){
+        return $this->assessment_type === 'TAKES';
+    }
 }

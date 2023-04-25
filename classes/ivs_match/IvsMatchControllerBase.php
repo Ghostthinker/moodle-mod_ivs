@@ -33,6 +33,7 @@ use mod_ivs\ivs_match\exception\MatchQuestionException;
 use mod_ivs\ivs_match\exception\MatchQuestionNotFoundException;
 use mod_ivs\ivs_match\exception\MatchTakeException;
 use mod_ivs\ivs_match\exception\MatchTakeNoRemainingAttemptsException;
+use mod_ivs\ivs_match\timing\MatchTimingTakeResult;
 use mod_ivs\settings\SettingsService;
 
 /**
@@ -189,7 +190,6 @@ class IvsMatchControllerBase {
                     return new \mod_ivs\ivs_match\MatchResponse($take);
                 }elseif ($action == 'finish') {
 
-                    $this->finish_match_take_for_user($uid, $videonid, $contextid, $postdata);
 
                     $assessmentconfig = $this->ivsmatchinterface->assessment_config_get_by_user_and_video($uid, $videonid);
                     return new MatchResponse($assessmentconfig);
@@ -210,10 +210,16 @@ class IvsMatchControllerBase {
 
         switch (strtoupper($method)) {
             case "GET":
-                $ivs = $DB->get_record('ivs', array('id' => $videoid), '*', MUST_EXIST);
-                $assessmentconfig = $this->ivsmatchinterface->match_timing_type_get_db($ivs);
 
-                return new MatchResponse($assessmentconfig);
+                $timingtypes = $this->ivsmatchinterface->match_timing_type_get_db($videoid);
+
+                $response = array_map(/**
+                 * @param MatchTimingType $timingtype
+                 */ function ($timingtype){
+                    return $timingtype->to_player_json();
+                }, $timingtypes);
+
+                return new MatchResponse($response);
             case "POST":
                 try {
                     $response = $this->ivsmatchinterface->match_timing_type_insert_db($videoid, $postdata);
@@ -340,6 +346,8 @@ class IvsMatchControllerBase {
 
         $questions = $this->ivsmatchinterface->match_questions_get_by_video_db($matchtake->videoid, 'timecode', true);
 
+
+
         $numanswered = 0;
         $numcorrect = 0;
         $numquestions = count($questions);
@@ -354,9 +362,21 @@ class IvsMatchControllerBase {
             }
         }
 
+        //when all questions are answered, eveluate and score the  take
         if ($numanswered === $numquestions) {
+
+            if($matchconf->is_timing_mode()) {
+
+                $timingtypes = $this->ivsmatchinterface->match_timing_type_get_db($matchtake->videoid);
+                $matchtimingresult = MatchTimingTakeResult::evaluate_take($timingtypes, $questions,$takeanswers);
+                $matchtake->score = $matchtimingresult->score;
+
+
+            }else{
+                $matchtake->score = $numcorrect * 100 / $numanswered;
+            }
             // Score.
-            $matchtake->score = $numcorrect * 100 / $numanswered;
+
             $matchtake->completed = time();
             $matchtake->status = $matchconf->haspassed($matchtake->score) ? MatchTake::STATUS_PASSED : MatchTake::STATUS_FAILED;
 
@@ -374,28 +394,6 @@ class IvsMatchControllerBase {
 
     }
 
-    /**
-     * Calculate succeeded match timing interaction and update finished match take
-     * @param $user_id
-     * @param $video_id
-     * @param $context_id
-     * @param $post_data
-     * @throws \edubreak_match\exception\MatchNoConfigException
-     */
-    public function finish_match_take_for_user($user_id, $video_id, $context_id, $post_data) {
-
-        $take_id = $post_data['take_id'];
-
-        $match_take = $this->ivsmatchinterface->match_take_get_db($take_id);
-        $match_conf = $this->ivsmatchinterface->match_video_get_config_db($context_id, $video_id);
-
-        $match_take->score = 100 / ($post_data['correct'] + $post_data['incorrect']) * $post_data['correct'];
-        $match_take->completed = time();
-        $match_take->status = $match_conf->hasPassed($match_take->score ) ?  MatchTake::STATUS_PASSED : MatchTake::STATUS_FAILED;
-
-        $this->ivsmatchinterface->match_take_update_db($match_take);
-
-    }
 
     /**
      * Add the question to the player
@@ -484,7 +482,6 @@ class IvsMatchControllerBase {
                 $answerdata['is_correct'] = true;
                 $answerdata['is_evaluated'] = false;
                 break;
-
         }
     }
 

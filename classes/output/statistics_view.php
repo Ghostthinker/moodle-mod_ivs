@@ -72,7 +72,9 @@ class statistics_view implements renderable, templatable {
         $statisticdataobject->num_ivs_match_questions_types_click_question_label = 'Click';
         $statisticdataobject->num_ivs_match_questions_types_click_question = $statisticdata['num_ivs_match_questions_types']['click_question'];
         $statisticdataobject->num_ivs_match_questions_types_text_question_label = 'Text';
-        $statisticdataobject->num_ivs_match_questions_types_text_question = $statisticdata['num_ivs_match_questions_types']['text_question'];
+        $statisticdataobject->num_ivs_match_questions_types_text_question_label = 'Timing';
+        $statisticdataobject->num_ivs_match_questions_types_timing_question = $statisticdata['num_ivs_match_questions_types']['timing_question'];
+        $statisticdataobject->num_ivs_match_questions_types_timing_question = $statisticdata['num_ivs_match_questions_types']['timing_question'];
         $statisticdataobject->num_ivs_match_takes_label = get_string('ivs_match_takes_label', 'ivs');
         $statisticdataobject->num_ivs_match_takes = $statisticdata['num_ivs_match_takes'];
         $statisticdataobject->num_ivs_videohosts_label = get_string('ivs_videohosts_label', 'ivs');

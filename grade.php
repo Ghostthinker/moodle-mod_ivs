@@ -34,7 +34,7 @@ $cm = get_coursemodule_from_id('ivs', $id, 0, false, MUST_EXIST);
 
 $moodlematchcontroller = new \mod_ivs\MoodleMatchController();
 if ($moodlematchcontroller->has_edit_access($cm->instance)){
-    redirect(new moodle_url('/mod/ivs/questions.php', array('id' => $id), 'question-types'));
+    redirect(new moodle_url('/mod/ivs/questions.php', array('id' => $id), 'questions'));
 }
 redirect('view.php?id=' . $id);
 

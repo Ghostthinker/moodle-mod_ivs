@@ -26,9 +26,12 @@
 namespace mod_ivs\gradebook;
 
 use core_course\analytics\target\course_gradetopass;
+use core_table\local\filter\string_filter;
 use enrol_self\self_test;
 use Helper\MoodleHelper;
+use mod_ivs\exception\ivs_exception;
 use mod_ivs\ivs_match\AssessmentConfig;
+use mod_ivs\ivs_match\timing\MatchTimingTakeResult;
 use mod_ivs\MoodleMatchController;
 use mod_ivs\settings\SettingsDefinition;
 use mod_ivs\settings\SettingsService;
@@ -106,10 +109,9 @@ class GradebookService {
      * @param $takes
      * @return mixed|null
      */
-    private function get_grade_item_best_attempt($takes) {
+    public function get_best_score_by_takes($takes) {
 
         $score = null;
-
         foreach ($takes as $take) {
             if (isset($take->score) && ($score === null || $take->score > $score)) {
                 $score = $take->score;
@@ -124,7 +126,7 @@ class GradebookService {
      * @param $takes
      * @return float|int
      */
-    private function get_grade_item_average($takes) {
+    private function get_average_score_by_takes($takes) {
 
         $total = 0;
         $count = 0;
@@ -146,8 +148,9 @@ class GradebookService {
      * @param $takes
      * @return int
      */
-    private function get_grade_item_first_attempt($takes) {
-        return $takes[0]->score ?? 0;
+    private function get_first_score_by_takes($takes) {
+        $score = $takes[0]->score ?? 0;
+        return $score;
     }
 
     /**
@@ -155,9 +158,10 @@ class GradebookService {
      * @param $takes
      * @return int
      */
-    private function get_grade_item_last_attempt($takes) {
+    private function get_last_score_by_takes($takes) {
         $take = end($takes);
-        return $take->score ?? 0;
+        $score = $take->score ?? 0;
+        return $score;
     }
 
     /**
@@ -266,35 +270,164 @@ class GradebookService {
      * Returns score and description for ivs activity quiz view
      * @param $takes
      * @param $ivs
-     * @return array
+     * @return float
      * @throws \coding_exception
      */
-    public function ivs_gradebook_get_score_info_by_takes($takes, $ivs) {
+    public function ivs_gradebook_get_score_by_takes($takes, $ivs) {
         $settingsservice = new SettingsService();
         $activitysettings = $settingsservice->get_settings_for_activity($ivs->id, $ivs->course);
-        $score = 0;
         $gradingmethod = $activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_METHOD]->value;
 
         switch ($gradingmethod) {
             case self::GRADE_METHOD_BEST_ATTEMPT:
-                $score = $this->get_grade_item_best_attempt($takes);
-                $desc = get_string('ivs_match_config_grade_mode_best_score_label', 'ivs');
+                $score = $this->get_best_score_by_takes($takes);
                 break;
             case self::GRADE_METHOD_AVERAGE:
-                $score = $this->get_grade_item_average($takes);
-                $desc = get_string('ivs_match_config_grade_mode_average_score_label', 'ivs');
+                $score = $this->get_average_score_by_takes($takes);
                 break;
             case self::GRADE_METHOD_FIRST_ATTEMPT:
-                $score = $this->get_grade_item_first_attempt($takes);
-                $desc = get_string('ivs_match_config_grade_mode_first_attempt_score_label', 'ivs');
+                $score = $this->get_first_score_by_takes($takes);
                 break;
             case self::GRADE_METHOD_LAST_ATTEMPT:
-                $score = $this->get_grade_item_last_attempt($takes);
-                $desc = get_string('ivs_match_config_grade_mode_last_attempt_score_label', 'ivs');
+                $score = $this->get_last_score_by_takes($takes);
                 break;
         }
-        return ['score' => round($score, 2 ), 'desc' => $desc];
+
+        return round($score, 2 );
     }
+
+    public function ivs_gradebook_get_timing_take_summary_data_by_grade_method($takes, $ivs){
+        $settingsservice = new SettingsService();
+        $activitysettings = $settingsservice->get_settings_for_activity($ivs->id, $ivs->course);
+        $gradingmethod = $activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_METHOD]->value;
+
+        switch ($gradingmethod) {
+            case self::GRADE_METHOD_BEST_ATTEMPT:
+                $matchtimingresult = $this->get_best_timing_take_summary_by_takes($takes);
+                break;
+            case self::GRADE_METHOD_AVERAGE:
+                $matchtimingresult = $this->get_average_timing_take_summary_by_takes($takes);
+                break;
+            case self::GRADE_METHOD_FIRST_ATTEMPT:
+                $matchtimingresult = $this->get_first_timing_take_summary_by_takes($takes);
+                break;
+            case self::GRADE_METHOD_LAST_ATTEMPT:
+                $matchtimingresult = $this->get_last_timing_take_summary_by_takes($takes);
+                break;
+        }
+
+        return $matchtimingresult;
+    }
+
+    private function get_best_timing_take_summary_by_takes($takes){
+        $score = null;
+        foreach ($takes as $take) {
+            if (isset($take->score) && ($score === null || $take->score > $score)) {
+                $score = $take->score;
+                $besttake = $take;
+            }
+        }
+
+        $matchtimingresult = $this->get_evaluated_timing_type_result_by_take($besttake);
+
+        return $matchtimingresult;
+
+    }
+
+
+
+    private function get_average_timing_take_summary_by_takes($takes){
+
+        $numtakes = count($takes);
+        $matchtimingtakeresultavg = new MatchTimingTakeResult();
+
+        foreach ($takes as $take) {
+            $matchtimingtakeresult = $this->get_evaluated_timing_type_result_by_take($take);
+
+            $matchtimingtakeresultavg->pointsuser += $matchtimingtakeresult->pointsuser;
+            $matchtimingtakeresultavg->pointstotal += $matchtimingtakeresult->pointstotal;
+
+            foreach($matchtimingtakeresult->summary as $k => $v){
+                $matchtimingtakeresultavg->summary[$k]['timing_type'] = $v['timing_type'];
+                if (array_key_exists('sum_points', $matchtimingtakeresultavg->summary[$k])){
+                    $matchtimingtakeresultavg->summary[$k]['sum_points'] += $v['sum_points'];
+                }else{
+                    $matchtimingtakeresultavg->summary[$k]['sum_points'] = $v['sum_points'];
+                }
+
+                if (array_key_exists('num_correct', $matchtimingtakeresultavg->summary[$k])){
+                    $matchtimingtakeresultavg->summary[$k]['num_correct'] += $v['num_correct'];
+                }else{
+                    $matchtimingtakeresultavg->summary[$k]['num_correct'] = $v['num_correct'];
+                }
+            }
+
+        }
+
+        $matchtimingtakeresultavg->pointsuser = $matchtimingtakeresultavg->pointsuser / $numtakes;
+        $matchtimingtakeresultavg->pointstotal = $matchtimingtakeresultavg->pointstotal / $numtakes;
+        foreach($matchtimingtakeresultavg->summary as $k => $v){
+
+            $matchtimingtakeresultavg->summary[$k]['num_correct'] = $v['num_correct']  / $numtakes;
+            $matchtimingtakeresultavg->summary[$k]['sum_points'] = $v['num_correct'] * $v['timing_type']->score / $numtakes;
+        }
+
+        $matchtimingtakeresultavg->calculate_score();
+
+        return $matchtimingtakeresultavg;
+
+    }
+
+    private function get_first_timing_take_summary_by_takes($takes){
+        $firsttake = $takes[0];
+        $matchtimingresult = $this->get_evaluated_timing_type_result_by_take($firsttake);
+        return $matchtimingresult;
+    }
+
+    private function get_last_timing_take_summary_by_takes($takes){
+        $lasttake = end($takes);
+        $matchtimingresult = $this->get_evaluated_timing_type_result_by_take($lasttake);
+        return $matchtimingresult;
+    }
+
+    private function get_evaluated_timing_type_result_by_take($take){
+        $matchcontroller = new MoodleMatchController();
+
+        $matchtake = $matchcontroller->match_take_get_db($take->id);
+        $takeanswers = $matchcontroller->match_question_answers_get_by_take($take->id);
+        $questions = $matchcontroller->match_questions_get_by_video_db($matchtake->videoid, 'timecode', true);
+        $timingtypes = $matchcontroller->match_timing_type_get_db($matchtake->videoid);
+        $matchtimingresult = MatchTimingTakeResult::evaluate_take($timingtypes, $questions,$takeanswers);
+
+        return $matchtimingresult;
+    }
+
+    public function get_rendered_timing_take_summary($takes, $ivs) {
+        global $DB;
+        $course = $DB->get_record('course', array('id' => $ivs->course), '*', MUST_EXIST);
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $course->id);
+        $timingtakesummaryenabled =  $activitysettings['show_timing_take_summary']->value;
+
+        if ($timingtakesummaryenabled) {
+
+            $timingtakesummary = '</li></ul><hr><ul>';
+            $matchtimingresult = $this->ivs_gradebook_get_timing_take_summary_data_by_grade_method($takes, $ivs);
+
+            foreach ($matchtimingresult->summary as $k => $v) {
+                $timingtakesummary .= '<li>' . $v['timing_type']->label . ': <br>' . $v['num_correct'] . ' ' . get_string('ivs_grademethod_timing_take_summary_korrekt', 'ivs') . ' (' . $v['sum_points'] . ' ' . get_string('ivs_grademethod_timing_take_summary_points', 'ivs') . ')</li>';
+            }
+            $timingtakesummary .= '<li><strong>' . get_string('ivs_grademethod_timing_take_summary_pointsuser', 'ivs') . ' ' . $matchtimingresult->score . '% (' . $matchtimingresult->pointsuser . ' ' . get_string('ivs_grademethod_timing_take_summary_points', 'ivs') . ')</strong></li>';
+            $timingtakesummary .= '</ul><ul>';
+
+            return $timingtakesummary;
+
+        }else{
+            $timingtakesummary = '</li></ul><hr><br>' . get_string('ivs_grademethod_timing_take_summary_thanks', 'ivs') . '<ul>';
+            return $timingtakesummary;
+        }
+    }
+
 
 }
 

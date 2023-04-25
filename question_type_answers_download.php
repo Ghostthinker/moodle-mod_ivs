@@ -30,7 +30,7 @@ use mod_ivs\CourseService;
 
 $dataformat = optional_param('download', '', PARAM_ALPHA);
 
-$questionid = optional_param('question_id', '', PARAM_ALPHANUM);
+$qid = optional_param('qid', '', PARAM_ALPHANUM);
 $cmid = optional_param('cmid', '', PARAM_INT);
 $instanceid = optional_param('instance_id', '', PARAM_ALPHANUM);
 $totalcount = optional_param('total_count', '', PARAM_ALPHANUM);
@@ -45,10 +45,11 @@ $rolestudent = $DB->get_record('role', array('shortname' => 'student'));
 $coursestudents = $courseservice->get_course_membersby_role($course->id, $rolestudent->id);
 
 $controller = new MoodleMatchController();
+$currenttimingtype = $controller->match_timing_get_current_timing_type($cm->instance, $qid);
 
 $useranswers = [];
 foreach ($coursestudents as $user) {
-    $useranswers[] = $controller->match_question_answers_get_by_question_and_user_for_reporting($questionid, $user->id);
+    $useranswers[] = $controller->match_question_answers_get_by_timing_type_and_user_for_reporting($currenttimingtype, $user->id, $instanceid);
 }
 
 $questions = $controller->match_questions_get_by_video_db_order($instanceid);
@@ -152,14 +153,14 @@ switch ($answersdata->question_type) {
         $data[] = array(
             'col_1' => get_string("ivs_match_question_answer_menu_label_name", 'ivs'),
             'col_2' => get_string("ivs_match_question_answer_menu_label_user_id", 'ivs'),
-            'col_3' => get_string("ivs_match_question_answer_menu_label_first_click_answer", 'ivs'),
+            'col_3' => get_string("ivs_match_question_answer_menu_label_first_timing_answer", 'ivs'),
             'col_4' => get_string("ivs_match_question_answer_menu_label_click_retries", 'ivs'),
-            'col_5' => get_string("ivs_match_question_answer_menu_label_last_click_answer", 'ivs'),
+            'col_5' => get_string("ivs_match_question_answer_menu_label_last_timing_answer", 'ivs'),
         );
 
         foreach ($answersdata->answers as $answer) {
 
-            $answerdetails = $controller->get_question_answers_data_timing_question($answer->answer, $answer->course_user);
+            $answerdetails = $controller->get_question_answers_data_timing_type($answer->answer, $answer->course_user);
 
             $data[] = array(
                 'col_1' => $answerdetails->fullname,
@@ -174,7 +175,7 @@ switch ($answersdata->question_type) {
 
 }
 
-$filename = clean_filename($course->shortname . get_string('ivs_match_question_export_question_filename', 'ivs') . $questionid);
+$filename = clean_filename($course->shortname . get_string('ivs_match_question_export_question_filename', 'ivs') . $qid);
 
 if (class_exists ( '\core\dataformat' )) {
     \core\dataformat::download_data($filename, $dataformat, $columns, $data);

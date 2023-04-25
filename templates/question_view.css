@@ -17,7 +17,8 @@
     flex-wrap: wrap;
 }
 
-.ivs-questions .question-summary-details-download {
+.ivs-questions .question-summary-details-download,
+.ivs-questions .question-type-summary-details-download {
     float: right;
 }
 

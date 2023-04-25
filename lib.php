@@ -741,11 +741,11 @@ function ivs_update_grades($ivs, $take, $nullifnone=true){
 
     $takes = $moodlematchcontroller->match_takes_get_by_user_and_video_db($take->userid, $take->videoid, $take->videoid);
     if ($takes) {
-        $scoreinfo = $gradebookservice->ivs_gradebook_get_score_info_by_takes($takes, $ivs);
+        $score = $gradebookservice->ivs_gradebook_get_score_by_takes($takes, $ivs);
 
         $grade = new stdClass();
         $grade->userid = $take->userid;
-        $grade->rawgrade = $scoreinfo['score'];
+        $grade->rawgrade = $score;
 
         ivs_grade_item_update($ivs, $grade);
     }

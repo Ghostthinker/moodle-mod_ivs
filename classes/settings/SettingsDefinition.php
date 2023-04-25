@@ -90,12 +90,12 @@ class SettingsDefinition {
      * @var string
      */
 
-    const SETTING_PLAYER_SHOW_VIDEOTEST_FEEDBACK = 'show_videotest_feedback';
+    const SETTING_PLAYER_SHOW_REALTIME_RESULTS = 'show_realtime_results';
     /**
      * @var string
      */
 
-    const SETTING_PLAYER_SHOW_VIDEOTEST_SOLUTION = 'show_videotest_solution';
+    const SETTING_PLAYER_SHOW_TIMING_TAKE_SUMMARY = 'show_timing_take_summary';
 
     /**
      * @var string

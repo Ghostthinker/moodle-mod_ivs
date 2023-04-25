@@ -240,17 +240,17 @@ class SettingsService {
             true,
             true);
         $settings[] = new SettingsDefinition(
-            SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_FEEDBACK,
-            get_string('ivs_setting_player_show_videotest_feedback', 'ivs'),
-            'ivs_setting_player_show_videotest_feedback',
+            SettingsDefinition::SETTING_PLAYER_SHOW_REALTIME_RESULTS,
+            get_string('ivs_setting_player_show_realtime_results', 'ivs'),
+            'ivs_setting_player_show_realtime_results',
             'checkbox',
             0,
             true,
             true);
         $settings[] = new SettingsDefinition(
-            SettingsDefinition::SETTING_PLAYER_SHOW_VIDEOTEST_SOLUTION,
-            get_string('ivs_setting_player_show_videotest_solution', 'ivs'),
-            'ivs_setting_player_show_videotest_solution',
+            SettingsDefinition::SETTING_PLAYER_SHOW_TIMING_TAKE_SUMMARY,
+            get_string('ivs_setting_player_show_timing_take_summary', 'ivs'),
+            'ivs_setting_player_show_timing_take_summary',
             'checkbox',
             1,
             true,

@@ -27,6 +27,7 @@ class admin_setting_configtext_ivs_custom extends admin_setting_configtext {
         if ($data > IVS_SETTING_PLAYER_ANNOTATION_AUDIO_MAX_DURATION || $data < 0) {
             return get_string('ivs_setting_annotation_audio_max_duration_validation', 'mod_ivs');
         }
+
         return true;
     }
 }

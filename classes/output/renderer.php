@@ -84,11 +84,32 @@ class renderer extends plugin_renderer_base {
      *
      * @return mixed
      */
+    public function render_question_type_overview($page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('ivs/question_view', $data);
+    }
+
+    /**
+     * Define renderer for template
+     * @param index_page $page
+     *
+     * @return mixed
+     */
     public function render_question_answers_view($page) {
         $data = $page->export_for_template($this);
         return parent::render_from_template('ivs/question_answers_view', $data);
     }
 
+    /**
+     * Define renderer for template
+     * @param index_page $page
+     *
+     * @return mixed
+     */
+    public function render_question_type_answers_view($page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('ivs/question_type_answers_view', $data);
+    }
     /**
      * Define renderer for template
      * @param index_page $page
@@ -120,6 +141,28 @@ class renderer extends plugin_renderer_base {
     public function render_question_single_choice_answer_view($page) {
         $data = $page->export_for_template($this);
         return parent::render_from_template('ivs/question_single_choice_answer_view', $data);
+    }
+
+    /**
+     * Define renderer for template
+     * @param index_page $page
+     *
+     * @return mixed
+     */
+    public function render_timing_type_answer_view($page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('ivs/timing_type_answer_view', $data);
+    }
+
+    /**
+     * Define renderer for template
+     * @param index_page $page
+     *
+     * @return mixed
+     */
+    public function render_timing_question_answer_view($page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('ivs/timing_question_answer_view', $data);
     }
 
     /**

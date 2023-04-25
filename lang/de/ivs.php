@@ -175,7 +175,7 @@ $string['ivs_setting_match_question'] = "In-Video-Fragen";
 $string['ivs_setting_match_question_help'] =
         "Im Quiz-Modus verwenden Sie verschiedene Fragetypen (u.a. Single-/Multiple-Choice-Fragen und Freitext-Fragen), um das Vorwissen und das Verständnis der Lernenden direkt im Video zu testen. Wenn die Frage erscheint, wird das Video angehalten und die Lernenden können erst fortfahren, wenn die Frage (richtig) beantwortet wurde.
 
-Im Timing-Modus werden Kenntnis und Reaktion zu den gezeigten Videoszenen getestet. Diese können über Schaltflächen durch die Lernenden zum richtigen Zeitpunkt idenzifiziert werden.";
+Im Timing-Modus werden Kenntnis und Reaktion zu den gezeigten Videoszenen getestet. Diese können über Schaltflächen durch die Lernenden zum richtigen Zeitpunkt identifiziert werden.";
 $string['ivs:edit_match_questions'] = "Video Test bearbeiten";
 $string['ivs:create_match_answers'] = "Video Test-Antworten erstellen";
 $string['ivs:access_match_reports'] = "Video Test-Reports einsehen";
@@ -395,7 +395,7 @@ $string['ivs_grademethod_first_attempt'] = 'Erster Versuch';
 $string['ivs_grademethod_last_attempt'] = 'Letzter Versuch';
 $string['ivs_gradepass'] = 'Bestehensgrenze';
 $string['ivs_attempts'] = 'Erlaubte Versuche';
-$string['ivs_gradepass_help'] = 'Diese Option legt die erforderliche Punktzahl fest, die für das Bestehen erreicht werden müssen. Der Wert wird beim Aktivtäts- und Kursabschluss verwendet';
+$string['ivs_gradepass_help'] = 'Diese Option legt die erforderliche prozentualen Anteil fest, der für das Bestehen erreicht werden muss. Der Wert wird beim Aktivtäts- und Kursabschluss verwendet';
 $string['ivs_attempts_help'] = 'Wie oft dürfen die Nutzer:innen den Video-Test durchführen?';
 $string['ivs_grademethod_help'] = 'Wenn mehrere Versuche erlaubt sind, sind die folgenden Methoden zur Berechnung der endgültigen Testbewertung verfügbar:
 
@@ -407,19 +407,28 @@ $string['ivs_grade'] = 'Bewertung';
 $string['ivs_match_config_assessment_mode_none'] = "Deaktiviert";
 $string['ivs_match_config_assessment_mode_quiz'] = "Quiz-Modus";
 $string['ivs_match_config_assessment_mode_timing'] = "Timing-Modus";
-$string['ivs_match_config_grade_mode_best_score_label'] = "Bestes Ergebnis ist ";
-$string['ivs_match_config_grade_mode_average_score_label'] = "Durchschnittliches Ergebnis ist ";
-$string['ivs_match_config_grade_mode_first_attempt_score_label'] = "Ergebnis des ersten Durchgangs ist ";
-$string['ivs_match_config_grade_mode_last_attempt_score_label'] = "Ergebnis des letzten Durchgangs ist ";
 $string['ivs_match_config_status_passed_label'] = "Bestanden - ";
 $string['ivs_match_config_status_not_started_label'] = "Nicht gestartet";
 $string['ivs_match_config_status_failed_label'] = "Fehlgeschlagen, keine Versuche übrig - ";
-$string['ivs_match_config_status_progress_label'] = "Laufender Versuch";
+$string['ivs_match_config_status_progress_label'] = "Versuch läuft";
 $string['ivs_match_config_status_not_passed_label'] = "Nicht bestanden - ";
 $string['ivs_setting_player_controls_enabled'] = "Erlaube Navigieren im Video-Test";
 $string['ivs_setting_player_controls_enabled_help'] = "Festlegen, ob Nutzer:innen innerhalb des Videos vor- oder zurücknavigieren dürfen.";
-$string['ivs_setting_player_show_videotest_feedback'] = "Ergebnisse für Lernende direkt anzeigen";
-$string['ivs_setting_player_show_videotest_feedback_help'] = "Ergebnisse für Lernende direkt anzeigen wenn eine Antwort abgegeben wurde.";
-$string['ivs_setting_player_show_videotest_solution'] = "Zusammenfassung der Ergebnisse für Lernende am Ende anzeigen";
-$string['ivs_setting_player_show_videotest_solution_help'] = "Zusammenfassung der Ergebnisse für Lernende am Ende anzeigen";
-
+$string['ivs_setting_player_show_realtime_results'] = "Ergebnisse für Lernende direkt anzeigen";
+$string['ivs_setting_player_show_realtime_results_help'] = "Ergebnisse für Lernende direkt anzeigen wenn eine Antwort abgegeben wurde.";
+$string['ivs_setting_player_show_timing_take_summary'] = "Zusammenfassung der Ergebnisse für Lernende am Ende anzeigen";
+$string['ivs_setting_player_show_timing_take_summary_help'] = "Zusammenfassung der Ergebnisse für Lernende am Ende anzeigen";
+$string['ivs_match_config_timing_status_not_passed_label'] = "Nicht bestanden";
+$string['ivs_match_config_timing_status_passed_label'] = "Bestanden";
+$string['ivs_setting_grade_to_pass_validation'] = "Bitte nur Werte zwischen 0 und 100 eingeben";
+$string['ivs_grademethod_timing_take_summary_korrekt'] = "mal korrekt";
+$string['ivs_grademethod_timing_take_summary_points'] = "Punkte";
+$string['ivs_grademethod_timing_take_summary_pointsuser'] = "Ergebnis:";
+$string['ivs_grademethod_timing_take_summary_thanks'] = "Vielen Dank für Ihre Teilnahme";
+$string['ivs_match_question_summary_question_type_timing'] = "Timing Frage";
+$string['ivs_match_question_answer_menu_label_elements_per_questions_types'] = "Fragen Typen";
+$string['ivs_match_download_question_type_details_label'] = "Alle Fragentypresultate herunterladen";
+$string['ivs_match_question_answer_menu_label_first_timing_answer'] = "Erster Versuch: Korrekt / Gesamt";
+$string['ivs_match_question_answer_menu_label_last_timing_answer'] = "Letzer Versuch: Korrekt / Gesamt";
+$string['ivs_match_question_timing_type_id'] = "Timing Typ ID";
+$string['ivs_match_question_timing_type_id_label'] = "Timing Typ";

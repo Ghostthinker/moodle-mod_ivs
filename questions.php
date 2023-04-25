@@ -64,6 +64,7 @@ echo $OUTPUT->header();
 $controller = new \mod_ivs\MoodleMatchController();
 
 $questions = $controller->match_questions_get_by_video_db_order($ivs->id);
+$timingtypes = $controller->match_timing_type_get_db($ivs->id);
 
 $renderer = $PAGE->get_renderer('ivs');
 
@@ -88,8 +89,12 @@ echo '<h3>' . $heading . '</h3>';
                role="tab"><?php echo get_string("ivs_match_question_answer_menu_label_elements_per_summary", 'ivs') ?></php></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#question-types" data-toggle="tab"
+            <a class="nav-link" href="#questions" data-toggle="tab"
                role="tab"><?php echo get_string("ivs_match_question_answer_menu_label_elements_per_questions", 'ivs') ?></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#question-types" data-toggle="tab"
+               role="tab"><?php echo get_string("ivs_match_question_answer_menu_label_elements_per_questions_types", 'ivs') ?></a>
         </li>
     </ul>
 
@@ -102,20 +107,45 @@ echo '<h3>' . $heading . '</h3>';
             ?>
         </div>
 
-        <div class="tab-pane" id="question-types" role="tabpanel">
-
-            <?php
-            foreach ($questions as $question) {
-                $renderable = new \mod_ivs\output\match\question_overview($question, $cm);
-                echo $renderer->render($renderable);
-            }
-            ?>
-            <div class="question-summary-details-download">
+        <div class="tab-pane" id="questions" role="tabpanel">
+            <table class="generaltable table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th ><?php echo get_string("ivs_match_question_summary_question_id", 'ivs') ?></th>
+                    <th ><?php echo get_string("ivs_match_question_summary_question_body", 'ivs') ?></th>
+                </tr>
+                </thead>
+                <tbody>
                 <?php
-                echo $OUTPUT->download_dataformat_selector(get_string("ivs_match_download_summary_details_label", 'ivs'),
-                        'question_overview_details_download.php', 'download', array('player_id' => $ivs->id, 'cmid' => $cmid));
+                foreach ($questions as $question) {
+                    $renderable = new \mod_ivs\output\match\question_overview($question, $cm);
+                    echo $renderer->render($renderable);
+                }
                 ?>
-            </div>
+                </tbody>
+            </table>
+
+
+        </div>
+        <div class="tab-pane" id="question-types" role="tabpanel">
+            <table class="generaltable table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th ><?php echo get_string("ivs_match_question_timing_type_id", 'ivs') ?></th>
+                    <th ><?php echo get_string("ivs_match_question_timing_type_id_label", 'ivs') ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                foreach ($timingtypes as $timingtype) {
+                    $renderable = new \mod_ivs\output\match\question_type_overview($timingtype, $cm);
+                    echo $renderer->render($renderable);
+                }
+                ?>
+                </tbody>
+            </table>
+
+
         </div>
     </div>
 
