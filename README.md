@@ -31,6 +31,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 * added Multiple-choice questions to Quiz-mode
 * added exam mode 
 * minor bug fixes
+* ``ep5 version 2.5``
 
 ### v1.14
 * added Kaltura support
