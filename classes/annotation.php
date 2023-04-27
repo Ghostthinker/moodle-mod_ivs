@@ -25,6 +25,7 @@
 
 namespace mod_ivs;
 
+use Exception;
 use html_writer;
 use \mod_ivs\service;
 use mod_ivs\settings\SettingsService;
@@ -134,7 +135,12 @@ class annotation {
     public function load_audio_annotation() {
         $itemid = $this->id;
 
-        $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
+        try{
+            $coursemodule = get_coursemodule_from_instance('ivs', $this->videoid, 0, false, MUST_EXIST);
+        } catch (Exception $e) {
+            return NULL;
+        }
+
         $context = \context_module::instance($coursemodule->id);
 
         $fs = get_file_storage();

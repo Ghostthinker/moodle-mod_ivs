@@ -83,9 +83,16 @@ class UpdateService {
         $allcomments = $this->database->get_records_sql("SELECT id FROM {ivs_videocomment}");
         foreach ($allcomments as $comment) {
             $an = \mod_ivs\annotation::retrieve_from_db($comment->id);
-            if (!empty($an->load_audio_annotation())) {
+
+            try{
+                $audioComment = $an->load_audio_annotation();
+            } catch (Exception $e){
+                continue;
+            }
+
+            if (!empty($audioComment)) {
                 $this->database->execute("UPDATE {ivs_videocomment} SET comment_type = :comment_type WHERE id = :id",
-                        ['comment_type' => 'audio_comment', 'id' => $comment->id]);
+                  ['comment_type' => 'audio_comment', 'id' => $comment->id]);
             }
         }
     }

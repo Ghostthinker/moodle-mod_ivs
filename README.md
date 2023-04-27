@@ -26,6 +26,9 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.17
+* fixed upgrade bug
+
 ### v1.16
 * added Timing Mode 
 * bug fixes
