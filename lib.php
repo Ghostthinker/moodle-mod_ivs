@@ -534,7 +534,7 @@ function ivs_annotation_event_message_send($event) {
             case 'member':
 
                 // Send message to users by memberselection.
-                $provider = 'ivs_annotation_direct_mention';
+                $provider = 'ivs_annotation_indirect_mention';
                 if (!empty($access['gids'])) {
                     foreach ($access['gids'] as $uid) {
                         $receivers[] = $DB->get_record('user', array('id' => $uid));
@@ -545,7 +545,7 @@ function ivs_annotation_event_message_send($event) {
             case 'course':
 
                 // Send message to users in course.
-                $provider = 'ivs_annotation_indirect_mention';
+                $provider = 'ivs_annotation_direct_mention';
                 $receivers = get_enrolled_users($coursecontext, '', 0, 'u.*');
 
                 break;
@@ -621,7 +621,7 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
     $settingscontroller = new SettingsService();
     $activitysettings = $settingscontroller->get_settings_for_activity($annotation->get_videoid(), $course->id);
 
-    if (!$activitysettings['user_notification_settings']->value) {
+    if ($activitysettings['user_notification_settings']->value) {
         return;
     }
 

@@ -113,12 +113,12 @@ function xmldb_ivs_upgrade($oldversion) {
     }
 
     // Change setting score type from int to varchar.
-    if ($oldversion < 2023022000) {
+    if ($oldversion < 2023050900) {
         $table = new xmldb_table('ivs_matchtake');
         $field = new xmldb_field('score', XMLDB_TYPE_FLOAT, null, null, null, null, 0, null);
         $dbman->change_field_type($table, $field);
 
-        upgrade_mod_savepoint(true, 2023022000, 'ivs');
+        upgrade_mod_savepoint(true, 2023050900, 'ivs');
     }
 
     return true;
