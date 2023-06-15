@@ -26,6 +26,9 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.19
+* ui improvements and bug fixes
+
 ### v1.18
 * fixed notification bug
 
