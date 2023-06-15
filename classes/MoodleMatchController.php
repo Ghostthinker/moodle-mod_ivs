@@ -641,6 +641,16 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             }
         }
 
+        if ($data['type'] == 'timing_question'){
+            $timingtypes = $this->match_timing_type_get_db($record['video_id']);
+            foreach ($timingtypes as $timingtype) {
+                if ($timingtype->id === $data['type_data']['timing_type_id']) {
+                    $data['title'] = array_key_exists('timemodified',$record) ? $data['title'] : $this->match_format_question_time($record['time_stamp']) . ' - ' . $this->match_format_question_time($record['time_stamp'] + $record['duration']) . ' ' . $timingtype->label;
+                    break;
+                }
+            }
+        }
+
         return $data;
     }
 
@@ -1640,7 +1650,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
             $assconf = new AssessmentConfig();
             $assconf->context_id = null;
-            $assconf->context_label = get_string("ivs_match_context_label", 'ivs');
+            $assconf->context_label = $this->get_ivs_videotest_editing_label($ivs);
             $assconf->matchConfig = $this->match_video_get_config_db($videoid);
             $assconf->takes_left = -1;
             $assconf->takes = [];
@@ -1679,7 +1689,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
             $assconf = new AssessmentConfig();
             $assconf->context_id = null;
-            $assconf->context_label = get_string("ivs_match_context_label", 'ivs');
+            $assconf->context_label = $this->get_ivs_videotest_editing_label($ivs);
             $assconf->matchConfig = $this->match_video_get_config_db($videoid);
             $assconf->takes_left = $this->get_remaining_attempts($userid, $videoid, $contextid);
             $assconf->takes = [];
@@ -1739,6 +1749,19 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $assessmentconfig[] = $assconf;
 
         return $assessmentconfig;
+    }
+
+    private function get_ivs_videotest_editing_label($ivs){
+
+        $settingscontroller = new SettingsService();
+        $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $ivs->course);
+
+        if($activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
+            return get_string("ivs_match_context_label_timing", 'ivs');
+        }
+
+        return get_string("ivs_match_context_label", 'ivs');
+
     }
 
     private function get_quiz_status(&$assconf, $already_passed, $score, $take_in_progress) {
@@ -2028,21 +2051,9 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
     }
 
     private function match_questions_reformat_timing_questions($videoid, $questions) {
-
-        $timingtypes = $this->match_timing_type_get_db($videoid);
         $formatedquestions = [];
 
         foreach($questions as $question){
-            if ($question['type'] === 'timing_question'){
-
-                foreach($timingtypes as $timingtype){
-                    if ($timingtype->id === $question['type_data']['timing_type_id']){
-                        $question['title'] = $this->match_format_question_time($question['timestamp']) . ' - ' . $this->match_format_question_time($question['timestamp'] + $question['duration']) . ' ' . $timingtype->title;
-                        $question['question_body'] = $timingtype->description;
-                        break;
-                    }
-                }
-            }
             $formatedquestions[$question['nid']] = $question;
         }
         return $formatedquestions;

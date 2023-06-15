@@ -187,6 +187,7 @@ $string['ivs_match_config_enable_video_test'] = "Video Fragen aktiviert";
 $string['ivs_match_config_video_test'] = "Video Fragen";
 $string['ivs_match_question_title_not_available'] = "Aufgabe ohne Titel #";
 $string['ivs_match_context_label'] = "Fragen erstellen, bearbeiten und testen";
+$string['ivs_match_context_label_timing'] = "Timing Typen erstellen und bearbeiten";
 $string['ivs_match_context_label_help'] =
         "<strong>Hinweis:</strong> In diesem Modus werden die Fragen nur simuliert und die Antworten nicht abgespeichert.";
 $string['ivs_match_question_answer_menu_label_name'] = "Name";
@@ -347,7 +348,7 @@ $string['ivs_setting_annotation_audio_max_duration_validation'] = 'Bitte nur Wer
 $string['ivs_setting_user_notification_settings'] = 'Benachrichtigungen stummschalten';
 $string['ivs_setting_user_notification_settings_help'] = 'Schalten Sie die Benachrichtigung über neue Videokommentare stumm. Es werden keine Systembenachrichtigungen versendet.';
 $string['ivs_freemium_start'] = 'Wir wünschen dir viel Spaß mit der Interactive Video Suite. Lege direkt los und erstelle deinen ersten Videokommentar. Falls du deine Lizenz upgraden möchtest, gelangst du <a href="https://interactive-video-suite.de/de/preise">hier zum IVS-Shop</a>';
-$string['ivs_freemium_activity'] = 'Du willst mehr über die Möglichkeiten von Social Video und der Interactive Video Suite erfahren? <a href="https://interactive-video-suite.de/de/demo-anfrage">Dann melde dich zum kostenlosen Demokurs inklusive persönlicher Beratung an.</a>';
+$string['ivs_freemium_activity'] = 'Du willst mehr über die Möglichkeiten von Social Video und der Interactive Video Suite erfahren? <a href="https://interactive-video-suite.de/de/freemium-demo-anfrage">Dann melde dich zum kostenlosen Demokurs inklusive persönlicher Beratung an.</a>';
 $string['ivs_freemium_end'] = 'Erwerbe jetzt eine größere Lizenz, um mehr Personen in einen Kurs einzuladen und die Interactive Video Suite optimal für dein Szenario zu nutzen. Hier gehts zum <a href="https://interactive-video-suite.de/de/preise">Shop</a>';
 $string['ivs_setting_annotation_comment_preview_offset'] = 'Anspielen eines Videokommentars';
 $string['ivs_setting_annotation_comment_preview_offset_help'] = 'Beim Klick auf einen Videokommentar wird das Video um diesen Wert zurückgespult und bis zum Kommentar abgespielt. (Wert in Sekunden)';

@@ -187,6 +187,7 @@ $string['ivs_match_config_enable_video_test'] = "Video questions enabled";
 $string['ivs_match_config_video_test'] = "Video questions";
 $string['ivs_match_question_title_not_available'] = "Question without title #";
 $string['ivs_match_context_label'] = "Edit and test questions";
+$string['ivs_match_context_label_timing'] = "Edit and create timing questions";
 $string['ivs_match_context_label_help'] =
         "<strong>Note:</strong> In this mode the questions are only simulated and the answers will not be saved.";
 $string['ivs_match_question_answer_menu_label_name'] = "Name";
@@ -355,7 +356,7 @@ $string['ivs_setting_annotation_audio_max_duration_validation'] = 'Only values b
 $string['ivs_setting_user_notification_settings'] = 'Mute notifications';
 $string['ivs_setting_user_notification_settings_help'] = 'Mute the notification for new videocomments. No system notifications will be sent.';
 $string['ivs_freemium_start'] = 'Have fun with the Interactive Video Suite. Get started right away and create your first video comment. If you want to upgrade your license, visit <a href="https://interactive-video-suite.de/de/preise">our store</a>';
-$string['ivs_freemium_activity'] = 'You want to learn more about the possibilities of social video with the Interactive Video Suite? <a href="https://interactive-video-suite.de/de/demo-anfrage">Sign up for the free demo course including personal consultation.</a>';
+$string['ivs_freemium_activity'] = 'You want to learn more about the possibilities of social video with the Interactive Video Suite? <a href="https://interactive-video-suite.de/en/freemium-demo-anfrage">Sign up for the free demo course including personal consultation.</a>';
 $string['ivs_freemium_end'] = 'Buy now a larger license to invite more people to your course and get the most out of Interactive Video Suite for your scenario. Click here for our <a href="https://interactive-video-suite.de/de/preise">store</a>';
 $string['ivs_setting_annotation_comment_preview_offset'] = 'Preview of a videocomment';
 $string['ivs_setting_annotation_comment_preview_offset_help'] = 'Clicking on a video comment, the video will be rewound and played until the comment is reached. (value in seconds)';

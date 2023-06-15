@@ -569,7 +569,7 @@ if (empty($embedded)) {
         unset( $playerconfig['plugins']['edubreak_match_question_choice']);
         unset( $playerconfig['plugins']['edubreak_match_question_click']);
         $playerconfig['plugins']['edubreak_match']['show_create_button'] = false;
-
+        $playerconfig['plugins']['edubreak_match']['match_bulk_operations_enabled'] = false;
         //disable timline previews when users are may not edit questions
         if(!ivs_may_edit_match_questions($activitycontext)) {
             $playerconfig['plugins']['edubreak_match']['show_timeline'] = false;
