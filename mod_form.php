@@ -28,8 +28,10 @@ defined('MOODLE_INTERNAL') || die();
 use core_grades\component_gradeitems;
 use mod_ivs\gradebook\GradebookService;
 use \mod_ivs\ivs_match\AssessmentConfig;
+use mod_ivs\license\MoodleLicenseController;
 use mod_ivs\settings\SettingsService;
 use mod_ivs\upload\ExternalSourceVideoHost;
+use mod_ivs\upload\VimpFileVideoHost;
 use \tool_opencast\local\api;
 
 global $CFG;
@@ -160,6 +162,31 @@ class mod_ivs_mod_form extends moodleform_mod {
             }
         }
 
+        $vimpfilesenabled = get_config('mod_ivs', 'ivs_vimp_external_files_enabled');
+        if ((int) $vimpfilesenabled) {
+            try {
+                $vimpvideos = $this->get_vimp_videos_for_select();
+                if ($vimpvideos) {
+                    $options = array(
+                            'multiple' => false,
+                            'noselectionstring' => get_string('ivs_opencast_video_chooser', 'ivs'),
+                    );
+                    $mform->addElement('autocomplete', 'vimp_video', get_string('ivs_setting_vimp_menu_title', 'ivs'), $vimpvideos, $options);
+                    if (!empty($this->current->videourl)) {
+                        $sourceinfo = VimpFileVideoHost::getexternalsourceinfobyvideourl($this->current->videourl);
+                        if($sourceinfo['type'] == 'VimpFileVideoHost') {
+                            $mform->setDefault('vimp_video', $sourceinfo['mediumid']);
+                        }
+                    } else {
+                        $mform->setDefault('vimp_video', null);
+                    }
+                }
+
+            } catch (Exception $e) {
+                \core\notification::error($e->getMessage());
+            }
+        }
+
         $externalsourcesenabled = get_config('mod_ivs', 'ivs_external_sources_enabled');
         if ((int) $externalsourcesenabled) {
             $mform->addElement('text', 'external_video_source', get_string('ivs_setting_external_source_menu_title', 'ivs'),
@@ -171,14 +198,10 @@ class mod_ivs_mod_form extends moodleform_mod {
             }
         }
 
-
-
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
         $mform->removeElement('grade');
         $mform->removeElement('gradecat');
-
-
 
         $settingscontroller = new SettingsService();
         $parentsettings = $settingscontroller->get_parent_settings_for_activity($this->_course->id);
@@ -206,7 +229,6 @@ class mod_ivs_mod_form extends moodleform_mod {
         $ivsplayeradvancedcommentssettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_comments_settings();
         SettingsService::ivs_render_activity_settings($ivsplayeradvancedcommentssettings,$activitysettings,$mform,$parentsettings,[\mod_ivs\settings\SettingsDefinition::SETTING_PLAYER_LOCK_REALM => SettingsService::get_ivs_read_access_options()]);
 
-
         \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/advanced_match',get_string('ivs_player_settings_advanced_match', 'ivs'),$mform);
         $ivsplayeradvancedmatchsettings = \mod_ivs\settings\SettingsService::ivs_get_player_advanced_match_settings();
         SettingsService::ivs_render_activity_settings($ivsplayeradvancedmatchsettings,$activitysettings,$mform,$parentsettings);
@@ -215,7 +237,6 @@ class mod_ivs_mod_form extends moodleform_mod {
         \mod_ivs\settings\SettingsService::ivs_add_new_activity_settings_heading('mod_ivs/grades',get_string('ivs_grade', 'ivs'),$mform);
         $ivsplayergradesettings = \mod_ivs\settings\SettingsService::ivs_get_player_grade_settings();
         SettingsService::ivs_render_activity_settings($ivsplayergradesettings,$activitysettings,$mform,$parentsettings,[\mod_ivs\settings\SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS => $gradebookservice->ivs_get_attempt_options(), \mod_ivs\settings\SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_METHOD => $gradebookservice->ivs_get_grade_method_options()]);
-
 
 
 
@@ -349,7 +370,7 @@ class mod_ivs_mod_form extends moodleform_mod {
     }
 
     /**
-     * Get all videos from opencast
+     * Get all videos from kaltura
      *
      * @return array|void
      */
@@ -368,6 +389,43 @@ class mod_ivs_mod_form extends moodleform_mod {
         if (!empty($results)) {
             foreach ($results as $entry) {
                 $publishedvideos[$entry->rootEntryId] = $entry->name;
+            }
+        }
+
+        return $publishedvideos;
+    }
+
+    /**
+     * Get all videos from vimp
+     *
+     * @return array|void
+     */
+    public function get_vimp_videos_for_select() {
+        global $COURSE, $CFG;
+
+        $publishedvideos = array();
+        $publishedvideos = array(get_string('ivs_opencast_video_chooser', 'ivs'));
+
+        $config = VimpFileVideoHost::getVimpConfiguration();
+        if(empty($config)) {
+            return;
+        }
+
+        $apikey = $config->skey;
+
+        $response = file_get_contents($config->masterurl . 'getMedia?apikey=' . urlencode($apikey));
+        if(empty($response)) {
+            return null;
+        }
+
+        $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $json = json_encode($xml);
+        $response_array = json_decode($json, true);
+
+        if (!empty($response_array['media']['medium'])) {
+            $medium_list = $response_array['media']['medium'];
+            foreach ($medium_list as $medium) {
+                $publishedvideos[$medium['mediakey']] = $medium['title'];
             }
         }
 

@@ -30,7 +30,7 @@ use mod_ivs\video;
 use function GuzzleHttp\Psr7\_caseless_remove;
 
 /**
- * Class PanoptoFileVideoHost
+ * Class ExternalSourceVideoHost
  */
 class ExternalSourceVideoHost implements IVideoHost {
 

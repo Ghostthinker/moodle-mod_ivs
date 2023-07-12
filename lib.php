@@ -24,6 +24,7 @@
 
 use mod_ivs\settings\SettingsService;
 use mod_ivs\upload\ExternalSourceVideoHost;
+use mod_ivs\upload\VimpFileVideoHost;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -100,6 +101,8 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (!empty($ivs->kaltura_video)) {
         $ivs->videourl = "KalturaFileVideoHost://" . $ivs->kaltura_video;
+    } else if (!empty($ivs->vimp_video)) {
+        $ivs->videourl = "VimpFileVideoHost://" . $ivs->vimp_video;
     } else if (!empty($ivs->external_video_source)) {
         $sourceinfo = ExternalSourceVideoHost::parseExternalVideoSourceUrl($ivs->external_video_source);
         if ($sourceinfo['type'] != ExternalSourceVideoHost::TYPE_UNSUPPORTED) {
@@ -147,6 +150,8 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
         $ivs->videourl = "PanoptoFileVideoHost://" . $ivs->panopto_video_json_field;
     } else if (!empty($ivs->kaltura_video)) {
         $ivs->videourl = "KalturaFileVideoHost://" . $ivs->kaltura_video;
+    } else if (!empty($ivs->vimp_video)) {
+            $ivs->videourl = "VimpFileVideoHost://" . $ivs->vimp_video;
     } else if (!empty($ivs->external_video_source)) {
         $sourceinfo = ExternalSourceVideoHost::parseExternalVideoSourceUrl($ivs->external_video_source);
         if ($sourceinfo['type'] != ExternalSourceVideoHost::TYPE_UNSUPPORTED) {

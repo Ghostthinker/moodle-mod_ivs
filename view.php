@@ -31,6 +31,7 @@ use mod_ivs\gradebook\GradebookService;
 use mod_ivs\MoodleLicenseController;
 use mod_ivs\IvsHelper;
 use mod_ivs\upload\ExternalSourceVideoHost;
+use mod_ivs\upload\VimpFileVideoHost;
 
 // Replace ivs with the name of your module and remove this line.
 

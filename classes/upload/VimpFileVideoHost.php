@@ -16,6 +16,7 @@
 
 /**
  * This class is for the panopto video file host
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,10 +25,11 @@
 
 namespace mod_ivs\upload;
 
+
 /**
- * Class PanoptoFileVideoHost
+ * Class VimpFileVideoHost
  */
-class PanoptoFileVideoHost implements IVideoHost {
+class VimpFileVideoHost implements IVideoHost {
 
     /**
      * @var \stdClass
@@ -38,44 +40,50 @@ class PanoptoFileVideoHost implements IVideoHost {
      * @var \stdClass
      */
     protected $coursemodule;
+    const TYPE_VIMP = 'vimp';
+    const TYPE_UNSUPPORTED = 'unsupported';
 
     /**
-     * @var \stdClass
-     */
-    protected $course;
-
-    /**
-     * PanoptoFileVideoHost constructor.
+     * ExternalSourceVideoHost constructor.
      *
      * @param \stdClass $cm
      * @param \stdClass $ivs
-     * @param \stdClass $course
      */
-    public function __construct($cm, $ivs, $course) {
+    public function __construct($cm, $ivs) {
         $this->ivs = $ivs;
         $this->coursemodule = $cm;
-        $this->course = $course;
     }
 
     /**
      * Get the video
+     *
      * @return string
      */
     public function get_video() {
-        global $DB;
-        $parts = explode("://", $this->ivs->videourl);
-        $data = $parts[1];
 
-        $decodeddata = json_decode($data, true);
-        $result = [];
-        $result['servername'] = $decodeddata['servername'];
-        $result['sessionid'] = current($decodeddata['sessionId']);
+        $config = $this->getVimpConfiguration();
+        if(empty($config)) {
+            return null;
+        }
 
-        return $result;
+        $sourceinfo = $this->getexternalsourceinfo();
+
+        $response = file_get_contents($config->masterurl . 'getMedium?apikey=' . $config->skey . '&mediumid=' . $sourceinfo['mediumid']);
+
+        if(empty($response)) {
+            return null;
+        }
+        $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $json = json_encode($xml);
+        $response_array = json_decode($json, true);
+        $medium = current($response_array['medium']['medium']);
+
+        return $medium;
     }
 
     /**
      * Save video data
+     *
      * @param \stdClass $data
      */
     public function save_video($data) {
@@ -93,11 +101,12 @@ class PanoptoFileVideoHost implements IVideoHost {
      * Prerender function
      */
     public function prerender(&$urliframe) {
-
+        // TODO: Implement prerender() method.
     }
 
     /**
      * Get the cross origin tag
+     *
      * @return string
      */
     public function getcrossorigintag() {
@@ -105,15 +114,32 @@ class PanoptoFileVideoHost implements IVideoHost {
     }
 
     public function rendermediacontainer($PAGE) {
-
         $renderer = $PAGE->get_renderer('ivs');
 
-        $video = $this->get_video();
-        $renderable = new \mod_ivs\output\mediacontainer\panopto_video_view($video['servername'], $video['sessionid']);
+        $renderable = new \mod_ivs\output\mediacontainer\vimp_video_view($this->get_video());
         return $renderer->render($renderable);
-
     }
 
+    public static function getexternalsourceinfobyvideourl($videourl) {
+        $result = [];
+        $parts = explode("://", $videourl);
+        $result['type'] = $parts[0];
+        $result['mediumid'] = $parts[1];
+        return $result;
+    }
+
+    private function getexternalsourceinfo() {
+        return VimpFileVideoHost::getexternalsourceinfobyvideourl($this->ivs->videourl);
+    }
+
+    public static function getVimpConfiguration() {
+        $config = get_config('auth_vimpsso');
+        if (empty($config) || empty($config->skey) || empty($config->masterurl)) {
+            return null;
+        }
+
+        return $config;
+    }
 
 
 }

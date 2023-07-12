@@ -191,6 +191,8 @@ class StatisticsService {
      */
     private function numIVSVideoHosts() {
         $videohosts = [];
+        $videohosts['vimp'] =
+                $this->database->count_records_sql("SELECT COUNT(id) FROM {ivs} WHERE videourl LIKE 'VimpFileVideoHost:%'");
         $videohosts['panopto'] =
                 $this->database->count_records_sql("SELECT COUNT(id) FROM {ivs} WHERE videourl LIKE 'PanoptoFileVideoHost:%'");
         $videohosts['kaltura'] =

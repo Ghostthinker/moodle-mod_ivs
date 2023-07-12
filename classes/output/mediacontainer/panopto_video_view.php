@@ -35,23 +35,26 @@ use stdClass;
 /**
  * Class youtube_video_view
  */
-class youtube_video_view implements renderable, templatable {
+class panopto_video_view implements renderable, templatable {
 
     /**
      * @var \mod_ivs\annotation|null
      */
-    public $youtubeid = null;
+    public $servername = null;
+    public $sessionid = null;
 
     /**
      * annotation_audio_player_view constructor.
      *
      * @param \mod_ivs\annotation $annotation
      */
-    public function __construct($youtubeid) {
-        $this->youtubeid = $youtubeid;
+    public function __construct($servername, $sessionid) {
+        $this->servername = $servername;
+        $this->sessionid = $sessionid;
     }
 
     /**
+     * Export this data so it can be used as the context for a mustache template.
      * @param \renderer_base $output
      *
      * @return \stdClass
@@ -59,7 +62,8 @@ class youtube_video_view implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
 
-        $data->youtubeid = $this->youtubeid;
+        $data->servername = $this->servername;
+        $data->sessionid = $this->sessionid;
         return $data;
     }
 }

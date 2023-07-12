@@ -170,6 +170,10 @@ class SettingsService {
         $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_kaltura_external_files_enabled',
                 get_string('ivs_setting_kaltura_external_files_title', 'ivs'),
                 get_string('ivs_setting_kaltura_external_files_help', 'ivs'), 1));
+
+        $settings->add(new admin_setting_configcheckbox('mod_ivs/ivs_vimp_external_files_enabled',
+                get_string('ivs_setting_vimp_external_files_title', 'ivs'),
+                get_string('ivs_setting_vimp_external_files_help', 'ivs'), 1));
     }
 
     public static function ivs_usage_statistic_settings(&$settings) {

@@ -24,6 +24,7 @@
 
 namespace mod_ivs\upload;
 
+
 /**
  * Class VideoHostFactory
  */
@@ -31,11 +32,12 @@ class VideoHostFactory {
 
     /**
      * Returns the filehost for an activity
+     *
      * @param \stdClass $cm
      * @param \stdClass $ivs
      * @param null $course
      *
-     * @return \mod_ivs\upload\MoodleFileVideoHost|\mod_ivs\upload\OpenCastFileVideoHost|\mod_ivs\upload\KalturaFileVideoHost|\mod_ivs\upload\PanoptoFileVideoHost|\mod_ivs\upload\TestingFileVideoHost|\mod_ivs\upload\ExternalSourceVideoHost
+     * @return \mod_ivs\upload\MoodleFileVideoHost|\mod_ivs\upload\OpenCastFileVideoHost|\mod_ivs\upload\KalturaFileVideoHost|\mod_ivs\upload\PanoptoFileVideoHost|\mod_ivs\upload\TestingFileVideoHost|\mod_ivs\upload\ExternalSourceVideoHost|\mod_ivs\upload\TestingFileVideoHost|\mod_ivs\upload\VimpFileVideoHost
      */
     public static function create($cm, $ivs, $course = null) {
 
@@ -53,6 +55,8 @@ class VideoHostFactory {
                 return new PanoptoFileVideoHost($cm, $ivs, $course);
             case 'KalturaFileVideoHost':
                 return new KalturaFileVideoHost($cm, $ivs);
+            case 'VimpFileVideoHost':
+                return new VimpFileVideoHost($cm, $ivs);
             case 'ExternalSourceVideoHost':
                 return new ExternalSourceVideoHost($cm, $ivs);
         }

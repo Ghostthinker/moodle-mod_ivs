@@ -35,23 +35,24 @@ use stdClass;
 /**
  * Class youtube_video_view
  */
-class youtube_video_view implements renderable, templatable {
+class vimp_video_view implements renderable, templatable {
 
     /**
      * @var \mod_ivs\annotation|null
      */
-    public $youtubeid = null;
+    public $vimpurl = null;
 
     /**
      * annotation_audio_player_view constructor.
      *
      * @param \mod_ivs\annotation $annotation
      */
-    public function __construct($youtubeid) {
-        $this->youtubeid = $youtubeid;
+    public function __construct($vimpurl) {
+        $this->vimpurl = $vimpurl;
     }
 
     /**
+     * Export this data so it can be used as the context for a mustache template.
      * @param \renderer_base $output
      *
      * @return \stdClass
@@ -59,7 +60,7 @@ class youtube_video_view implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
 
-        $data->youtubeid = $this->youtubeid;
+        $data->vimpurl = $this->vimpurl;
         return $data;
     }
 }

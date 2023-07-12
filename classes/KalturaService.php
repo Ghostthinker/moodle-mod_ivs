@@ -66,6 +66,20 @@ class KalturaService {
         $dataurl = null;
         try {
             $entry = $this->client->media->get($entityid);
+
+            $flavorAssets = $this->client->flavorAsset->getByEntryId($entityid);
+            if (!empty($flavorAssets)) {
+
+                $bestResolution = $flavorAssets[0];
+                foreach($flavorAssets as $asset){
+                    $bestResolution = $bestResolution->sizeInBytes < $asset->sizeInBytes ? $asset : $bestResolution;
+                }
+
+                $flavorParamsId = $bestResolution->id;
+                $mediaUrl = $this->client->flavorAsset->getUrl($flavorParamsId);   
+                return $mediaUrl;
+            }
+
             $dataurl = $entry->dataUrl;
         } catch (Exception $e) {
             echo $e->getMessage();
