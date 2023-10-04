@@ -26,11 +26,20 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.21
+* bug fixes 
+  * disabled comments in exam mode
+  * changed db column settings in “ivs-matchtake”
+* further improvements
+  * timing-mode: cool down function 
+  * timing-mode: ui improvements
+* ``ep5 version 2.9``
+
 ### v1.20
 * Vimp integration
 * Panopto player api
 * Kaltura improvements
-``ep5 version 2.8``
+* ``ep5 version 2.8``
 
 ### v1.19
 * ui improvements and bug fixes

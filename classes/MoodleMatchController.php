@@ -1982,7 +1982,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                 'shortcut' =>  $post_data->btn['shortcut'],
                 'score' =>  $post_data->btn['score'],
                 'style' =>  $post_data->btn['style'],
-                'description' => $post_data->btn['description']
+                'description' => $post_data->btn['description'],
+                'cooldown' => $post_data->btn['cooldown']
             ]
         ];
         $timing_type_array['id'] = $id;

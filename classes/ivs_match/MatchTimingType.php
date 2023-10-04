@@ -17,6 +17,7 @@ class MatchTimingType {
     public $position;
     public $duration;
     public $weight;
+    public $cooldown;
 
     public function __construct($values = [])
     {
@@ -30,6 +31,7 @@ class MatchTimingType {
         $this->position = $values['btn']['position'] ?? NULL;
         $this->duration = $values['duration'] ?? NULL;
         $this->weight = $values['weight'] ?? NULL;
+        $this->cooldown = $values['btn']['cooldown'] ?? NULL;
     }
 
     public function to_player_json()
@@ -42,6 +44,7 @@ class MatchTimingType {
                 'description' => $this->description,
                 'shortcut' => $this->shortcut,
                 'position' => $this->position,
+                'cooldown' => $this->cooldown,
             ],
             'title' => $this->title,
             'id' => $this->id,

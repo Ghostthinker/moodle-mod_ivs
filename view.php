@@ -73,7 +73,8 @@ $videourl = $videohost->get_video();
 
 $match_type = $activitysettings['match_question_enabled']->value;
 
-$annotationsenabled = $activitysettings['annotations_enabled']->value;
+$annotationsenabled = $activitysettings['annotations_enabled']->value && !(int)$activitysettings['exam_mode_enabled']->value;
+$exammode = (int)$activitysettings['exam_mode_enabled']->value;
 
 require_login($course, true, $cm);
 $context = context_course::instance($course->id);
@@ -118,7 +119,11 @@ if (empty($embedded)) {
 
     // Output starts here.
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(format_string($ivs->name));
+
+    if(!IvsHelper::check_moodle_version(4)){
+        echo $OUTPUT->heading(format_string($ivs->name));
+    }
+
 
     $lc = ivs_get_license_controller();
 
@@ -225,7 +230,7 @@ if (empty($embedded)) {
             const interval = setInterval(spinnerInterval, 1000);
 
             function spinnerInterval() {
-                if($('.edubreak-responsive-iframe').contents().find('#ep5-overlay-annotations').length){
+                if($('.edubreak-responsive-iframe').contents().find('.ep5-controlbar').length){
                     document.getElementById('ivs-loading-spinner').remove();
                     stopSpinnerInterval();
                 }
@@ -565,6 +570,7 @@ if (empty($embedded)) {
             "show_realtime_results" => (int) $activitysettings['show_realtime_results']->value,
             "score_enabled" => true,
             "question_duration_enabled" => true,
+            "cooldown_enabled" => true
         ];
 
         unset( $playerconfig['plugins']['edubreak_match_question_choice']);

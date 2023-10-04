@@ -121,6 +121,16 @@ function xmldb_ivs_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023050900, 'ivs');
     }
 
+    // Change setting score notnull falue from false to true.
+    if ($oldversion < 2023092604) {
+        $table = new xmldb_table('ivs_matchtake');
+        $field = new xmldb_field('score', XMLDB_TYPE_FLOAT, null, null, true, null, 0, null);
+        $dbman->change_field_default($table, $field);
+        $dbman->change_field_notnull($table, $field);
+
+        upgrade_mod_savepoint(true, 2023092604, 'ivs');
+    }
+
     return true;
 }
 

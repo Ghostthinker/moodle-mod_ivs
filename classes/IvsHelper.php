@@ -154,4 +154,22 @@ class IvsHelper {
         }
         return $activities;
     }
+
+    public static function check_moodle_version($version = 4){
+
+        global $CFG;
+        global $release;
+
+        $moodleRelease = "";
+
+        if (!empty($release)) {
+            $moodleRelease = $release;
+        } else if (!empty($CFG->release)) {
+            $moodleRelease = $CFG->release;
+        } else if (!empty($CFG->target_release)) {
+            $moodleRelease = $CFG->target_release;
+        }
+
+        return substr($moodleRelease, 0, 1) == $version;
+    }
 }

@@ -116,7 +116,7 @@
         <FIELD NAME="context_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The id of the context (assigment) that the take is for"/>
         <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="evaluated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Boolean indicating whether take has been evaluated"/>
-        <FIELD NAME="score" TYPE="float" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The score in percentage from 0 to 100"/>
+        <FIELD NAME="score" TYPE="float" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The score in percentage from 0 to 100"/>
         <FIELD NAME="status" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="new" SEQUENCE="false" COMMENT="The status of a take"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The Unix timestamp when the node was created."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The Unix timestamp when the node was most recently saved."/>
