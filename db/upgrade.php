@@ -123,6 +123,10 @@ function xmldb_ivs_upgrade($oldversion) {
 
     // Change setting score notnull falue from false to true.
     if ($oldversion < 2023092604) {
+        $sql = "UPDATE {ivs_matchtake} SET score = 0 WHERE score IS NULL";
+        // Execute the SQL query
+        $DB->execute($sql);
+
         $table = new xmldb_table('ivs_matchtake');
         $field = new xmldb_field('score', XMLDB_TYPE_FLOAT, null, null, true, null, 0, null);
         $dbman->change_field_default($table, $field);
