@@ -26,6 +26,13 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.22
+* bug fixes
+  * scrolling fix in quiz mode
+* further improvements
+  * unlink videos in IVS activities
+* ``ep5 version 2.9``
+
 ### v1.21
 * bug fixes 
   * disabled comments in exam mode

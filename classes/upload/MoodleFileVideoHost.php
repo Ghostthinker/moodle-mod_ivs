@@ -58,6 +58,10 @@ class MoodleFileVideoHost implements IVideoHost {
      */
     public function get_video() {
 
+        if(empty($this->ivs->videourl)) {
+            return;
+        }
+
         $cm = get_coursemodule_from_instance('ivs', $this->ivs->id, $this->ivs->course, false, MUST_EXIST);
 
         $context = context_module::instance($cm->id);

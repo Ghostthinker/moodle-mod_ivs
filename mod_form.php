@@ -144,6 +144,7 @@ class mod_ivs_mod_form extends moodleform_mod {
                             'accepted_types' => array('.mp4'),
                             'return_types' => FILE_INTERNAL,
                     ));
+
         }
 
         $kalturafilesenabled = get_config('mod_ivs', 'ivs_kaltura_external_files_enabled');
@@ -198,6 +199,15 @@ class mod_ivs_mod_form extends moodleform_mod {
             }
         }
 
+        // Add a checkbox element
+        $mform->addElement('html', '
+            <hr>
+            ');
+        $mform->addElement('advcheckbox', 'ivs_unlink_videos', get_string('ivs_unlink_videos', 'ivs'), get_string('ivs_unlink_videos_description', 'ivs'));
+        // description for the checkbox element
+        $mform->addHelpButton('ivs_unlink_videos','ivs_unlink_videos_description', 'ivs');
+
+
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
         $mform->removeElement('grade');
@@ -238,13 +248,12 @@ class mod_ivs_mod_form extends moodleform_mod {
         $ivsplayergradesettings = \mod_ivs\settings\SettingsService::ivs_get_player_grade_settings();
         SettingsService::ivs_render_activity_settings($ivsplayergradesettings,$activitysettings,$mform,$parentsettings,[\mod_ivs\settings\SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS => $gradebookservice->ivs_get_attempt_options(), \mod_ivs\settings\SettingsDefinition::SETTING_PLAYER_VIDEOTEST_GRADE_METHOD => $gradebookservice->ivs_get_grade_method_options()]);
 
-
-
-
         $mform->addElement('header', 'mod_ivs/misc', get_string('ivs_player_settings_misc', 'ivs'));
+
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
+
 
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
@@ -287,6 +296,7 @@ class mod_ivs_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         if ($this->current->instance) {
+
             $options = array(
                     'subdirs' => false,
                     'maxbytes' => 0,
@@ -300,8 +310,13 @@ class mod_ivs_mod_form extends moodleform_mod {
                     'videos',
                     0,
                     $options);
-            $defaultvalues['video_file'] = $draftitemid;
+
+            if (!empty($defaultvalues['videourl'])) {
+                $defaultvalues['video_file'] = $draftitemid;
+            }
+
         }
+
         if (!empty($defaultvalues['videourl'])) {
             $parts = explode("://", $defaultvalues['videourl']);
 

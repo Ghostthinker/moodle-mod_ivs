@@ -436,3 +436,6 @@ $string['ivs_match_question_answer_menu_label_first_timing_answer'] = "Erster Ve
 $string['ivs_match_question_answer_menu_label_last_timing_answer'] = "Letzer Versuch: Korrekt / Gesamt";
 $string['ivs_match_question_timing_type_id'] = "Timing Typ ID";
 $string['ivs_match_question_timing_type_id_label'] = "Timing Typ";
+$string['ivs_unlink_videos'] = "Videoverknüpfungen entfernen";
+$string['ivs_unlink_videos_description'] = "Alle verknüpften Videos entfernen";
+$string['ivs_unlink_videos_description_help'] = "Alle verknüpften Videos dieser Aktivität werden beim Speichern entfernt. Vorhandene Kommentare bleiben erhalten.";

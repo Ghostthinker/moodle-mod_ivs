@@ -69,7 +69,10 @@ $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $co
 
 $videohost = \mod_ivs\upload\VideoHostFactory::create($cm, $ivs, $course);
 
-$videourl = $videohost->get_video();
+$videourl = "";
+if(!empty($videohost)) {
+    $videourl = $videohost->get_video();
+}
 
 $match_type = $activitysettings['match_question_enabled']->value;
 

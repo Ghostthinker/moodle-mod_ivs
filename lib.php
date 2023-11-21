@@ -95,6 +95,8 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $ivs->id = $DB->insert_record('ivs', $ivs);
 
     $DB->set_field('course_modules', 'instance', $ivs->id, array('id' => $ivs->coursemodule));
+
+
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
@@ -111,7 +113,11 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     } else if (!empty($ivs->sample_video)) {
         $ivs->videourl = 'TestingFileVideoHost://' . $ivs->id;
     } else {
-        $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->id;
+        if ($ivs->video_file) {
+            $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->video_file;;
+        } else {
+            $ivs->videourl = '';
+        }
     }
 
     $DB->update_record('ivs', $ivs);
@@ -144,6 +150,8 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $ivs->timemodified = time();
     $ivs->id = $ivs->instance;
 
+    //reset videourl
+
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
@@ -157,22 +165,37 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
         if ($sourceinfo['type'] != ExternalSourceVideoHost::TYPE_UNSUPPORTED) {
             $ivs->videourl = $sourceinfo['idstring'];
         }
-    } # Was macht diese Abfrage? Leider nicht verständlich
-    else if (substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) &&
-            substr($mform->get_current()->videourl, 0, strlen('TestingFileVideoHost')) != 'PanoptoFileVideoHost') {
+    } #unit test fallback
+    else if (!empty($mform->get_current()->videourl) && strpos($mform->get_current()->videourl, 'TestingFileVideoHost') === 0) {
         $ivs->videourl = $mform->get_current()->videourl;
     } else {
-        $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->id;
+        if ($ivs->video_file) {
+            $ivs->videourl = 'MoodleFileVideoHost://' . $ivs->video_file;;
+        } else {
+            $ivs->videourl = '';
+        }
+    }
+
+    //override
+    //unlink all videos
+    if (!empty($ivs->ivs_unlink_videos)) {
+        $ivs->videourl = "";
+        $ivs->opencast_video = "";
+        $ivs->panopto_video_json_field = "";
+        $ivs->kaltura_video = "";
+        $ivs->vimp_video = "";
+        $ivs->external_video_source = "";
     }
 
     $result = $DB->update_record('ivs', $ivs);
 
     $videohost = \mod_ivs\upload\VideoHostFactory::create(null, $ivs);
 
-    $videohost->save_video(null);
+    if(!empty($videohost)) {
+        $videohost->save_video(null);
+    }
 
     // Save settings.
-
     $settingscontroller = new \mod_ivs\settings\SettingsService();
     $settingscontroller->process_activity_settings_form($ivs);
 
