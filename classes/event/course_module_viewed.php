@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class course_module_viewed
  *
  */
+#[\AllowDynamicProperties]
 class course_module_viewed extends \core\event\course_module_viewed {
 
     /**

@@ -84,4 +84,14 @@ if ($totalcount > $perpage) {
     echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $PAGE->url);
 }
 
+echo '<script>
+  $(document).ready(function(){
+    // Override the window.alert function
+     window.alert = function(message) {
+    // Log the error message to the console
+     console.error("Alert intercepted:", message);
+     };
+  });
+</script>';
+
 echo $OUTPUT->footer();

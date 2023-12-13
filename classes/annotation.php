@@ -44,6 +44,7 @@ define('MOD_IVS_VC_ACCESS', 'ivs_vc_access');
  *
  * @package mod_ivs
  */
+#[\AllowDynamicProperties]
 class annotation {
 
     /**
@@ -676,7 +677,7 @@ class annotation {
 
         $this->save_to_db();
 
-        if ($requestbody->preview) {
+        if (!empty($requestbody->preview) && $requestbody->preview) {
             $this->save_preview_image($requestbody->preview);
         }
 

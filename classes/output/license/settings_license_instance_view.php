@@ -36,6 +36,7 @@ use stdClass;
  */
 class settings_license_instance_view implements renderable, templatable {
 
+    public $license;
     /**
      * settings_license_instance_view constructor.
      *

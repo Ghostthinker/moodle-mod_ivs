@@ -43,6 +43,7 @@ class timing_question_answer_view implements renderable, templatable {
      * @var array|null
      */
     public $answer = null;
+    public $course_user = null;
 
     /**
      * timing_type_answer_view constructor.

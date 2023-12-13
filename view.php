@@ -570,7 +570,7 @@ if (empty($embedded)) {
 
     if ($match_type == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
         $playerconfig['plugins']['edubreak_match_question_timing'] = [
-            "show_realtime_results" => (int) $activitysettings['show_realtime_results']->value,
+            "show_realtime_results" => !empty($activitysettings['show_realtime_results']) ? (int) $activitysettings['show_realtime_results']->value : 0,
             "score_enabled" => true,
             "question_duration_enabled" => true,
             "cooldown_enabled" => true
@@ -647,11 +647,13 @@ if (empty($embedded)) {
   $(document).ready(function(){
     var player_configuration = ' . $configstring . ';
     $(\'.edubreakplayer:not(".ep5-processed")\').edubreakplayer(player_configuration).addClass(\'ep5-processed\');
+    
   });
 </script>';
 
     // Todo footer.
     ?>
+
 
     </body>
     </html>

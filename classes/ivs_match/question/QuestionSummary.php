@@ -45,6 +45,11 @@ class QuestionSummary {
     public $question_body;
 
     /**
+     * @var string
+     */
+    public $question_type;
+
+    /**
      * @var bool
      */
     public $first_attempt_correct;

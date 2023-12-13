@@ -26,6 +26,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.23
+* Improved compatibility for Moodle 3.9 - Moodle 4.2.3 and PHP 8.0 - 8.2
+* ``ep5 version 2.9``
+
 ### v1.22
 * bug fixes
   * scrolling fix in quiz mode

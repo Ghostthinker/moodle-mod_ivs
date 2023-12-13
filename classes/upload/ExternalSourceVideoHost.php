@@ -235,7 +235,7 @@ class ExternalSourceVideoHost implements IVideoHost {
         $parts = explode("://", $videourl);
         $data = $parts[1];
 
-        return json_decode($data, true);
+        return json_decode($data ?? '', true);
     }
 
     private function getexternalsourceinfo() {

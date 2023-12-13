@@ -40,6 +40,7 @@ use stdClass;
 /**
  * Class GradebookService
  */
+#[\AllowDynamicProperties]
 class GradebookService {
 
     /**

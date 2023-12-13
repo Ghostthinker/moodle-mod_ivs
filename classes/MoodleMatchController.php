@@ -584,8 +584,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
         $record['type_data'] = serialize($postdata['type_data']);
 
-        $top = clean_param($postdata['offset']['top'], PARAM_FLOAT);
-        $left = clean_param($postdata['offset']['left'], PARAM_FLOAT);
+        $top = clean_param($postdata['offset']['top'] ?? null, PARAM_FLOAT);
+        $left = clean_param($postdata['offset']['left'] ?? null, PARAM_FLOAT);
 
         $extradata = [
                 'offset' => [
@@ -1894,7 +1894,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $timingtypes = [];
 
         if(!empty($ivs->match_config)) {
-            $matchconfig = json_decode($ivs->match_config, TRUE);
+            $matchconfig = json_decode($ivs->match_config  ?? '', TRUE);
 
             foreach ($matchconfig['timing_types'] as $timingtype){
                 $timingtypes[] = new MatchTimingType($timingtype);
@@ -1951,42 +1951,53 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         }
 
 
-        $post_data = (object) $post_data;
-        //parse data
-        $id = $post_data->id;
+        $postData = json_decode(json_encode($post_data));
 
-        if (strlen($id) == 0) {
+        //parse data
+        if (property_exists($postData, 'id')) {
+            $id = $postData->id;
+        }
+
+        if (empty($id)) {
             //generate uuid
             $id = uniqid();
         }
 
+        if (property_exists($postData, 'type')) {
+            $timing_type_array['type'] = $postData->type;
+        }
+        if (property_exists($postData, 'duration')) {
+            $timing_type_array['duration'] = $postData->duration;
+        }
+        if (property_exists($postData, 'title')) {
+            $timing_type_array['title'] = $postData->title;
+        }
+        if (property_exists($postData, 'btn')) {
+            $postDataBtn = $postData->btn;
+        }
 
-        $timing_type_array['type'] = $post_data->type;
-
-        $timing_type_array['timestamp'] = $post_data->timestamp;
-        $timing_type_array['duration'] = $post_data->duration;
-        $timing_type_array['title'] = $post_data->title;
-        $position = explode(',', $post_data->btn['position']);
+        $position = explode(',', $postDataBtn->position);
         $new_pos = [];
         foreach ($position as $pos){
             $new_pos[] = $pos;
         }
 
         $timing_type_array = [
-            'title' => $post_data->title,
-            'duration' => $post_data->duration,
-            'weight' => $post_data->weight,
-            'btn' => [
-                'label' =>  $post_data->btn['label'],
-                'position' =>  implode(',', $new_pos),
-                'shortcut' =>  $post_data->btn['shortcut'],
-                'score' =>  $post_data->btn['score'],
-                'style' =>  $post_data->btn['style'],
-                'description' => $post_data->btn['description'],
-                'cooldown' => $post_data->btn['cooldown']
-            ]
+                'title' => $postData->title,
+                'duration' => $postData->duration,
+                'weight' => $postData->weight,
+                'btn' => [
+                        'label' =>  $postDataBtn->label,
+                        'position' =>  implode(',', $new_pos),
+                        'shortcut' =>  $postDataBtn->shortcut,
+                        'score' =>  $postDataBtn->score,
+                        'style' =>  $postDataBtn->style,
+                        'description' => $postDataBtn->description,
+                        'cooldown' => $postDataBtn->cooldown
+                ]
         ];
-        $timing_type_array['id'] = $id;
+        $timing_type_array['id'] = $id ?? null;
+
 
         $matchtimingtype = new MatchTimingType($timing_type_array);
 
@@ -2018,7 +2029,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         if(empty($ivs->match_config)) {
             $match_settings = [];
         }else {
-            $match_settings = json_decode($ivs->match_config, TRUE);
+            $match_settings = json_decode($ivs->match_config ?? '', TRUE);
         }
 
         $matchtimingtypesjson = array_map( function ($timingtype){
@@ -2041,8 +2052,10 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $timingtypes = $matchcontroller->match_timing_type_get_db($videoid);
         foreach ($matchquestions as $matchquestion) {
             $type_data = unserialize($matchquestion->type_data);
-            $timingtype = MatchTimingTakeResult::find_object_by_id($type_data['timing_type_id'], $timingtypes);
-            $pointstotal += $timingtype->score;
+            if(!empty($type_data['timing_type_id'])) {
+                $timingtype = MatchTimingTakeResult::find_object_by_id($type_data['timing_type_id'], $timingtypes);
+                $pointstotal += $timingtype->score;
+            }
         }
 
 

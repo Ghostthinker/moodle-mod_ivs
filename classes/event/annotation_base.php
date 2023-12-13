@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class annotation_base
  *
  */
+#[\AllowDynamicProperties]
 abstract class annotation_base extends \core\event\base {
 
     /**

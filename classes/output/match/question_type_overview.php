@@ -37,7 +37,7 @@ use stdClass;
 class question_type_overview implements renderable, templatable {
 
     /**
-     * @var null
+     * @var \stdClass|null
      */
     public $timingtype = null;
 

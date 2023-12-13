@@ -35,6 +35,7 @@ use templatable;
  */
 class settings_license_data_policy_view implements renderable, templatable {
 
+
     /**
      * settings_license_data_policy_view constructor.
      */

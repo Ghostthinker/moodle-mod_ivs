@@ -66,7 +66,7 @@ class PanoptoFileVideoHost implements IVideoHost {
         $parts = explode("://", $this->ivs->videourl);
         $data = $parts[1];
 
-        $decodeddata = json_decode($data, true);
+        $decodeddata = json_decode($data ?? '', true);
         $result = [];
         $result['servername'] = $decodeddata['servername'];
         $result['sessionid'] = current($decodeddata['sessionId']);

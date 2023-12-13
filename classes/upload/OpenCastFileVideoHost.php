@@ -69,7 +69,7 @@ class OpenCastFileVideoHost implements IVideoHost {
 
         $query = '/api/events/' . $id . '/publications/';
         $result = $api->oc_get($query);
-        $publications = json_decode($result, true);
+        $publications = json_decode($result ?? '', true);
 
         foreach ($publications as $publication) {
             if (strpos($publication['channel'], 'api') > -1) {

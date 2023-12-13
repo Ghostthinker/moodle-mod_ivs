@@ -27,6 +27,7 @@ namespace mod_ivs\settings;
 /**
  * Class Setting
  */
+#[\AllowDynamicProperties]
 class Setting {
 
     /**

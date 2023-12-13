@@ -36,20 +36,10 @@ use stdClass;
  */
 class annotation_report_view implements renderable, templatable {
 
-    /**
-     * @var \mod_ivs\annotation|null
-     */
-    public $annotation = null;
-
-    /**
-     * @var null|stdClass
-     */
-    public $ivs = null;
-
-    /**
-     * @var stdClass
-     */
-    public $module;
+    public stdClass $userTo;
+    public \mod_ivs\annotation $annotation;
+    public stdClass $ivs;
+    public stdClass $module;
 
     /**
      * annotation_report_view constructor.

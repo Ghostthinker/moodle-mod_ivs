@@ -36,6 +36,9 @@ use stdClass;
  */
 class settings_license_course_expired_view implements renderable, templatable {
 
+    public array $course_licenses;
+    public array $instance_licenses;
+
     /**
      * settings_license_course_expired_view constructor.
      *

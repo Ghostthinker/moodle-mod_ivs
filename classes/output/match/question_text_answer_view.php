@@ -43,6 +43,8 @@ class question_text_answer_view implements renderable, templatable {
      */
     public $answer = null;
 
+    public $course_user = null;
+
     /**
      * question_text_answer_view constructor.
      *

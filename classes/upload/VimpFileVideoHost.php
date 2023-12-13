@@ -75,7 +75,7 @@ class VimpFileVideoHost implements IVideoHost {
         }
         $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOCDATA);
         $json = json_encode($xml);
-        $response_array = json_decode($json, true);
+        $response_array = json_decode($json ?? '', true);
         $medium = current($response_array['medium']['medium']);
 
         return $medium;

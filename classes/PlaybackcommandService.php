@@ -140,7 +140,7 @@ class PlaybackcommandService {
             throw new Exception("video not found");
         }
 
-        $playbackcommands = json_decode($ivs->playbackcommands, true);
+        $playbackcommands = json_decode($ivs->playbackcommands ?? '', true);
 
         if ($playbackcommands === null && json_last_error() !== JSON_ERROR_NONE) {
             return array();

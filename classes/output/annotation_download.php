@@ -54,6 +54,12 @@ class annotation_download implements renderable, templatable {
      */
     public $module;
 
+
+    /**
+     * @var array
+     */
+    public $all_comments;
+
     /**
      * annotation_download constructor.
      *

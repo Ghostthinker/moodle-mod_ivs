@@ -39,10 +39,8 @@ use tool_langimport\controller;
  */
 class question_click_answer_view implements renderable, templatable {
 
-    /**
-     * @var array|null
-     */
-    public $answer = null;
+    public array $answer;
+    private stdClass $course_user;
 
     /**
      * question_click_answer_view constructor.

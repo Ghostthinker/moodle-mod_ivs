@@ -547,7 +547,7 @@ function ivs_annotation_event_message_send($event) {
     $cm = get_coursemodule_from_instance('ivs', $annotation->get_videoid(), 0, false, MUST_EXIST);
     $coursecontext = context_course::instance($cm->course);
     $ivs = $DB->get_record('ivs', array('id' => $cm->instance), '*', MUST_EXIST);
-    $access = json_decode(json_encode($annotation->get_accessview()), true);
+    $access = json_decode(json_encode($annotation->get_accessview()) ?? '', true);
     $course = $DB->get_record('course', array('id' => $ivs->course), '*', MUST_EXIST);
 
     // No notifacions by private realms.

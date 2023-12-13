@@ -48,7 +48,7 @@ class PlayerVersionForm extends moodleform {
         $status = $lc->get_status();
         if (!empty($status)) {
             $group = [];
-            $playerversion = json_decode(json_encode($status->player_versions), true);
+            $playerversion = json_decode(json_encode($status->player_versions) ?? '', true);
 
             $mform->addElement('header', 'section_playerversion', get_string('ivs_set_player_version', 'ivs'));
             $group[] = &$mform->createElement('select', 'player_version', "", $playerversion);

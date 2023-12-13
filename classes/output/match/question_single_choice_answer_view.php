@@ -42,6 +42,7 @@ class question_single_choice_answer_view implements renderable, templatable {
      * @var null
      */
     public $answer = null;
+    public $course_user = null;
 
     /**
      * question_single_choice_answer_view constructor.

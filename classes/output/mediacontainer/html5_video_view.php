@@ -43,6 +43,11 @@ class html5_video_view implements renderable, templatable {
     public $source = null;
 
     /**
+     * @var mixed|string
+     */
+    private $crossorigin;
+
+    /**
      * annotation_audio_player_view constructor.
      *
      * @param \mod_ivs\annotation $annotation

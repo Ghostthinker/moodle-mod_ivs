@@ -90,13 +90,13 @@ $requestmethod = $_SERVER['REQUEST_METHOD'];
 switch ($endpoint) {
     case 'comments':
         if ($requestbody = file_get_contents('php://input')) {
-            $postdata = json_decode($requestbody);
+            $postdata = json_decode($requestbody ?? '');
         }
         $backendservice->ivs_backend_comments($args, $postdata, $requestmethod);
         break;
     case 'playbackcommands':
         if ($requestbody = file_get_contents('php://input')) {
-            $postdata = json_decode($requestbody);
+            $postdata = json_decode($requestbody ?? '');
         }
         $backendservice->ivs_backend_playbackcommands($args, $postdata, $requestmethod);
         break;
@@ -107,7 +107,7 @@ switch ($endpoint) {
         $mc = new MoodleMatchController();
         array_shift($args);
         if ($requestbody = file_get_contents('php://input')) {
-            $postdata = json_decode($requestbody, true);
+            $postdata = json_decode($requestbody ?? '', true);
         }
         $mc->handle_request($endpoint, $args, $requestmethod, $postdata);
         break;
@@ -116,7 +116,7 @@ switch ($endpoint) {
         $mc = new MediaController();
         array_shift($args);
         if ($requestbody = file_get_contents('php://input')) {
-            $postdata = json_decode($requestbody, true);
+            $postdata = json_decode($requestbody ?? '', true);
         }
 
         $mc->handle_request($args, $requestmethod, $_FILES);

@@ -43,6 +43,26 @@ class question_summary implements renderable, templatable {
     public $question = null;
 
     /**
+     * @var null
+     */
+    public $questions = null;
+
+    /**
+     * @var int
+     */
+    public $offset;
+
+    /**
+     * @var int
+     */
+    public $perpage;
+
+    /**
+     * @var null
+     */
+    public $course_students;
+
+    /**
      * @var \stdClass|null
      */
     public $module = null;
@@ -50,7 +70,8 @@ class question_summary implements renderable, templatable {
     /**
      * @var \stdClass
      */
-    private $ivs;
+    public $ivs;
+
 
     /**
      * question_summary constructor.

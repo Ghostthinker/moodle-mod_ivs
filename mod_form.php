@@ -324,7 +324,7 @@ class mod_ivs_mod_form extends moodleform_mod {
                 $defaultvalues['opencast_video'] = $parts[1];
             } else if ($parts[0] == "PanoptoFileVideoHost") {
                 $defaultvalues['panopto_video_json_field'] = $parts[1];
-                $decodedvalues = json_decode($parts[1]);
+                $decodedvalues = json_decode($parts[1] ?? '');
                 if (!empty($decodedvalues)) {
                     $defaultvalues['panopto_video'] = $decodedvalues->videoname[0];
                 }
@@ -332,7 +332,7 @@ class mod_ivs_mod_form extends moodleform_mod {
                 $defaultvalues['kaltura_video'] = $parts[1];
 
             } else if  ($parts[0] == "ExternalSourceVideoHost") {
-                $externalsourceinfo = json_decode($parts[1]);
+                $externalsourceinfo = json_decode($parts[1] ?? '');
                 $defaultvalues['external_video_source'] = $externalsourceinfo->originalstring;
             }
         }
@@ -363,7 +363,7 @@ class mod_ivs_mod_form extends moodleform_mod {
 
         $api = new api();
         $videos = $api->oc_get($query);
-        $videos = json_decode($videos);
+        $videos = json_decode($videos ?? '');
 
         $publishedvideos = array(get_string('ivs_opencast_video_chooser', 'ivs'));
 
@@ -392,7 +392,7 @@ class mod_ivs_mod_form extends moodleform_mod {
     public function get_kaltura_videos_for_select() {
         global $COURSE, $CFG;
 
-        $publishedvideos = array();
+        $publishedvideos = array(get_string('ivs_opencast_video_chooser', 'ivs'));
 
         if (!file_exists($CFG->dirroot . '/local/kaltura/API/KalturaClient.php')) {
             return $publishedvideos;
@@ -418,7 +418,6 @@ class mod_ivs_mod_form extends moodleform_mod {
     public function get_vimp_videos_for_select() {
         global $COURSE, $CFG;
 
-        $publishedvideos = array();
         $publishedvideos = array(get_string('ivs_opencast_video_chooser', 'ivs'));
 
         $config = VimpFileVideoHost::getVimpConfiguration();
@@ -435,7 +434,7 @@ class mod_ivs_mod_form extends moodleform_mod {
 
         $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOCDATA);
         $json = json_encode($xml);
-        $response_array = json_decode($json, true);
+        $response_array = json_decode($json ?? '', true);
 
         if (!empty($response_array['media']['medium'])) {
             $medium_list = $response_array['media']['medium'];

@@ -25,17 +25,19 @@ class MatchTimingTakeResult
 
 
         foreach ($matchquestions as $matchquestion) {
-            $timingtype = self::find_object_by_id($matchquestion['type_data']['timing_type_id'], $matchtimingtypes);
+            if(!empty($matchquestion['type_data']['timing_type_id'])) {
+                $timingtype = self::find_object_by_id($matchquestion['type_data']['timing_type_id'], $matchtimingtypes);
 
-
-            if (empty($matchtimingtakeresult->summary[$timingtype->id])) {
-                $matchtimingtakeresult->summary[$timingtype->id] = [
-                    'timing_type' => $timingtype,
-                    'num_correct' => 0,
-                    'sum_points' => 0
-                ];
+                if (empty($matchtimingtakeresult->summary[$timingtype->id])) {
+                    $matchtimingtakeresult->summary[$timingtype->id] = [
+                            'timing_type' => $timingtype,
+                            'num_correct' => 0,
+                            'sum_points' => 0
+                    ];
+                }
+                $matchtimingtakeresult->pointstotal += $timingtype->score;
             }
-            $matchtimingtakeresult->pointstotal += $timingtype->score;
+
         }
 
         foreach ($matchanswers as $questionid => $matchanswer) {

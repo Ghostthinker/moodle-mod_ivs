@@ -27,6 +27,7 @@ namespace mod_ivs\ivs_match;
 /**
  * Class AssessmentConfig
  */
+
 class AssessmentConfig {
 
     /**
@@ -114,6 +115,17 @@ class AssessmentConfig {
     /**
      * @var string
      */
+    public $exam_enabled;
+
+    /**
+     * @var string
+     */
+    public $grade_method;
+
+    /**
+     * @var string
+     */
     public $status_description;
+
 
 }
