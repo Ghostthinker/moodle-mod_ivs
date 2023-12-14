@@ -22,7 +22,7 @@ class KalturaService {
         $expiry = 86400;
         $privileges = "";
 
-        $config = new KalturaConfiguration($partnerid);
+        $config = new KalturaConfiguration();
         $config->serviceUrl = $configsettings->uri;
         $this->client = new KalturaClient($config);
 
@@ -38,7 +38,6 @@ class KalturaService {
     public function getMediaList($courseid) {
         $medialist = [];
         try {
-
             $filter = new KalturaMediaEntryFilter();
             $pager = new KalturaFilterPager();
             $pager->pageSize = 100;
@@ -47,6 +46,7 @@ class KalturaService {
 
             try {
                 $medialist = $this->client->media->listAction($filter, $pager);
+                $medialist = $medialist->objects;
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
@@ -76,7 +76,7 @@ class KalturaService {
                 }
 
                 $flavorParamsId = $bestResolution->id;
-                $mediaUrl = $this->client->flavorAsset->getUrl($flavorParamsId);   
+                $mediaUrl = $this->client->flavorAsset->getUrl($flavorParamsId);
                 return $mediaUrl;
             }
 

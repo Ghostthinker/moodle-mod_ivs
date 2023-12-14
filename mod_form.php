@@ -399,7 +399,7 @@ class mod_ivs_mod_form extends moodleform_mod {
         }
 
         $kalturaservice = new KalturaService();
-        $results = current($kalturaservice->getMediaList($COURSE->id));
+        $results = $kalturaservice->getMediaList($COURSE->id);
 
         if (!empty($results)) {
             foreach ($results as $entry) {
