@@ -173,9 +173,8 @@ $string['ivs_setting_match_question'] = "Video questions (match)";
 $string['ivs_setting_match_question_help'] =
         "In quiz mode, you use different question types (including single/multiple choice questions and free text questions) to test learners' prior knowledge and understanding directly in the video. When the question appears, the video is paused and learners cannot continue until the question is answered (correctly).
 
-Timing mode tests knowledge and reaction to the video scenes shown. These can be identified by the learners at the right time via buttons.
-
-Translated with www.DeepL.com/Translator (free version)";
+Timing mode tests knowledge and reaction to the video scenes shown. These can be identified by the learners at the right time via buttons. 
+";
 $string['ivs:edit_match_questions'] = "Edit video questions";
 $string['ivs:create_match_answers'] = "Create video test answers";
 $string['ivs:access_match_reports'] = "Access video test reports";
@@ -428,8 +427,8 @@ $string['ivs_match_config_status_progress_label'] = "Attempt in progress";
 $string['ivs_match_config_status_not_passed_label'] = "Not passed - ";
 $string['ivs_setting_player_controls_enabled'] = "Allow navigation in the video test";
 $string['ivs_setting_player_controls_enabled_help'] = "Specify whether users can navigate forwards or backwards within the video.";
-$string['ivs_setting_player_show_realtime_results'] = "Show results for learners directly";
-$string['ivs_setting_player_show_realtime_results_help'] = "Show results for learners directly after answering a video test question.";
+$string['ivs_setting_player_show_realtime_results'] = "Show results for learners directly.";
+$string['ivs_setting_player_show_realtime_results_help'] = "Show results for learners directly after answering a video test question. In case of exam mode this setting is deactivated.";
 $string['ivs_setting_player_show_timing_take_summary'] = "Show summary of results for learners at the end";
 $string['ivs_setting_player_show_timing_take_summary_help'] = "Show summary of results for learners at the end";
 $string['ivs_match_config_timing_status_not_passed_label'] = "Not passed";

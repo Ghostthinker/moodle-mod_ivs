@@ -604,8 +604,9 @@ if (empty($embedded)) {
     $resversions = $jsconf['jsrev'];
     $crossorigintag = $videohost->getcrossorigintag();
 
-
-
+    //Completion on view
+    $completion = new completion_info($course);
+    $completion->set_module_viewed($cm, $USER->id);
 
     ?>
     <!DOCTYPE html>

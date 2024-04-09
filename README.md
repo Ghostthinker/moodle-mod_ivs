@@ -26,6 +26,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.24
+* fixed bug concerning activity completion 'on view'
+* fixed bug associated with display of correct answers in exam mode
+* ``ep5 version 2.9``
+
 ### v1.23
 * Improved compatibility for Moodle 3.9 - Moodle 4.2.3 and PHP 8.0 - 8.2
 * ``ep5 version 2.9``

@@ -1756,7 +1756,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $settingscontroller = new SettingsService();
         $activitysettings = $settingscontroller->get_settings_for_activity($ivs->id, $ivs->course);
 
-        if($activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_TIMING){
+        if ($activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_TIMING) {
             return get_string("ivs_match_context_label_timing", 'ivs');
         }
 
@@ -1842,7 +1842,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
         $mc->attempts = 0;
         $mc->allow_repeat_answers = true;
         $mc->player_controls_enabled = (int) $activitysettings['player_controls_enabled']->value;
-        $mc->show_solution = true;
+        $mc->show_solution = ($activitysettings['exam_mode_enabled']->value) ? false : true;
         $mc->show_feedback = false;
 
         return $mc;
