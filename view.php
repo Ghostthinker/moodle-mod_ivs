@@ -652,6 +652,14 @@ if (empty($embedded)) {
   });
 </script>';
 
+    if ((int)$activitysettings['exam_mode_enabled']->value) {
+        echo '<script>
+  $(document).ready(function(){
+    $(".edubreakplayer").find(".ep5-media-video").attr("disablePictureInPicture", true);
+  });
+</script>';
+    }
+
     // Todo footer.
     ?>
 
