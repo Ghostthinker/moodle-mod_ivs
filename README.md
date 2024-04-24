@@ -26,6 +26,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.25
+* picture in picture disabled in exam mode
+* video feedback restricted to HTML5 video player
+* ``ep5 version 2.10``
+
 ### v1.24
 * fixed bug concerning activity completion 'on view'
 * fixed bug associated with display of correct answers in exam mode
