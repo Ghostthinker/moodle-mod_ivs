@@ -272,7 +272,7 @@ $string['ivs_current_package_courses_label'] = "Kurse";
 $string['ivs_activate_course_license_label'] = "IVS Kurslizenz freischalten";
 $string['ivs_submit_button_label'] = "Bestätigen";
 $string['ivs_duration'] = "Laufzeit";
-$string['ivs_license_spots'] = "Lizenplätze";
+$string['ivs_license_spots'] = "Lizenzplätze";
 $string['ivs_occupied_spots'] = "Belegte Plätze";
 $string['ivs_available_spots'] = "Freie Plätze";
 $string['ivs_license_period'] = "Lizenzlaufzeit bis";
@@ -291,14 +291,20 @@ $string['ivs_course_license_modal_confirmation'] =
         'Sind Sie sicher? Die Lizenz wird nach dieser Aktion freigegeben und kann erneut vergeben werden.';
 $string['ivs_plugin'] = 'IVS Plugin Schedule Task';
 $string['ivs_usage_info'] = 'Die Lizenz im Kurs {$a->name} hat eine Auslastung von {$a->usage} %.';
-$string['ivs_usage_warning'] =
-        'Die Lizenz im Kurs {$a->name} hat eine Auslastung von {$a->usage} %. Ab 110% wird die Lizenz deaktiviert!';
+$string['ivs_usage_info_instance'] = 'Die Lizenz {$a->name} hat eine Auslastung von {$a->usage} %.';
+$string['ivs_usage_warning'] = 'Die Lizenz im Kurs {$a->name} hat eine Auslastung von {$a->usage} %. Ab 110% wird die Lizenz deaktiviert!';
+$string['ivs_usage_warning_instance'] = 'Die Lizenz {$a->name} hat eine Auslastung von {$a->usage} %. Ab 110% wird die Lizenz deaktiviert!';
+$string['ivs_usage_warning_referent'] = 'Die Auslastung für die Lizenz ist fast erreicht. Bitte wenden Sie sich an Ihren Moodle-Administrator.';
 $string['ivs_usage_error'] = 'Die Lizenz im Kurs {$a->name} hat eine Auslastung von {$a->usage} %. Die Lizenz wurde deaktivert';
+$string['ivs_usage_error_referent'] = 'Aufgrund einer Überschreitung der Lizenz wurde das IVS-Plugin deaktiviert. Bitte wenden Sie sich an Ihren Moodle-Administrator.';
 $string['ivs_usage_error_with_license'] =
-        'Die Lizenz im Kurs {$a->name} hat eine Auslastung von {$a->usage} %. Die Lizenz wird deaktiviert sobald die {$a->product_name} voll ist';
-$string['ivs_duration_warning'] = 'Die Lizenz im Kurs {$a->name} läuft in {$a->resttime} Tagen aus';
+        'Die Lizenz im Kurs {$a->name} hat eine Auslastung von {$a->usage} %. Die Lizenz wird deaktiviert sobald die {$a->product_name} voll ist.';
+$string['ivs_duration_warning'] = 'Die Lizenz im Kurs {$a->name} läuft in {$a->resttime} Tagen aus.';
+$string['ivs_duration_warning_referent'] = 'Die Lizenz im Kurs {$a->name} läuft in {$a->resttime} Tagen aus. Bitte wenden Sie sich an Ihren Moodle-Administrator.';
+$string['ivs_duration_warning_instance'] = 'Ihre IVS Lizenz läuft in {$a->resttime} Tagen aus.';
 $string['ivs_duration_error'] = 'Die Lizenz im Kurs {$a->name} ist ausgelaufen';
-$string['ivs_duration_error_instance'] = 'Die Instanz Lizenz {$a->name} ist ausgelaufen';
+$string['ivs_duration_error_referent'] = 'Die Lizenz im Kurs {$a->name} ist ausgelaufen. Bitte wenden Sie sich an Ihren Moodle-Administrator.';
+$string['ivs_duration_error_instance'] = 'Die Instanz Lizenz {$a->name} ist ausgelaufen.';
 $string['ivs_delete_licence'] = 'Die Lizenz wird aus dem Verlauf entfernt.';
 $string['ivs_course_package_delete'] = 'Entfernen';
 $string['ivs_course_package_reassign'] = 'Neu vergeben';

@@ -144,33 +144,16 @@ if (empty($embedded)) {
 
     $activelicense = $lc->get_active_license(['course' => $course]);
 
-
-
     $roleid = 0;
     foreach ($userroles as $role) {
         $roleid = $role->roleid;
     }
 
-    if ($roleid < 5) {
-        $usage = $activelicense->spots_in_use / $activelicense->spots;
-        if ($activelicense->usage == 'spots_nearly_full') {
-            \core\notification::info(get_string('ivs_usage_info', 'ivs',
-                    ['name' => $course->fullname, 'usage' => round($usage * 100)]));
-        } else if ($activelicense->usage == 'spots_full') {
-            \core\notification::warning(get_string('ivs_usage_warning', 'ivs',
-                    ['name' => $course->fullname, 'usage' => round($usage * 100)]));
-        } else if ($activelicense->usage == 'spots_overbooked') {
-            \core\notification::error(get_string('ivs_usage_error', 'ivs',
-                    ['name' => $course->fullname, 'usage' => round($usage * 100)]));
-        }
-        $time = strtotime(date("Y-m-d H:i:s"));
-        $resttime = strtotime($activelicense->expires_at) - $time;
-        $resttime = round($resttime / 86400);
-        if ($activelicense->runtime == 'duration_nearly_end') {
-            \core\notification::warning(get_string('ivs_duration_warning', 'ivs',
-                    ['name' => $course->fullname, 'resttime' => $resttime]));
-        }
+    $isAdmin = is_siteadmin($USER->id);
+    if ($roleid < 5 || $isAdmin) {
+        $lc->renderLicenseMessages($activelicense, $course, $isAdmin);
     }
+
 
     if (empty($videourl) && !$videohost instanceof ExternalSourceVideoHost) {
         echo get_string('ivs_video_config_error', 'ivs');
@@ -185,7 +168,7 @@ if (empty($embedded)) {
     }
     else if(strpos($_SERVER['HTTP_USER_AGENT'],'Safari')) {
         \core\notification::info(get_string('ivs_activity_safari_info_text', 'ivs',
-                ['url' => $CFG->IVS_CORE_URL]));
+                ['url' => $lc->get_core_url()]));
     }
 
     ?>

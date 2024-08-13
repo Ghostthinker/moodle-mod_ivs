@@ -191,12 +191,12 @@ if (count($instancelicense) > 0) {
     foreach ($instancelicense as $license) {
         $usage = $license->spots_in_use / $license->spots;
         if ($license->usage == IVS_LICENSE_SPOTS_NEARLY_FULL) {
-            \core\notification::info(get_string('ivs_usage_info', 'ivs', [
+            \core\notification::info(get_string('ivs_usage_info_instance', 'ivs', [
                     'name' => $license->product_name,
                     'usage' => round($usage * 100),
             ]));
         } else if ($license->usage == IVS_LICENSE_SPOTS_FULL) {
-            \core\notification::warning(get_string('ivs_usage_warning', 'ivs', [
+            \core\notification::warning(get_string('ivs_usage_warning_instance', 'ivs', [
                     'name' => $license->product_name,
                     'usage' => round($usage * 100),
             ]));

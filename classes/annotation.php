@@ -1071,17 +1071,20 @@ class annotation {
                 if (is_siteadmin()) {
                     return true;
                 }
+
+                // Instance permission.
+                if (has_capability('mod/ivs:lock_annotation_access', $context)) {
+                    return true;
+                }
+
                 // We are creator.
-                if (!empty($this->userid) && $this->userid == $USER->id) {
+                if (!empty($this->userid) && $this->    userid == $USER->id) {
                     if (isset($this->additionaldata['access_locked'])) {
                         return !$this->additionaldata['access_locked'];
                     }
                     return true;
                 }
-                // Instance permission.
-                if (has_capability('mod/ivs:lock_annotation_access', $context)) {
-                    return true;
-                }
+
 
                 break;
 

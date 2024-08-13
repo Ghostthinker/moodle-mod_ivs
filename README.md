@@ -26,16 +26,16 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
-### v1.25.2
-* improved player navigation
-* bug fixes an little player improvements
-* ``ep5 version 2.92``
+### v1.26
+* fixed panopto help link
+* changed license status messages
+* resolved an issue where teachers and managers were unable to set and lock annotation access.
 
 ### v1.25
 * picture in picture disabled in exam mode
 * video feedback restricted to HTML5 video player
-* ``ep5 version 2.91``
-
+* ``ep5 version 2.10``
+* 
 ### v1.24
 * fixed bug concerning activity completion 'on view'
 * fixed bug associated with display of correct answers in exam mode

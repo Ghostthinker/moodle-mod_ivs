@@ -996,4 +996,96 @@ class MoodleLicenseController implements ILicenseController
             }
         }
     }
+
+
+    public function renderLicenseMessages($activelicense, $course, $isAdmin)
+    {
+        global $USER;
+
+        $usage = $activelicense->spots_in_use / $activelicense->spots;
+        $time = strtotime(date("Y-m-d H:i:s"));
+        $resttime = strtotime($activelicense->expires_at) - $time;
+        $resttime = round($resttime / 86400);
+
+        if ($isAdmin) {
+
+            if ($activelicense->usage == 'spots_nearly_full') {
+                \core\notification::info(get_string('ivs_usage_info', 'ivs',
+                  [
+                    'name' => $course->fullname, 'usage' => round($usage * 100),
+                  ]));
+            }
+            if ($activelicense->usage == 'spots_full') {
+                \core\notification::warning(get_string('ivs_usage_warning',
+                  'ivs',
+                  [
+                    'name' => $course->fullname,
+                    'usage' => round($usage * 100),
+                  ]));
+            }
+            if ($activelicense->usage == 'spots_overbooked') {
+                \core\notification::error(get_string('ivs_usage_error',
+                  'ivs',
+                  [
+                    'name' => $course->fullname,
+                    'usage' => round($usage * 100),
+                  ]));
+            }
+
+
+            if ($activelicense->runtime == 'duration_nearly_end') {
+
+                if($activelicense->type == 'course'){
+                    \core\notification::warning(get_string('ivs_duration_warning',
+                      'ivs',
+                      ['name' => $course->fullname, 'resttime' => $resttime]));
+                }
+                else{
+                    \core\notification::warning(get_string('ivs_duration_warning_instance',
+                      'ivs',
+                      ['resttime' => $resttime]));
+                }
+            }
+
+            if ($activelicense->runtime == 'duration_ended') {
+                if($activelicense->type == 'course'){
+                    \core\notification::warning(get_string('ivs_duration_error',
+                      'ivs',
+                      ['name' => $course->fullname]));
+                }
+                else{
+                    \core\notification::warning(get_string('ivs_duration_error_instance',
+                      'ivs',
+                      ['name' => $activelicense->product_name]));
+                }
+
+            }
+
+            return;
+        }
+
+        if ($activelicense->usage == 'spots_full') {
+            \core\notification::warning(get_string('ivs_usage_warning_referent',
+              'ivs'));
+        }
+
+        if ($activelicense->usage == 'spots_overbooked') {
+            \core\notification::error(get_string('ivs_usage_error_referent',
+              'ivs'));
+        }
+
+        if ($activelicense->runtime == 'duration_nearly_end') {
+            \core\notification::warning(get_string('ivs_duration_warning_referent',
+              'ivs',
+              ['name' => $course->fullname, 'resttime' => $resttime]));
+        }
+
+        if ($activelicense->runtime == 'duration_ended') {
+            \core\notification::warning(get_string('ivs_duration_error_referent',
+              'ivs',
+              ['name' => $course->fullname]));
+        }
+
+    }
+
 }

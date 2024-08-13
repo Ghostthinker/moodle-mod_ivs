@@ -288,15 +288,21 @@ $string['ivs_course_license_modal_confirmation'] =
         'Are you sure? The license will be released after this action an can be assigned again.';
 $string['ivs_plugin'] = 'IVS Plugin Schedule Task';
 $string['ivs_usage_info'] = 'The license in course {$a->name} has a utilization of {$a->usage} %.';
-$string['ivs_usage_warning'] =
-        'The license in course {$a->name} has a utilization of {$a->usage} %. From 110% the license will be deactivated!';
+$string['ivs_usage_info_instance'] = 'The license {$a->name} has a utilization of {$a->usage} %.';
+$string['ivs_usage_warning'] = 'The license {$a->name} has a utilization of {$a->usage} %. From 110% the license will be deactivated!';
+$string['ivs_usage_warning_instance'] = 'The license in course {$a->name} has a utilization of {$a->usage} %. From 110% the license will be deactivated!';
+$string['ivs_usage_warning_referent'] = 'The capacity of the licence has almost been reached. Please contact your Moodle administrator.';
 $string['ivs_usage_error'] = 'The license in course {$a->name} has a utilization of {$a->usage} %. The licence is deactivated';
+$string['ivs_usage_error_referent'] = 'The IVS plugin has been deactivated due to a licence overrun. Please contact your Moodle administrator.';
 $string['ivs_usage_error_with_license'] =
         'The license in course {$a->name} has a utilization of {$a->usage} %. The license will be deactivated when the {$a->product_name} is full';
 $string['ivs_usage_error_instance'] =
         'The instance license {$a->name} has a utilization of {$a->usage} %. The licence is deactivated';
 $string['ivs_duration_warning'] = 'The license in course {$a->name} expires in {$a->resttime} days.';
+$string['ivs_duration_warning_referent'] = 'The license in course {$a->name} expires in {$a->resttime} days. Please contact your Moodle administrator.';
+$string['ivs_duration_warning_instance'] = 'Your IVS licence expires in {$a->resttime} days.';
 $string['ivs_duration_error'] = 'The license in course {$a->name} is expired.';
+$string['ivs_duration_error_referent'] = 'The license in course {$a->name} is expired. Please contact your Moodle administrator.';
 $string['ivs_duration_error_instance'] = 'The instance license {$a->name} is expired.';
 $string['ivs_delete_licence'] = 'The license will be removed from the history.';
 $string['ivs_course_package_delete'] = 'Remove';
