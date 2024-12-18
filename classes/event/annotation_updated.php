@@ -16,6 +16,7 @@
 
 /**
  * annotation_updated.php
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -34,15 +35,16 @@ class annotation_updated extends annotation_base {
     /**
      * Get the name
      */
-    public static function get_name() {
+    public static function get_name(): string {
         return get_string('eventannotationupdated', 'mod_ivs');
     }
 
     /**
      * Get the description
+     *
      * @return string
      */
-    public function get_description() {
+    public function get_description(): string {
         return "The user with id {$this->userid} updated an annotation with id {$this->objectid}.";
     }
 }

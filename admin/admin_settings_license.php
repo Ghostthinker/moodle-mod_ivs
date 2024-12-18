@@ -38,7 +38,6 @@ global $CFG, $DB;
 
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/outputcomponents.php');
 require_once($CFG->dirroot . '/mod/ivs/lib.php');
 
 require_login(null, false);

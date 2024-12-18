@@ -26,6 +26,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.27
+* Moodle 4.5 compatibility
+* missing translation strings added
+
 ### v1.26
 * fixed panopto help link
 * changed license status messages
@@ -40,7 +44,7 @@ Enrich your videos by the powerful features of the social video player. Create p
 * picture in picture disabled in exam mode
 * video feedback restricted to HTML5 video player
 * ``ep5 version 2.91``
-  
+
 ### v1.24
 * fixed bug concerning activity completion 'on view'
 * fixed bug associated with display of correct answers in exam mode

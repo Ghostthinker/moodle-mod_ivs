@@ -32,18 +32,20 @@ defined('MOODLE_INTERNAL') || die();
 class annotation_created extends \mod_ivs\event\annotation_base {
 
     /**
-     * Returns the created annotation
+     * Return the name of the event.
+     *
      * @return string
      */
-    public static function get_name() {
+    public static function get_name(): string  {
         return get_string('eventannotationcreated', 'mod_ivs');
     }
 
     /**
-     * Returns the created annotation description
+     * Return a description of the event.
+     *
      * @return string
      */
-    public function get_description() {
+    public function get_description(): string {
         return "The user with id {$this->userid} created an annotation with id {$this->objectid}.";
     }
 }

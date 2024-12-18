@@ -75,7 +75,8 @@ class mod_ivs_mod_form extends moodleform_mod {
             }
 
             $panoptodata->buttonname = get_string('ivs_setting_panopto_menu_button', 'ivs');
-            $panoptodata->tooltip = get_string('ivs_setting_panopto_menu_tooltip', 'ivs');
+            //todo fix deprecated warning
+            @$panoptodata->tooltip = get_string('ivs_setting_panopto_menu_tooltip', 'ivs');
         }
 
         $PAGE->requires->js_call_amd('mod_ivs/ivs_activity_settings_page', 'init', ['panopto_data' => $panoptodata]);

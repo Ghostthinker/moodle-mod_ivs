@@ -28,7 +28,6 @@ require(__DIR__ . '/../../../config.php');
 global $DB;
 
 require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/outputcomponents.php');
 
 require_login(null, false);
 admin_externalpage_setup('statistics');

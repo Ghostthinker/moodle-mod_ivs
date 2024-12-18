@@ -24,7 +24,13 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->libdir . '/dataformatlib.php');
+
+$filePath = $CFG->libdir . '/dataformatlib.php';
+if (file_exists($filePath)) {
+    require_once($filePath);
+}
+
+
 
 use mod_ivs\MoodleMatchController;
 use mod_ivs\CourseService;

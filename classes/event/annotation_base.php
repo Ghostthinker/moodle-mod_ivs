@@ -42,18 +42,23 @@ abstract class annotation_base extends \core\event\base {
     }
 
     /**
-     * Get error name
+     * Return the name of the event.
+     *
+     * @return string
      */
-    public static function get_name() {
-        throw new \Error("TBI");
+    public static function get_name(): string {
+        return get_string('eventannotationcreated', 'mod_ivs');
     }
 
     /**
-     * Get error description
+     * Return a description of the event.
+     *
+     * @return string
      */
-    public function get_description() {
-        throw new \Error("TBI");
+    public function get_description(): string {
+        return "The user with id '{$this->userid}' created an annotation with id '{$this->objectid}' in the activity with course module id '{$this->contextinstanceid}'.";
     }
+
 
     /**
      * Get URL related to the action
@@ -76,10 +81,11 @@ abstract class annotation_base extends \core\event\base {
     }
 
     /**
-     * Get legacy eventdata
-     * @return \stdClass
+     * Return legacy log data (if applicable).
+     *
+     * @return array
      */
-    protected function get_legacy_eventdata() {
+    protected function get_legacy_eventdata(): array  {
         // Override if you migrating events_trigger() call.
         $data = new \stdClass();
         $data->id = $this->objectid;

@@ -490,6 +490,7 @@ class annotation {
 
         $params = array(
                 'objectid' => $this->id,
+                'context' =>$activity,
                 'contextid' => $activity->id,
                 'courseid' => $courseid
         );
