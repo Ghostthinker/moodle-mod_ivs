@@ -23,7 +23,11 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->libdir . '/dataformatlib.php');
+$filePath = $CFG->libdir . '/dataformatlib.php';
+if (file_exists($filePath)) {
+    require_once($filePath);
+}
+
 
 use mod_ivs\MoodleMatchController;
 use mod_ivs\CourseService;
@@ -62,6 +66,7 @@ $columns = array(
         'col_3' => get_string("ivs_match_question_header_title_label", 'ivs') . strip_tags($answersdata->label)
 );
 
+$data = []; // Initialize the $data array
 $data[] = array(
         'col_1' => get_string("ivs_match_question_header_question_label", 'ivs') . strip_tags($answersdata->question),
 );
@@ -176,8 +181,15 @@ switch ($answersdata->question_type) {
 
 $filename = clean_filename($course->shortname . get_string('ivs_match_question_export_question_filename', 'ivs') . $questionid);
 
-if (class_exists ( '\core\dataformat' )) {
-    \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+if (!empty($data)) {
+    if (class_exists('\core\dataformat')) {
+        \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+    } else {
+        download_as_dataformat($filename, $dataformat, $columns, $data);
+    }
 } else {
-    download_as_dataformat($filename, $dataformat, $columns, $data);
+    // Redirect with a status message
+    $redirecturl = new moodle_url('/mod/ivs/questions.php', array('id' => $cmid));;
+    $statusmessage = get_string('nothingtodisplay', 'moodle');
+    redirect($redirecturl, $statusmessage, null, \core\output\notification::NOTIFY_WARNING);
 }

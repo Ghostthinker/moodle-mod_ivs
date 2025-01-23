@@ -25,8 +25,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_ivs';
 
-$plugin->release = 'v1.27.106';
-$plugin->version = 2024121200;
+$plugin->release = 'v1.28.109';
+$plugin->version = 2025012000;
 $plugin->requires = 2014051200;
 $plugin->maturity = MATURITY_RC;
 $plugin->cron = 0;

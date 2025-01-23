@@ -40,7 +40,7 @@ use tool_langimport\controller;
 class question_click_answer_view implements renderable, templatable {
 
     public array $answer;
-    private stdClass $course_user;
+    public stdClass $course_user;
 
     /**
      * question_click_answer_view constructor.

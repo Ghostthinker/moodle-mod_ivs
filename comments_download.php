@@ -76,6 +76,7 @@ foreach ($comments as $comment) {
     }
 }
 
+$data = []; // Initialize the $data array
 foreach ($comments as $comment) {
 
     $username = $comment->get_player_user_data()['name'];
@@ -96,8 +97,15 @@ foreach ($comments as $comment) {
 
 $filename = clean_filename($course->shortname .'-'.$ivs->name.'-'. get_string('ivs_videocomment_export_filename', 'ivs'));
 
-if (class_exists ( '\core\dataformat' )) {
-    \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+if (!empty($data)) {
+    if (class_exists('\core\dataformat')) {
+        \core\dataformat::download_data($filename, $dataformat, $columns, $data);
+    } else {
+        download_as_dataformat($filename, $dataformat, $columns, $data);
+    }
 } else {
-    download_as_dataformat($filename, $dataformat, $columns, $data);
+    // Redirect with a status message
+    $redirecturl = new moodle_url('/mod/ivs/annotation_overview.php', array('id' => $cmid));;
+    $statusmessage = get_string('nothingtodisplay', 'moodle');
+    redirect($redirecturl, $statusmessage, null, \core\output\notification::NOTIFY_WARNING);
 }

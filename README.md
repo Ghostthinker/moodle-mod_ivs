@@ -26,6 +26,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.28
+* fixed issues related to Panopto integration
+* resolved bugs in export functionality
+
 ### v1.27
 * Moodle 4.5 compatibility
 * missing translation strings added
