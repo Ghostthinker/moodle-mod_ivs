@@ -27,6 +27,8 @@ use mod_ivs\upload\ExternalSourceVideoHost;
 use mod_ivs\upload\VimpFileVideoHost;
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/calendar/lib.php');
 
 /**
  * Example constant, you probably want to remove this :-)
@@ -129,8 +131,30 @@ function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     // Save settings.
     $settingscontroller = new \mod_ivs\settings\SettingsService();
     $settingscontroller->process_activity_settings_form($ivs);
-
+    ivs_add_completion_event($ivs);
     return $ivs->id;
+}
+
+function ivs_add_completion_event($moduleinstance) {
+
+    if (empty($moduleinstance->completionexpected)) {
+        return;
+    }
+
+    $event = new stdClass();
+    $event->name        = $moduleinstance->name;
+    $event->description = '';
+    $event->courseid    = $moduleinstance->course;
+    $event->groupid     = 0;
+    $event->userid      = 0;
+    $event->modulename  = 'ivs';
+    $event->instance    = $moduleinstance->id;
+    $event->eventtype   = 'expectcompletionon';
+    $event->timestart   = $moduleinstance->completionexpected;
+    $event->visible     = 1;
+    $event->timeduration = 0;
+
+    calendar_event::create($event);
 }
 
 /**
@@ -151,7 +175,6 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $ivs->id = $ivs->instance;
 
     //reset videourl
-
     if (!empty($ivs->opencast_video)) {
         $ivs->videourl = "OpenCastFileVideoHost://" . $ivs->opencast_video;
     } else if (!empty($ivs->panopto_video_json_field) && !empty($ivs->panopto_video)) {
@@ -159,7 +182,7 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     } else if (!empty($ivs->kaltura_video)) {
         $ivs->videourl = "KalturaFileVideoHost://" . $ivs->kaltura_video;
     } else if (!empty($ivs->vimp_video)) {
-            $ivs->videourl = "VimpFileVideoHost://" . $ivs->vimp_video;
+        $ivs->videourl = "VimpFileVideoHost://" . $ivs->vimp_video;
     } else if (!empty($ivs->external_video_source)) {
         $sourceinfo = ExternalSourceVideoHost::parseExternalVideoSourceUrl($ivs->external_video_source);
         if ($sourceinfo['type'] != ExternalSourceVideoHost::TYPE_UNSUPPORTED) {
@@ -199,8 +222,35 @@ function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
     $settingscontroller = new \mod_ivs\settings\SettingsService();
     $settingscontroller->process_activity_settings_form($ivs);
 
+
+    $existingEvent = ivs_get_existing_event($ivs->id);
+
+    if($existingEvent){
+        $timestamp = $mform->get_data()->completionexpected;
+        ivs_handle_event_update($existingEvent, $timestamp);
+    } else{
+        ivs_add_completion_event($ivs);
+    }
+
     return $result;
 }
+
+function ivs_get_existing_event($instanceId){
+    global $DB;
+    return $DB->get_record('event', [ 'modulename' => 'ivs', 'instance' => $instanceId ]);
+}
+
+function ivs_handle_event_update($existingEvent, $completionexpected){
+    $calenderEvent = calendar_event::load($existingEvent->id);
+    if($completionexpected){
+        $calenderEvent->delete();
+        return;
+    }
+
+    $existingEvent->timestart = $completionexpected;
+    $calenderEvent->update($existingEvent);
+}
+
 
 /**
  * This standard function will check all instances of this module
@@ -401,7 +451,7 @@ function ivs_get_extra_capabilities() {
  */
 function ivs_get_file_areas($course, $cm, $context) {
     return array(
-            'video' => get_string('filearea_videos', 'ivs'),
+      'video' => get_string('filearea_videos', 'ivs'),
     );
 }
 
@@ -448,7 +498,7 @@ function ivs_pluginfile($course, $cm, $context, $filearea, array $args, $forcedo
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = rtrim('/' . $context->id . '/mod_ivs/' . $filearea . '/' .
-            $relativepath, '/');
+      $relativepath, '/');
     $file = $fs->get_file_by_hash(sha1($fullpath));
     if (!$file || $file->is_directory()) {
         return false;
@@ -619,7 +669,7 @@ function ivs_annotation_event_message_send($event) {
         // Send notification to parent annotation author.
         $provider = 'ivs_annotation_reply';
         $receivers = array(
-                $DB->get_record('user', array('id' => $parentannotation->get_userid()))
+          $DB->get_record('user', array('id' => $parentannotation->get_userid()))
         );
 
         ivs_annotation_event_process_message_send($provider, $receivers, $course, $annotation);
@@ -684,12 +734,12 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
 
             $url = $annotation->get_annotation_player_url()->out(false);
             $subject = get_string($annotationsubject, 'mod_ivs',
-                    ['fullname' => fullname($USER)]);
+              ['fullname' => fullname($USER)]);
             $fullmessage = get_string($annotationfullmessage, 'mod_ivs',
-                    ['fullname' => fullname($account),
-                            'fullname' => fullname($USER),
-                            'annotation' => $annotation->get_rendered_body(),
-                      'course_name' => $course->fullname, 'annotation_url' => $url]);
+              ['fullname' => fullname($account),
+                'fullname' => fullname($USER),
+                'annotation' => $annotation->get_rendered_body(),
+                'course_name' => $course->fullname, 'annotation_url' => $url]);
             $smallmessage = get_string($annotationsmallmessage, 'mod_ivs');
 
             $message = new \core\message\message();
@@ -726,7 +776,7 @@ function ivs_extend_navigation_course($navigation, $course, $context) {
         $urlannotations = new moodle_url('/mod/ivs/cockpit.php', array('id' => $course->id));
 
         $navigation->add(get_string('annotation_overview_menu_item', 'mod_ivs'), $urlannotations,
-                navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+          navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 
     // IVS Settings.
@@ -735,7 +785,7 @@ function ivs_extend_navigation_course($navigation, $course, $context) {
         $urlsettings = new moodle_url('/mod/ivs/settings_course.php', array('id' => $course->id));
 
         $navigation->add(get_string('ivs_settings_title', 'mod_ivs'), $urlsettings,
-                navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+          navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
     }
 
 }

@@ -35,7 +35,7 @@ class annotation_deleted extends annotation_base {
      * Returns the deleted annotation name
      * @return string
      */
-    public static function get_name() {
+    public static function get_name():string {
         return get_string('eventannotationdeleted', 'mod_ivs');
     }
 
@@ -43,7 +43,7 @@ class annotation_deleted extends annotation_base {
      * Returns the description
      * @return string
      */
-    public function get_description() {
+    public function get_description():string {
         return "The user with id {$this->userid} deleted an annotation with id {$this->objectid}.";
     }
 }

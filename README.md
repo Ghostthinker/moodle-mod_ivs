@@ -26,6 +26,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.29
+* support for calendar events
+* resolved issues that occurred when deleting annotations
+
 ### v1.28
 * fixed issues related to Panopto integration
 * resolved bugs in export functionality
