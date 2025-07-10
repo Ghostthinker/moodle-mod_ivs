@@ -25,12 +25,48 @@
 defined('MOODLE_INTERNAL') || die();
 
 $messageproviders = array(
-        'ivs_annotation_direct_mention' => array(),
-        'ivs_annotation_indirect_mention' => array(),
-        'ivs_annotation_reply' => array(),
-        'ivs_annotation_conversation' => array(),
-        'ivs_annotation_tag' => array(),
-        'ivs_annotation_report' => array()
+        'ivs_annotation_direct_mention' => array(
+            'capability' => 'mod/ivs:view',
+            'defaults' => array(
+                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ),
+        ),
+        'ivs_annotation_indirect_mention' => array(
+            'capability' => 'mod/ivs:view',
+            'defaults' => array(
+                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ),
+        ),
+        'ivs_annotation_reply' => array(
+            'capability' => 'mod/ivs:view',
+            'defaults' => array(
+                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ),
+        ),
+        'ivs_annotation_conversation' => array(
+            'capability' => 'mod/ivs:view',
+            'defaults' => array(
+                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ),
+        ),
+        'ivs_annotation_tag' => array(
+            'capability' => 'mod/ivs:view',
+            'defaults' => array(
+                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ),
+        ),
+        'ivs_annotation_report' => array(
+            'capability' => 'mod/ivs:view',
+            'defaults' => array(
+                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ),
+        ),
 );
 
 

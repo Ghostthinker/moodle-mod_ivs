@@ -113,6 +113,11 @@ class annotation {
     private $parentid;
 
     /**
+     * @var string The type of comment (default: 'comment')
+     */
+    private $commenttype;
+
+    /**
      * @var array Save the replies for this annotation
      */
     protected $replies;
@@ -498,6 +503,7 @@ class annotation {
         switch ($op) {
             case 'created':
                 $event = \mod_ivs\event\annotation_created::create($params);
+
                 $event->add_record_snapshot('ivs_videocomment', (object) $this->get_record());
                 break;
             case 'updated':
@@ -889,6 +895,7 @@ class annotation {
                 'additional_data' => $this->additionaldata,
                 'access_view' => $this->accessview,
                 'parent_id' => $this->parentid,
+                'comment_type' => $this->commenttype ?? 'comment',
         );
     }
 
@@ -970,7 +977,7 @@ class annotation {
         $this->additionaldata = $dbrecord->additional_data;
         $this->accessview = $dbrecord->access_view;
         $this->parentid = $dbrecord->parent_id;
-
+        $this->commenttype = $dbrecord->comment_type ?? 'comment';
     }
 
     /**
@@ -1448,6 +1455,24 @@ class annotation {
             default:
                 return 'invalid rating code';
         }
+    }
+
+    /**
+     * Get the comment type
+     *
+     * @return string
+     */
+    public function get_commenttype() {
+        return $this->commenttype ?? 'comment';
+    }
+
+    /**
+     * Set the comment type
+     *
+     * @param string $commenttype
+     */
+    public function set_commenttype($commenttype) {
+        $this->commenttype = $commenttype;
     }
 
 }

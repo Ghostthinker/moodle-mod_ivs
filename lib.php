@@ -699,9 +699,12 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
     $settingscontroller = new SettingsService();
     $activitysettings = $settingscontroller->get_settings_for_activity($annotation->get_videoid(), $course->id);
 
+
     if ($activitysettings['user_notification_settings']->value) {
+
         return;
     }
+
 
     if (!empty($receivers)) {
 
@@ -750,9 +753,9 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
             $message->subject = $subject;
             $message->fullmessage = $fullmessage;
             $message->fullmessageformat = FORMAT_HTML;
-            $message->fullmessagehtml = '';
+            $message->fullmessagehtml = $fullmessage;
             $message->smallmessage = $smallmessage;
-            $message->notification = '1';
+            $message->notification = true;
             $message->contexturl = $url;
             $message->contexturlname = get_string('annotation_context_url_name', 'mod_ivs');
             $message->courseid = $course->id;

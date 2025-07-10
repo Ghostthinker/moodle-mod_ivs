@@ -6,11 +6,6 @@ label.ivs-setting-locked-checkbox {
     width: 60%;
 }
 
-.ivs-setting-locked-checkbox{
-    position: absolute;
-    right:0;
-}
-
 #id_mod_ivsmisc,
 #id_mod_ivsadvanced{
     margin-top: 40px;

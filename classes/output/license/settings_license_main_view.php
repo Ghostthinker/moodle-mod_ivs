@@ -53,7 +53,7 @@ class settings_license_main_view implements renderable, templatable {
         $data->instance_id_label = get_string('ivs_instance_id_label', 'ivs');
         $data->license_instance_id = $lc->get_instance_id();
         $data->manage_license_label = get_string('ivs_package_button_label', 'ivs');
-        $data->manage_license_href = $lc->get_core_url();
+        $data->manage_license_href = $lc->get_core_url(). '/preise';
         $data->shop_info_text = get_string('ivs_package_value', 'ivs');
         return $data;
     }

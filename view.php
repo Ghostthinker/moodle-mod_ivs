@@ -103,11 +103,33 @@ if (!empty($members)) {
     }
 }
 
+// Check license for both embedded and non-embedded modes
+$lc = ivs_get_license_controller();
+
+$status = $lc->get_status();
+$hasactivelicense = $lc->has_active_license(['course' => $course]);
+
+
+if (!$hasactivelicense) {
+    \core\notification::error(get_string('ivs_activity_licence_error', 'ivs'));
+    $PAGE->set_url('/mod/ivs/view.php', array('id' => $cm->id));
+    $PAGE->set_title(format_string($ivs->name));
+    $PAGE->set_heading(format_string($course->fullname));
+    echo $OUTPUT->header();
+    echo $OUTPUT->footer();
+    
+    exit;
+}
+
+
+$activelicense = $lc->get_active_license(['course' => $course]);
+
 if (empty($embedded)) {
     $event = \mod_ivs\event\course_module_viewed::create(array(
             'objectid' => $PAGE->cm->instance,
             'context' => $PAGE->context,
     ));
+
     $event->add_record_snapshot('course', $PAGE->course);
     $event->add_record_snapshot($PAGE->cm->modname, $ivs);
     $event->trigger();
@@ -127,22 +149,9 @@ if (empty($embedded)) {
         echo $OUTPUT->heading(format_string($ivs->name));
     }
 
-
-    $lc = ivs_get_license_controller();
-
-    $status = $lc->get_status();
     if(isset($status->freemium)) {
         \core\notification::info(get_string('ivs_freemium_activity', 'ivs'));
     }
-
-    $hasactivelicense = $lc->has_active_license(['course' => $course]);
-    if (!$hasactivelicense) {
-        \core\notification::error(get_string('ivs_activity_licence_error', 'ivs'));
-        echo $OUTPUT->footer();
-        exit;
-    }
-
-    $activelicense = $lc->get_active_license(['course' => $course]);
 
     $roleid = 0;
     foreach ($userroles as $role) {
@@ -237,9 +246,9 @@ if (empty($embedded)) {
         <!-- Annotations URL -->
         <div style="padding:8px 0">
 
-            <a href="<?php print new moodle_url('/mod/ivs/annotation_overview.php', array('id' => $id)) ?>">
-                <i class="icon-ep5-comment-alt"></i>
-                <?php print get_string('ivs:view:comment_overview', 'ivs'); ?></a>
+            <a href="<?php print new moodle_url('/mod/ivs/annotation_overview.php', array('id' => $id)) ?>" class="show-comments">
+                <i class="icon-ep5-comment-alt"></i><?php print get_string('ivs:view:comment_overview', 'ivs'); ?>
+            </a>
         </div>
 
         <?php if ($match_type && has_capability('mod/ivs:access_match_reports', $activitycontext)): ?>
@@ -509,7 +518,6 @@ if (empty($embedded)) {
         $assessmentconfig =
             $matchcontroller->assessment_config_get_by_user_and_video($matchcontroller->get_current_user_id(), $cm->instance,
                 false);
-
 
         $playerconfig['playbackrate_enabled'] = (int) $activitysettings['playbackrate_enabled']->value;
         $playerconfig['settings_button_enabled'] = false;

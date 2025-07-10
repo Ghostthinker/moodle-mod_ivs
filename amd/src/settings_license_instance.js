@@ -1,9 +1,11 @@
-define(['jquery', 'mod_ivs/progressbar'], function ($, progressbar) {
+define(['mod_ivs/progressbar'], function (progressbar) {
     return {
-        init: function (params) {
+        init: function () {
+            // Find all unprocessed progress elements
+            const progressElements = document.querySelectorAll('.ivs-progress:not(.processed)');
 
-            $('.ivs-progress:not(.processed)').each(function () {
-                var circle = new progressbar.Circle(this, {
+            progressElements.forEach(function (element) {
+                var circle = new progressbar.Circle(element, {
                     color: '#1177d1',
                     strokeWidth: 6,
                     trailWidth: 5,
@@ -13,7 +15,7 @@ define(['jquery', 'mod_ivs/progressbar'], function ($, progressbar) {
                     text: {
                         // Initial value for text.
                         // Default: null
-                        value: $(this).data('label'),
+                        value: element.dataset.label,
 
                         // Class name for text element.
                         // Default: 'progressbar-text'
@@ -57,8 +59,9 @@ define(['jquery', 'mod_ivs/progressbar'], function ($, progressbar) {
                     },
                 });
 
-                circle.animate($(this).data('progress'));
-            }).addClass('processed');
+                circle.animate(element.dataset.progress);
+                element.classList.add('processed');
+            });
         }
     };
 });

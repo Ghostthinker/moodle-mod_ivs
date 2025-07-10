@@ -29,13 +29,22 @@ defined('MOODLE_INTERNAL') || die();
  * Class annotation_deleted
  *
  */
-class annotation_deleted extends annotation_base {
+class annotation_deleted extends \core\event\base {
+
+    /**
+     * Init function
+     */
+    protected function init() {
+        $this->data['crud'] = 'd'; // delete
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'ivs_videocomment';
+    }
 
     /**
      * Returns the deleted annotation name
      * @return string
      */
-    public static function get_name():string {
+    public static function get_name() {
         return get_string('eventannotationdeleted', 'mod_ivs');
     }
 
@@ -43,7 +52,18 @@ class annotation_deleted extends annotation_base {
      * Returns the description
      * @return string
      */
-    public function get_description():string {
+    public function get_description() {
         return "The user with id {$this->userid} deleted an annotation with id {$this->objectid}.";
     }
+
+    /**
+     * Get URL related to the action
+     *
+     * @return \moodle_url
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/ivs/view.php', array('id' => $this->contextinstanceid));
+    }
+
+    
 }

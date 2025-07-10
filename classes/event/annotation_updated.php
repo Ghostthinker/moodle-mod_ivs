@@ -30,12 +30,21 @@ defined('MOODLE_INTERNAL') || die();
  * Class annotation_updated
  *
  */
-class annotation_updated extends annotation_base {
+class annotation_updated extends \core\event\base {
+
+    /**
+     * Init function
+     */
+    protected function init() {
+        $this->data['crud'] = 'u'; // update
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'ivs_videocomment';
+    }
 
     /**
      * Get the name
      */
-    public static function get_name(): string {
+    public static function get_name() {
         return get_string('eventannotationupdated', 'mod_ivs');
     }
 
@@ -44,7 +53,18 @@ class annotation_updated extends annotation_base {
      *
      * @return string
      */
-    public function get_description(): string {
+    public function get_description() {
         return "The user with id {$this->userid} updated an annotation with id {$this->objectid}.";
     }
+
+    /**
+     * Get URL related to the action
+     *
+     * @return \moodle_url
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/ivs/view.php', array('id' => $this->contextinstanceid));
+    }
+
+    
 }

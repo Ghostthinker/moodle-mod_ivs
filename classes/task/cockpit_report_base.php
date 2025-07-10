@@ -102,7 +102,7 @@ abstract class cockpit_report_base extends \core\task\scheduled_task {
             $message->fullmessageformat = FORMAT_HTML;
             $message->fullmessagehtml = $body;
             $message->smallmessage = get_string_manager()->get_string($this->cockpitreport, 'mod_ivs', null, $userto->lang);
-            $message->notification = '1';
+            $message->notification = true;
             $message->contexturl = '';
             $message->contexturlname = '';
 
