@@ -45,7 +45,7 @@ class settings_license_course_overbooked_view implements renderable, templatable
      */
     public function __construct($courselicenses, $instancelicences) {
         $this->course_licenses = $courselicenses;
-        $this->instance_licences = $instancelicences;
+        $this->instance_licenses = $instancelicences;
     }
 
     /**
@@ -57,6 +57,6 @@ class settings_license_course_overbooked_view implements renderable, templatable
     public function export_for_template(renderer_base $output) {
 
         $lc = ivs_get_license_controller();
-        return $lc->get_settings_overbooked_license_data($this->course_licenses, $this->instance_licences, $output);
+        return $lc->get_settings_overbooked_license_data($this->course_licenses, $this->instance_licenses, $output);
     }
 }

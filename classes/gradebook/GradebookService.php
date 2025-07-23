@@ -182,11 +182,15 @@ class GradebookService {
                 if (empty($record)) {
                     ivs_grade_item_update($ivs, NULL);
                     $record = $DB->get_record('grade_items', ['itemmodule' => 'ivs', 'iteminstance' => $ivs->id, 'courseid' => $courseid]);
-
                 }
 
-                $record->gradepass = isset($vals['value']) ? $vals['value'] : 0;
-                $DB->update_record('grade_items', $record);
+  
+                if ($record && is_object($record)) {
+                    $record->gradepass = $vals['value'] ?? 0;
+                    $DB->update_record('grade_items', $record);
+                }
+                
+                
             }
         }
     }

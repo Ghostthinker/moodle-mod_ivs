@@ -792,7 +792,7 @@ class MoodleLicenseController implements ILicenseController
         $sql = 'SELECT COUNT(DISTINCT u.id) FROM {user} u'
                 . ' INNER JOIN {user_enrolments} ue ON u.id = ue.userid'
                 . ' INNER JOIN {enrol} e ON e.id = ue.enrolid'
-                . ' WHERE u.suspended = 0 AND u.deleted = 0 AND u.id > 1 AND u.lastaccess >= ?';
+                . ' WHERE u.suspended = 0 AND u.deleted = 0 AND u.id > 2 AND u.lastaccess >= ?';
         $users = $DB->count_records_sql($sql, [strtotime(IVS_LICENSE_ACTIVE_USER_PERIOD)]);
 
         return $users;

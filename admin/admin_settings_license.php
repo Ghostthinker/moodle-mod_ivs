@@ -162,30 +162,16 @@ $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/set
 
 $result = $DB->get_records('course', ['category' => 1]);
 
-echo $OUTPUT->header();
-
-echo '<div class="ivs-license">';
-$renderer = $PAGE->get_renderer('ivs');
-
-$params = [];
-$pageurl = $CFG->wwwroot . '/mod/ivs/admin/admin_settings_license.php';
-
+// Get all license data before outputting notifications and header
 $courselicenses = $lc->get_course_licenses([IVS_LICENCSE_ACTIVE], true);
 $instancelicense = $lc->get_instance_licenses([IVS_LICENCSE_ACTIVE], true);
-
-$renderable = new \mod_ivs\output\license\settings_license_main_view();
-echo $renderer->render($renderable);
-
-if (empty($instancelicense) && empty($courselicenses)) {
-    $renderable = new \mod_ivs\output\license\settings_license_none_view();
-    echo $renderer->render($renderable);
-}
-
 $status = $lc->get_status();
+$overbookedcourselicences = $lc->get_instance_licenses_by_type('course', [IVS_LICENCSE_OVERBOOKED]);
+$overbookedinstancelicences = $lc->get_instance_licenses_by_type('instance', [IVS_LICENCSE_OVERBOOKED]);
+$expiredcourselicenses = $lc->get_instance_licenses_by_type('course', [IVS_LICENCSE_EXPIRED]);
+$expiredinstancelicenses = $lc->get_instance_licenses_by_type('instance', [IVS_LICENCSE_EXPIRED]);
 
-$renderabledatapolicy = new \mod_ivs\output\license\settings_license_data_policy_view();
-echo $renderer->render($renderabledatapolicy);
-
+// Set all notifications before header output
 if (count($instancelicense) > 0) {
     foreach ($instancelicense as $license) {
         $usage = $license->spots_in_use / $license->spots;
@@ -200,10 +186,6 @@ if (count($instancelicense) > 0) {
                     'usage' => round($usage * 100),
             ]));
         }
-        $renderable = new \mod_ivs\output\license\settings_license_instance_view($license);
-
-        $PAGE->requires->js_call_amd('mod_ivs/settings_license_instance', 'init', []);
-        echo $renderer->render($renderable);
     }
 } else {
     \core\notification::info(get_string('ivs_usage_instance_info', 'ivs', [
@@ -212,7 +194,6 @@ if (count($instancelicense) > 0) {
 }
 
 if (count($courselicenses) > 0) {
-    $mform->display();
     $activecourselicences = 1;
     foreach ($courselicenses as $license) {
         if ($license->course_id == "") {
@@ -251,23 +232,9 @@ if (count($courselicenses) > 0) {
             ]));
         }
     }
-
-    if ($activecourselicences > 0) {
-        $renderable = new \mod_ivs\output\license\settings_license_course_view($courselicenses, $instancelicense);
-        echo $renderer->render($renderable);
-    }
 }
 
-$modalparams = ['modal_confirm_string' => get_string('ivs_course_license_modal_confirmation', 'ivs')];
-$modalparams2 = ['modal_confirm_delete' => get_string('ivs_delete_licence', 'ivs')];
-$PAGE->requires->js_call_amd('mod_ivs/settings_license_course', 'init', [
-        $modalparams,
-        $modalparams2,
-]);
-
-$overbookedcourselicences = $lc->get_instance_licenses_by_type('course', [IVS_LICENCSE_OVERBOOKED]);
-$overbookedinstancelicences = $lc->get_instance_licenses_by_type('instance', [IVS_LICENCSE_OVERBOOKED]);
-
+// Handle overbooked licenses notifications
 if (!empty($overbookedcourselicences) || !empty($overbookedinstancelicences)) {
     if (!empty($overbookedinstancelicences)) {
         $usage = $overbookedinstancelicences[0]->spots_in_use / $overbookedinstancelicences[0]->spots;
@@ -287,17 +254,9 @@ if (!empty($overbookedcourselicences) || !empty($overbookedinstancelicences)) {
             ]));
         }
     }
-
-    $renderable = new \mod_ivs\output\license\settings_license_course_overbooked_view($overbookedcourselicences,
-            $overbookedinstancelicences);
-    echo $renderer->render($renderable);
 }
 
-$expiredcourselicenses = $lc->get_instance_licenses_by_type('course', [IVS_LICENCSE_EXPIRED]);
-$expiredinstancelicenses = $lc->get_instance_licenses_by_type('instance', [IVS_LICENCSE_EXPIRED]);
-
-$lc->renderFreemiumInfoText();
-
+// Handle expired licenses notifications
 if (!empty($expiredcourselicenses) || !empty($expiredinstancelicenses)) {
     if (!empty($expiredinstancelicenses)) {
         \core\notification::error(get_string('ivs_duration_error_instance', 'ivs',
@@ -312,6 +271,73 @@ if (!empty($expiredcourselicenses) || !empty($expiredinstancelicenses)) {
             \core\notification::error(get_string('ivs_duration_error', 'ivs', ['name' => $course]));
         }
     }
+}
+
+// Handle testsystem info message
+if (!empty($status) && $status->type != IVS_SYSTEM_TYPE_MAIN) {
+    \core\notification::info(get_string('ivs_testsystem_info_message', 'ivs'));
+}
+
+echo $OUTPUT->header();
+
+echo '<div class="ivs-license">';
+$renderer = $PAGE->get_renderer('ivs');
+
+$params = [];
+$pageurl = $CFG->wwwroot . '/mod/ivs/admin/admin_settings_license.php';
+
+$renderable = new \mod_ivs\output\license\settings_license_main_view();
+echo $renderer->render($renderable);
+
+if (empty($instancelicense) && empty($courselicenses)) {
+    $renderable = new \mod_ivs\output\license\settings_license_none_view();
+    echo $renderer->render($renderable);
+}
+
+$renderabledatapolicy = new \mod_ivs\output\license\settings_license_data_policy_view();
+echo $renderer->render($renderabledatapolicy);
+
+if (count($instancelicense) > 0) {
+    foreach ($instancelicense as $license) {
+        $renderable = new \mod_ivs\output\license\settings_license_instance_view($license);
+
+        $PAGE->requires->js_call_amd('mod_ivs/settings_license_instance', 'init', []);
+        echo $renderer->render($renderable);
+    }
+}
+
+if (count($courselicenses) > 0) {
+    $mform->display();
+    $activecourselicences = 1;
+    foreach ($courselicenses as $license) {
+        if ($license->course_id == "") {
+            continue;
+        }
+        $activecourselicences++;
+    }
+
+    if ($activecourselicences > 0) {
+        $renderable = new \mod_ivs\output\license\settings_license_course_view($courselicenses, $instancelicense);
+        echo $renderer->render($renderable);
+    }
+}
+
+$modalparams = ['modal_confirm_string' => get_string('ivs_course_license_modal_confirmation', 'ivs')];
+$modalparams2 = ['modal_confirm_delete' => get_string('ivs_delete_licence', 'ivs')];
+$PAGE->requires->js_call_amd('mod_ivs/settings_license_course', 'init', [
+        $modalparams,
+        $modalparams2,
+]);
+
+if (!empty($overbookedcourselicences) || !empty($overbookedinstancelicences)) {
+    $renderable = new \mod_ivs\output\license\settings_license_course_overbooked_view($overbookedcourselicences,
+            $overbookedinstancelicences);
+    echo $renderer->render($renderable);
+}
+
+$lc->renderFreemiumInfoText();
+
+if (!empty($expiredcourselicenses) || !empty($expiredinstancelicenses)) {
     $renderable =
             new \mod_ivs\output\license\settings_license_course_expired_view($expiredcourselicenses, $expiredinstancelicenses);
     echo $renderer->render($renderable);
@@ -323,10 +349,6 @@ echo '</div>';
 if (!empty($status) && $status->type == IVS_SYSTEM_TYPE_MAIN) {
     $testsystemform->display();
 
-} else {
-    if (!empty($status)) {
-        \core\notification::info(get_string('ivs_testsystem_info_message', 'ivs'));
-    }
 }
 
 $playerelectionform->display();

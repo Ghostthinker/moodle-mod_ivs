@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class for the message provider
+ * Message providers for mod_ivs
+ *
  * @package mod_ivs
  * @author Ghostthinker GmbH <info@interactive-video-suite.de>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,48 +26,41 @@
 defined('MOODLE_INTERNAL') || die();
 
 $messageproviders = array(
-        'ivs_annotation_direct_mention' => array(
-            'capability' => 'mod/ivs:view',
-            'defaults' => array(
-                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            ),
+    // Notification when user is directly mentioned in annotation
+    'ivs_annotation_direct_mention' => array(
+        'capability' => 'mod/ivs:view',
+        'defaults' => array(
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
         ),
-        'ivs_annotation_indirect_mention' => array(
-            'capability' => 'mod/ivs:view',
-            'defaults' => array(
-                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            ),
+    ),
+
+    // Notification when user is indirectly mentioned (role/group selection)
+    'ivs_annotation_indirect_mention' => array(
+        'capability' => 'mod/ivs:view',
+        'defaults' => array(
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
         ),
-        'ivs_annotation_reply' => array(
-            'capability' => 'mod/ivs:view',
-            'defaults' => array(
-                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            ),
+    ),
+
+    // Notification when someone replies to user's annotation
+    'ivs_annotation_reply' => array(
+        'capability' => 'mod/ivs:view',
+        'defaults' => array(
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
         ),
-        'ivs_annotation_conversation' => array(
-            'capability' => 'mod/ivs:view',
-            'defaults' => array(
-                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            ),
+    ),
+
+    // Notification for conversation participants
+    'ivs_annotation_conversation' => array(
+        'capability' => 'mod/ivs:view',
+        'defaults' => array(
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
         ),
-        'ivs_annotation_tag' => array(
-            'capability' => 'mod/ivs:view',
-            'defaults' => array(
-                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            ),
-        ),
-        'ivs_annotation_report' => array(
-            'capability' => 'mod/ivs:view',
-            'defaults' => array(
-                'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-                'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
-            ),
-        ),
+    ),
 );
 
 

@@ -109,7 +109,6 @@ $lc = ivs_get_license_controller();
 $status = $lc->get_status();
 $hasactivelicense = $lc->has_active_license(['course' => $course]);
 
-
 if (!$hasactivelicense) {
     \core\notification::error(get_string('ivs_activity_licence_error', 'ivs'));
     $PAGE->set_url('/mod/ivs/view.php', array('id' => $cm->id));
@@ -120,6 +119,8 @@ if (!$hasactivelicense) {
     
     exit;
 }
+
+
 
 
 $activelicense = $lc->get_active_license(['course' => $course]);
@@ -134,24 +135,30 @@ if (empty($embedded)) {
     $event->add_record_snapshot($PAGE->cm->modname, $ivs);
     $event->trigger();
 
-    // Print the page header.
 
-    $PAGE->set_url('/mod/ivs/view.php', array('id' => $cm->id));
-    $PAGE->set_title(format_string($ivs->name));
-    $PAGE->set_heading(format_string($course->fullname));
-
-    $PAGE->requires->jquery();
-
-    // Output starts here.
-    echo $OUTPUT->header();
-
-    if(!IvsHelper::check_moodle_version(4)){
-        echo $OUTPUT->heading(format_string($ivs->name));
-    }
 
     if(isset($status->freemium)) {
         \core\notification::info(get_string('ivs_freemium_activity', 'ivs'));
     }
+
+
+    // We need to check all browsers, to check if we are save in safari
+    if(strpos($_SERVER['HTTP_USER_AGENT'],'Chrome')) {
+    }
+    else if(strpos($_SERVER['HTTP_USER_AGENT'],'Firefox')) {
+    }
+    else if(strpos($_SERVER['HTTP_USER_AGENT'],'Safari')) {
+        \core\notification::info(get_string('ivs_activity_safari_info_text', 'ivs',
+                ['url' => $lc->get_core_url()]));
+    }
+
+    
+    // Print the page header.
+    $PAGE->set_url('/mod/ivs/view.php', array('id' => $cm->id));
+    $PAGE->set_title(format_string($ivs->name));
+    $PAGE->set_heading(format_string($course->fullname));
+    echo $OUTPUT->header();
+
 
     $roleid = 0;
     foreach ($userroles as $role) {
@@ -170,15 +177,6 @@ if (empty($embedded)) {
         exit;
     }
 
-    // We need to check all browsers, to check if we are save in safari
-    if(strpos($_SERVER['HTTP_USER_AGENT'],'Chrome')) {
-    }
-    else if(strpos($_SERVER['HTTP_USER_AGENT'],'Firefox')) {
-    }
-    else if(strpos($_SERVER['HTTP_USER_AGENT'],'Safari')) {
-        \core\notification::info(get_string('ivs_activity_safari_info_text', 'ivs',
-                ['url' => $lc->get_core_url()]));
-    }
 
     ?>
 

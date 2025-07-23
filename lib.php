@@ -700,8 +700,8 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
     $activitysettings = $settingscontroller->get_settings_for_activity($annotation->get_videoid(), $course->id);
 
 
-    if ($activitysettings['user_notification_settings']->value) {
-
+    // Check if notifications are disabled for this activity
+    if (!empty($activitysettings['user_notification_settings']->value)) {
         return;
     }
 
@@ -738,11 +738,21 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
             $url = $annotation->get_annotation_player_url()->out(false);
             $subject = get_string($annotationsubject, 'mod_ivs',
               ['fullname' => fullname($USER)]);
-            $fullmessage = get_string($annotationfullmessage, 'mod_ivs',
-              ['fullname' => fullname($account),
-                'fullname' => fullname($USER),
-                'annotation' => $annotation->get_rendered_body(),
-                'course_name' => $course->fullname, 'annotation_url' => $url]);
+            
+            // Create both plain text and HTML versions
+            $messageparams = [
+                'fullname' => fullname($account),
+                'userfullname' => fullname($USER),
+                'annotation' => strip_tags($annotation->get_rendered_body()), // Plain text version
+                'course_name' => $course->fullname, 
+                'annotation_url' => $url
+            ];
+            $fullmessage = get_string($annotationfullmessage, 'mod_ivs', $messageparams);
+            
+            // HTML version with proper formatting
+            $messageparams['annotation'] = $annotation->get_rendered_body(); // HTML version
+            $fullmessagehtml = get_string($annotationfullmessage, 'mod_ivs', $messageparams);
+            
             $smallmessage = get_string($annotationsmallmessage, 'mod_ivs');
 
             $message = new \core\message\message();
@@ -753,7 +763,7 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
             $message->subject = $subject;
             $message->fullmessage = $fullmessage;
             $message->fullmessageformat = FORMAT_HTML;
-            $message->fullmessagehtml = $fullmessage;
+            $message->fullmessagehtml = $fullmessagehtml;
             $message->smallmessage = $smallmessage;
             $message->notification = true;
             $message->contexturl = $url;
@@ -761,6 +771,7 @@ function ivs_annotation_event_process_message_send($provider, $receivers, $cours
             $message->courseid = $course->id;
 
             message_send($message);
+
         }
     }
 }

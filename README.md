@@ -26,8 +26,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
-v1.30
-* added compatibility with Moodle 5 
+### v1.31
+* minor bugfixes
+
+### v1.30
+* added compatibility with Moodle 5
 
 ### v1.29
 * support for calendar events
