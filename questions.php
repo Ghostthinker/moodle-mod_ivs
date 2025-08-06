@@ -54,7 +54,6 @@ $PAGE->set_title($heading);
 $PAGE->set_heading($course->fullname);
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/question_view.css'));
-$PAGE->requires->jquery();
 
 // Breadcrumb.
 $PAGE->navbar->add(get_string('ivs:view:question_overview', 'ivs'), new moodle_url('/mod/ivs/questions.php?id=' . $cm->id));
@@ -152,6 +151,39 @@ echo '<h3>' . $heading . '</h3>';
 <?php
 
 echo '</div>';
+
+// Add vanilla JavaScript for Bootstrap tabs functionality
+echo '<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Handle tab switching
+    const tabLinks = document.querySelectorAll("[data-toggle=\'tab\']");
+    const tabPanes = document.querySelectorAll(".tab-pane");
+    
+    tabLinks.forEach(function(tabLink) {
+        tabLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs and panes
+            tabLinks.forEach(function(link) {
+                link.classList.remove("active");
+            });
+            tabPanes.forEach(function(pane) {
+                pane.classList.remove("active");
+            });
+            
+            // Add active class to clicked tab
+            this.classList.add("active");
+            
+            // Show corresponding pane
+            const targetId = this.getAttribute("href");
+            const targetPane = document.querySelector(targetId);
+            if (targetPane) {
+                targetPane.classList.add("active");
+            }
+        });
+    });
+});
+</script>';
 
 $totalcount = count($questions);
 

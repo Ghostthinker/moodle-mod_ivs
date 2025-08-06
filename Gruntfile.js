@@ -7,7 +7,7 @@ module.exports = function(grunt) {
             amd: {
                 src: ['amd/src/*.js'],
                 options: {
-                    configFile: '.eslintrc',
+                    overrideConfigFile: '.eslintrc',
                     fix: grunt.option('fix')
                 }
             }

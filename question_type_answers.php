@@ -58,7 +58,6 @@ $PAGE->set_title($heading);
 $PAGE->set_heading($course->fullname);
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/question_answers_view.css'));
-$PAGE->requires->jquery();
 
 $controller = new \mod_ivs\MoodleMatchController();
 $courseservice = new \mod_ivs\CourseService();

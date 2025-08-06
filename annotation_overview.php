@@ -47,8 +47,7 @@ $PAGE->set_title($heading);
 $PAGE->set_heading($heading);
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.css'));
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.js'));
-$PAGE->requires->jquery();
+$PAGE->requires->js_call_amd('mod_ivs/annotation_view', 'init');
 
 
 echo $OUTPUT->header();
@@ -85,7 +84,7 @@ if ($totalcount > $perpage) {
 }
 
 echo '<script>
-  $(document).ready(function(){
+  document.addEventListener("DOMContentLoaded", function(){
     // Override the window.alert function
      window.alert = function(message) {
     // Log the error message to the console

@@ -26,6 +26,10 @@ Enrich your videos by the powerful features of the social video player. Create p
 
 # Changelog
 
+### v1.32
+* fixed miniplayer
+* fixed show results page
+
 ### v1.31
 * minor bugfixes
 

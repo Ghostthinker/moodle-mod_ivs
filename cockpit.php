@@ -85,8 +85,7 @@ $PAGE->set_heading($heading);
 $PAGE->set_pagelayout('standard');
 
 $PAGE->requires->css(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.css'));
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/ivs/templates/annotation_view.js'));
-$PAGE->requires->jquery();
+$PAGE->requires->js_call_amd('mod_ivs/annotation_view', 'init');
 
 // This is for admins and everyone with the course permission to manage reports.
 $accessreports = has_capability('mod/ivs:access_reports', $context);
