@@ -27,6 +27,11 @@ Enrich your videos by the powerful features of the social video player. Create p
 # Changelog
 
 
+### v1.40
+* added compatibility with Moodle 5.2 and Moodle 5.3
+* added support for MathJax chemical formulas
+* ``ep5 version 2.93``
+
 ### v1.33
 * tested Moodle 5.1 compatibility
 * improved youtube player handling

@@ -36,7 +36,7 @@ $observers = array(
     // Annotation updated.
         array(
                 'eventname' => '\mod_ivs\event\annotation_updated',
-                'callback' => 'annotation_event_updated',
+                'callback' => 'ivs_annotation_event_updated',
                 'includefile' => '/mod/ivs/lib.php'
         ),
 

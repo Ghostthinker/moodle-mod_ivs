@@ -71,7 +71,7 @@ class annotation_reply_view implements renderable, templatable {
         global $PAGE;
         $data = new stdClass();
 
-        $user = IvsHelper::get_user($this->annotation->get_userid());
+        $user = IvsHelper::get_user_or_anonymous($this->annotation->get_userid());
 
         $data->comment_body = $this->annotation->get_rendered_body();
         $data->id = $this->annotation->get_id();

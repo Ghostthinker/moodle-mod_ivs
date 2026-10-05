@@ -50,7 +50,7 @@ class MatchQuestionException extends \Exception {
      * @param int $code
      * @param \mod_ivs\ivs_match\exception\Throwable|null $previous
      */
-    public function __construct($questionnode, $message = "", $code = 0, Throwable $previous = null) {
+    public function __construct($questionnode, $message = "", $code = 0, ?Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
         $this->questionnode = $questionnode;
 

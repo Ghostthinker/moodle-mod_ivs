@@ -78,7 +78,7 @@ class annotation_view implements renderable, templatable {
         global $PAGE;
         $data = new stdClass();
 
-        $user = IvsHelper::get_user($this->annotation->get_userid());
+        $user = IvsHelper::get_user_or_anonymous($this->annotation->get_userid());
 
         if (isset($user['pictureObject'])) {
             $userpictureobject = $user['pictureObject'];

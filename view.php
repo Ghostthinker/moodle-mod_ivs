@@ -209,31 +209,33 @@ if (empty($embedded)) {
 
         </style>
         <script>
+            // Plain DOM only: jQuery is loaded by the player inside the iframe,
+            // not by this page.
 
+            // Keep the player iframe roughly proportional to the content column.
             setInterval(function () {
-                var container_width = $("div[role=main]").width();
-                var good_height_min = container_width / 1.8;
-                if (good_height_min > 500) {
-                    good_height_min = 500;
+                var main = document.querySelector('div[role=main]');
+                if (!main) {
+                    return;
                 }
-                $(".edubreak-responsive-iframe").css("min-height", good_height_min);
-
+                var goodHeightMin = Math.min(main.clientWidth / 1.8, 500);
+                document.querySelectorAll('.edubreak-responsive-iframe').forEach(function (iframe) {
+                    iframe.style.minHeight = goodHeightMin + 'px';
+                });
             }, 1000);
 
-            const interval = setInterval(spinnerInterval, 1000);
-
-            function spinnerInterval() {
-                if($('.edubreak-responsive-iframe').contents().find('.ep5-controlbar').length){
-                    document.getElementById('ivs-loading-spinner').remove();
-                    stopSpinnerInterval();
+            // Drop the loading spinner once the player has drawn its controls.
+            var ivsSpinnerInterval = setInterval(function () {
+                var iframe = document.querySelector('.edubreak-responsive-iframe');
+                var iframedocument = iframe && iframe.contentDocument;
+                if (iframedocument && iframedocument.querySelector('.ep5-controlbar')) {
+                    var spinner = document.getElementById('ivs-loading-spinner');
+                    if (spinner) {
+                        spinner.remove();
+                    }
+                    clearInterval(ivsSpinnerInterval);
                 }
-            }
-
-            function stopSpinnerInterval() {
-                clearInterval(interval);
-            }
-
-
+            }, 1000);
         </script>
 
 
@@ -420,7 +422,7 @@ if (empty($embedded)) {
             'overlay_mode' => false,
             'lang' => $lang,
             'align_top' => false,
-'           startTime' => $starttime,
+            'startTime' => $starttime,
             'hide_when_inactive' => (int) $activitysettings['hide_when_inactive']->value,
             'list_item_buttons_hover_enabled' => (int) $activitysettings['list_item_buttons_hover_enabled']->value,
 

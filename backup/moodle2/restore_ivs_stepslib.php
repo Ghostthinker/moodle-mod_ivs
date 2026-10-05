@@ -35,6 +35,11 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
     protected $videocommentcache;
 
     /**
+     * @var array How the comments of authors without course access were treated.
+     */
+    protected $foreignauthors = ['anonymised' => 0, 'skipped' => 0, 'kept' => 0];
+
+    /**
      * Defines structure of path elements to be processed during the restore
      *
      * @return array of {@see restore_path_element}
@@ -84,6 +89,22 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
     }
 
     /**
+     * Whether a user's own contributions belong in the course being restored into.
+     *
+     * Enrolled, or reaching the course without being enrolled - admins and
+     * managers do. Asked at course level: mod/ivs:view is granted to the
+     * authenticated user archetype, so the activity context is no gate.
+     *
+     * @param int $userid The author.
+     * @return bool
+     */
+    protected function author_belongs_in_course($userid) {
+        $coursecontext = context_course::instance($this->get_courseid());
+
+        return is_enrolled($coursecontext, $userid, '', true) || is_viewing($coursecontext, $userid);
+    }
+
+    /**
      * Process a videocomment
      * @param \stdClass $data
      */
@@ -100,56 +121,125 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
 
         $videocommentssetting = $this->get_setting_value('include_videocomments');
 
-        $newcourseid = $this->get_courseid();
-        $newcoursecontext = context_course::instance($newcourseid);
-
-        $userisinnewcourse = is_enrolled($newcoursecontext, $userid, '', true);
-
         $restore = false;
 
-        if ($userisinnewcourse || empty($userid)) {
-
-            switch ($videocommentssetting) {
-                case 'all':
+        switch ($videocommentssetting) {
+            case 'all':
+                $restore = true;
+                break;
+            case 'none':
+                break;
+            case 'teacher only':
+                if (!$data->is_student) {
                     $restore = true;
                     break;
-                case 'none':
+                }
+                break;
+            case 'students only':
+                if ($data->is_student) {
+                    $restore = true;
                     break;
-                case 'teacher only':
-                    if (!$data->is_student) {
-                        $restore = true;
-                        break;
-                    }
-                    break;
-                case 'students only':
-                    if ($data->is_student) {
-                        $restore = true;
-                        break;
-                    }
-                    break;
-                default:
-                    $restore = false;
-                    break;
+                }
+                break;
+            default:
+                $restore = false;
+                break;
+        }
+
+        if ($restore) {
+            // Author check last, so its counts only cover comments the
+            // filter above would have kept.
+            if (!empty($userid) && !$this->author_belongs_in_course($userid)
+                    && !$this->keep_comment_of_foreign_author($data)) {
+                return;
             }
 
-            if ($restore) {
-                $oldid = $data->id;
+            $oldid = $data->id;
 
-                $newactivityid = $this->get_new_parentid('ivs');
-                $data->video_id = $newactivityid;
+            $newactivityid = $this->get_new_parentid('ivs');
+            $data->video_id = $newactivityid;
 
-                if (!empty($data->parent_id)) {
-                    $this->videocommentcache[$oldid] = $data;
-                    return;
+            if (!empty($data->parent_id)) {
+                $this->videocommentcache[$oldid] = $data;
+                return;
+            }
+
+            $newitemid = $DB->insert_record('ivs_videocomment', $data);
+            $annotation = annotation::retrieve_from_db($newitemid);
+            $annotation->write_annotation_access();
+
+            $this->set_mapping('videocomment', $oldid, $newitemid, true);
+        }
+    }
+
+    /**
+     * Decide what becomes of a comment whose author cannot reach the target course.
+     *
+     * Applies the restore setting: drop, keep, or anonymise. Anonymising
+     * rewrites the record in place and cannot be undone, so the caller must
+     * re-read the user id.
+     *
+     * @param \stdClass $data The comment, modified in place when anonymising.
+     * @return bool Whether the comment goes on to the content filter.
+     */
+    protected function keep_comment_of_foreign_author($data) {
+        switch ($this->get_setting_value('videocomment_authors')) {
+            case 'keep':
+                $this->foreignauthors['kept']++;
+                return true;
+
+            case 'skip':
+                $this->foreignauthors['skipped']++;
+                return false;
+
+            case 'anonymise':
+            default:
+                // A private annotation has one reader, its author. Anonymised
+                // it could never be opened, so drop it instead.
+                if ($this->comment_is_private($data)) {
+                    $this->foreignauthors['skipped']++;
+                    return false;
                 }
 
-                $newitemid = $DB->insert_record('ivs_videocomment', $data);
-                $annotation = annotation::retrieve_from_db($newitemid);
-                $annotation->write_annotation_access();
-
-                $this->set_mapping('videocomment', $oldid, $newitemid, true);
-            }
+                $data->user_id = null;
+                $this->foreignauthors['anonymised']++;
+                return true;
         }
+    }
+
+    /**
+     * Whether a comment is visible to its author alone.
+     *
+     * access_view arrives serialised. Anything unreadable counts as not
+     * private, so the comment is kept.
+     *
+     * @param \stdClass $data
+     * @return bool
+     */
+    protected function comment_is_private($data) {
+        if (empty($data->access_view) || !is_string($data->access_view)
+                || strpos($data->access_view, 'O:8:"stdClass"') !== 0) {
+            return false;
+        }
+
+        $accessview = unserialize($data->access_view, ['allowed_classes' => ['stdClass']]);
+
+        return is_object($accessview) && isset($accessview->realm) && $accessview->realm === 'private';
+    }
+
+    /**
+     * Put the fate of those comments into the restore log.
+     *
+     * Logged as a warning even when the setting was obeyed: a restore that
+     * drops content silently gives nobody a way to find out.
+     */
+    protected function log_foreign_authors() {
+        if (array_sum($this->foreignauthors) === 0) {
+            return;
+        }
+
+        $this->log(get_string('ivs_restore_videocomment_authors_log', 'ivs', (object) $this->foreignauthors),
+                backup::LOG_WARNING);
     }
 
     /**
@@ -186,11 +276,9 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
 
         $matchanswerssetting = $this->get_setting_value('include_match');
 
-        $newcourseid = $this->get_courseid();
-        $newcoursecontext = context_course::instance($newcourseid);
-        $userisinnewcourse = is_enrolled($newcoursecontext, $userid, '', true);
+        $userisinnewcourse = $this->author_belongs_in_course($userid);
 
-        // Is user in new course enrolled.
+        // Does the author reach the target course.
         if ($userisinnewcourse) {
             // Is match answer setting enabled.
             if ($matchanswerssetting) {
@@ -223,11 +311,9 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
 
         $matchanswerssetting = $this->get_setting_value('include_match');
 
-        $newcourseid = $this->get_courseid();
-        $newcoursecontext = context_course::instance($newcourseid);
-        $userisinnewcourse = is_enrolled($newcoursecontext, $userid, '', true);
+        $userisinnewcourse = $this->author_belongs_in_course($userid);
 
-        // Is user in new course enrolled.
+        // Does the author reach the target course.
         if ($userisinnewcourse) {
             // Is match answer setting enabled.
             if ($matchanswerssetting) {
@@ -297,5 +383,7 @@ class restore_ivs_activity_structure_step extends restore_activity_structure_ste
             }
         }
         $this->add_related_files('mod_ivs', 'audio_annotation', 'videocomment');
+
+        $this->log_foreign_authors();
     }
 }

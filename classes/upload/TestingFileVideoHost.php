@@ -54,7 +54,7 @@ class TestingFileVideoHost implements IVideoHost {
      */
     public function get_video() {
         // TODO: Implement getVideo() method.
-        return new \moodle_url('/mod/ivs/tests/codeception/tests/_data/sample.mp4');
+        return new \moodle_url('/mod/ivs/tests/fixtures/sample.mp4');
     }
 
     /**

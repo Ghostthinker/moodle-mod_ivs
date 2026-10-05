@@ -1,4 +1,5 @@
-define(['core/modal_factory', 'core/modal_events'], function (ModalFactory, ModalEvents) {
+// No modals: both confirmations use the browser's confirm().
+define([], function () {
     return {
         init: function (params, params1) {
             // Handle license course remove buttons

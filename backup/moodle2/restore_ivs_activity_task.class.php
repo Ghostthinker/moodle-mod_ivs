@@ -44,6 +44,11 @@ class restore_ivs_activity_task extends restore_activity_task {
         $settingvideocomments = new restore_videocomments_setting('ivs_' . $this->oldmoduleid . '_include_videocomments');
         $this->add_setting($settingvideocomments);
         $this->plan->get_setting('users')->add_dependency($settingvideocomments);
+
+        $settingauthors = new restore_videocomment_authors_setting(
+                'ivs_' . $this->oldmoduleid . '_videocomment_authors');
+        $this->add_setting($settingauthors);
+        $this->plan->get_setting('users')->add_dependency($settingauthors);
     }
 
     /**

@@ -261,7 +261,7 @@ class provider implements
             $DB->get_in_or_equal(array_keys($mappings), SQL_PARAMS_NAMED);
 
         $sql =
-            "SELECT * FROM {ivs_videocomment} WHERE video_id ${ivsinsql} AND user_id = :user_id";
+            "SELECT * FROM {ivs_videocomment} WHERE video_id {$ivsinsql} AND user_id = :user_id";
 
         $params = [
             'user_id' => $userid,
@@ -314,7 +314,7 @@ class provider implements
             $DB->get_in_or_equal(array_keys($mappings), SQL_PARAMS_NAMED);
 
         $sql =
-            "SELECT * FROM {ivs_matchanswer} WHERE question_id ${ivsinsql} AND user_id = :user_id";
+            "SELECT * FROM {ivs_matchanswer} WHERE question_id {$ivsinsql} AND user_id = :user_id";
 
         $params = [
             'user_id' => $userid,

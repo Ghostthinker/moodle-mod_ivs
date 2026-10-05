@@ -633,7 +633,9 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
         // 08.05.2019 - 16:54 - BH Update Feedback Single Choice question form 2.x to 3.x versions.
         if ($data['type'] == 'single_choice_question') {
-            foreach ($data['type_data']['options'] as &$option) {
+            // Malformed but still readable, or the question could never be
+            // opened to be repaired.
+            foreach (($data['type_data']['options'] ?? []) as &$option) {
                 if (array_key_exists('feedback', $option) && is_string($option['feedback'])) {
                     $option['feedback_text'] = $option['feedback'];
                     unset($option['feedback']);
@@ -879,8 +881,11 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             'context_id' => $contextid,
         ];
 
+        // ORDER BY matters: callers read $takes[0] as the first attempt and
+        // end($takes) as the last. PostgreSQL moves an updated row, so first
+        // and last attempt grading was arbitrary there without it.
         $sql = "SELECT *
-                  FROM {ivs_matchtake} 
+                  FROM {ivs_matchtake}
                  WHERE video_id = :video_id
                        AND user_id = :user_id
                        AND context_id = :context_id";
@@ -889,7 +894,7 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
             $sql .= " AND status IN ('new', 'progress')";
         }
 
-
+        $sql .= " ORDER BY id ASC";
 
         $records = $DB->get_recordset_sql($sql, $params);
 
@@ -1839,7 +1844,9 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
 
         $mc->assessment_type = $activitysettings['match_question_enabled']->value == AssessmentConfig::ASSESSMENT_TYPE_QUIZ ? 'TAKES' : 'TIMING_TAKES';
         $mc->rate = 100;
-        $mc->attempts = 0;
+        // Formative used to ignore the attempt limit. Honoured now, as in
+        // quiz and timing mode; it defaults to 0, unlimited.
+        $mc->attempts = $activitysettings[SettingsDefinition::SETTING_PLAYER_VIDEOTEST_ATTEMPTS]->value;
         $mc->allow_repeat_answers = true;
         $mc->player_controls_enabled = (int) $activitysettings['player_controls_enabled']->value;
         $mc->show_solution = ($activitysettings['exam_mode_enabled']->value) ? false : true;
@@ -1993,7 +2000,8 @@ class MoodleMatchController extends IvsMatchControllerBase implements IIvsMatch 
                         'score' =>  $postDataBtn->score,
                         'style' =>  $postDataBtn->style,
                         'description' => $postDataBtn->description,
-                        'cooldown' => $postDataBtn->cooldown
+                        // Optional: types stored before cooldown lack it.
+                        'cooldown' => $postDataBtn->cooldown ?? null
                 ]
         ];
         $timing_type_array['id'] = $id ?? null;

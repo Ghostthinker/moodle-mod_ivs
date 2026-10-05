@@ -347,7 +347,7 @@ class annotation {
      *
      * @param \stdClass|null $accessview
      */
-    public function write_annotation_access(\stdClass $accessview = null) {
+    public function write_annotation_access(?\stdClass $accessview = null) {
         global $DB;
 
         if (!isset($accessview)) {

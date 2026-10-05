@@ -1,6 +1,6 @@
-define(['core/notification', 'core/custom_interaction_events', 'core/modal', 
-        'core/modal_registry', 'core/modal_factory', 'core/templates', 'core/str', 'core/modal_events'],
-    function(Notification, CustomEvents, Modal, ModalRegistry, ModalFactory, Templates, Str, ModalEvents) {
+// Moodle 5.2 removed core/modal_factory and core/modal_registry (MDL-79182).
+define(['core/notification', 'core/modal_save_cancel', 'core/templates', 'core/modal_events'],
+    function(Notification, ModalSaveCancel, Templates, ModalEvents) {
         let selectedPanoptoVideo = '';
         
         return {
@@ -63,14 +63,17 @@ define(['core/notification', 'core/custom_interaction_events', 'core/modal',
                         panoptoVideoElement.parentNode.insertBefore(btn, panoptoVideoElement.nextSibling);
                     }
 
-                    // The event to open the modal
-                    ModalFactory.create({
-                        type: ModalFactory.types.SAVE_CANCEL,
+                    // The event to open the modal. create() takes no trigger element.
+                    ModalSaveCancel.create({
                         title: 'Panopto videos',
                         large: true,
                         body: Templates.render('mod_ivs/panopto_modal', {iframeurl: iframeURL}),
-                    }, [btn])
-                        .done(function (modal) {
+                    })
+                        .then(function (modal) {
+                            btn.addEventListener('click', function () {
+                                modal.show();
+                            });
+
                             modal.getRoot().on(ModalEvents.save, function (e) {
 
                                 // Stop the default save button behaviour which is to close the modal.
@@ -110,7 +113,10 @@ define(['core/notification', 'core/custom_interaction_events', 'core/modal',
                                     }
                                 }
                             });
-                        });
+
+                            return modal;
+                        })
+                        .catch(Notification.exception);
 
                     window.addEventListener('message', (e) => {
                         let panopto_selected_video_data = JSON.parse(e.data);

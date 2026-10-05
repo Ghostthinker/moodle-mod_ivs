@@ -135,6 +135,17 @@ function xmldb_ivs_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023092604, 'ivs');
     }
 
+    // Take the length off the score column. install.xml declared float(10, 0),
+    // which MySQL rounds - 37.5 became 37 - while PostgreSQL ignored it. Only
+    // fresh installs from install.xml are affected; elsewhere a no-op.
+    if ($oldversion < 2026091100) {
+        $table = new xmldb_table('ivs_matchtake');
+        $field = new xmldb_field('score', XMLDB_TYPE_FLOAT, null, null, true, null, 0, null);
+        $dbman->change_field_precision($table, $field);
+
+        upgrade_mod_savepoint(true, 2026091100, 'ivs');
+    }
+
     return true;
 }
 

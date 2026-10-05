@@ -85,9 +85,12 @@ class MatchTake {
     public $completed;
 
     /**
-     * @var int
+     * The score in percent. Not null in the schema, so it defaults to 0 here
+     * too - a take built without it used to be rejected on insert.
+     *
+     * @var float
      */
-    public $score;
+    public $score = 0;
 
     /**
      * @var string

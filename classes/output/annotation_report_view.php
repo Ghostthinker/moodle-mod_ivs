@@ -66,7 +66,7 @@ class annotation_report_view implements renderable, templatable {
 
         $data = new stdClass();
 
-        $user = IvsHelper::get_user($this->annotation->get_userid());
+        $user = IvsHelper::get_user_or_anonymous($this->annotation->get_userid());
         $userto = $this->userTo;
 
         $data->comment_body = $this->annotation->get_rendered_body();

@@ -29,6 +29,10 @@ use mod_ivs\StatisticsService;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+// Moodle's curl wrapper. CLI and cron do not load filelib.php on their own.
+require_once($CFG->libdir . '/filelib.php');
+
 define('IVS_CORE_URL', 'https://interactive-video-suite.de');
 define('IVS_CORE_API_PREFIX', '/wp-json/interactive-video-suite/v1.0');
 define('IVS_CORE_API_CALLBACK_REGISTER', '/client/register');
@@ -338,15 +342,17 @@ class MoodleLicenseController implements ILicenseController
 
         // Execute post.
         $result = $curl->post($url, $requestjson);
-        $httpcode = $curl->get_info();
+        $info = $curl->get_info();
+        // A request that never went out reports no status code.
+        $httpcode = (int) ($info['http_code'] ?? 0);
 
         if (!$curl->get_errno()) {
-            switch ($httpcode['http_code']) {
+            switch ($httpcode) {
                 case 200:
                 case 201:  // OK -> created.
                     break;
                 default:
-                    // E.g. 409!
+                    // E.g. 409, or 0 when the request never reached the core.
                     return false;
             }
         }

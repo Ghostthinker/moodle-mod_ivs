@@ -37,20 +37,45 @@ class IvsHelper {
      */
     public static function get_user_data_for_player($userid) {
 
-        if ($userid == null) {
+        $user = self::get_user($userid);
 
+        // get_user() answers null for any empty id, not just null. A deleted
+        // user it already resolves to Anonymous itself.
+        if (empty($user)) {
             return array(
                     'name' => "Anonymous",
                     'picture' => (string) new \moodle_url('/user/pix.php')
             );
         }
 
-        $user = self::get_user($userid);
-
         return array(
                 'uid' => $userid,
                 'name' => $user['fullname'],
                 'picture' => $user['picture']
+        );
+    }
+
+    /**
+     * The author of a comment, in a shape that is always safe to read.
+     *
+     * A comment can have no author - the restore anonymises some. Callers get
+     * the same Anonymous placeholder a deleted user already produced.
+     *
+     * @param int|null $id
+     *
+     * @return array
+     */
+    public static function get_user_or_anonymous($id) {
+        $user = self::get_user($id);
+
+        if (!empty($user)) {
+            return $user;
+        }
+
+        return array(
+                'user' => null,
+                'fullname' => "Anonymous",
+                'picture' => (string) new \moodle_url('/user/pix.php')
         );
     }
 

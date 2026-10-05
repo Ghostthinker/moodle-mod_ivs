@@ -41,13 +41,16 @@ class MatchTimingTakeResult
         }
 
         foreach ($matchanswers as $questionid => $matchanswer) {
-            $question = $matchquestions[$questionid];
+            $question = $matchquestions[$questionid] ?? null;
 
+            // Only timing questions carry a timing type. Skip the rest, as
+            // the loop above does, or this reads a missing key.
+            if (empty($question['type_data']['timing_type_id'])) {
+                continue;
+            }
 
             /** @var MatchTimingType $timingtype */
             $timingtype = self::find_object_by_id($question['type_data']['timing_type_id'], $matchtimingtypes);
-
-
 
             if (empty($timingtype)) {
                 continue;

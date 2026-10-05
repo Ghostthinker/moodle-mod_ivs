@@ -303,7 +303,7 @@ class ReportService {
             }
 
             if (empty($accountcache[$userid])) {
-                $accountcache[$userid] = IvsHelper::get_user($comment->get_userid());
+                $accountcache[$userid] = IvsHelper::get_user_or_anonymous($comment->get_userid());
 
                 if ($grouping == "user") {
                     $userlink = new \moodle_url('/user/profile.php', array('id' => $userid));

@@ -87,7 +87,7 @@ function ivs_supports($feature) {
  * @param mod_ivs_mod_form $mform The form instance itself (if needed)
  * @return int The id of the newly inserted ivs record
  */
-function ivs_add_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
+function ivs_add_instance(stdClass $ivs, ?mod_ivs_mod_form $mform = null) {
     global $DB;
 
     $ivs->timecreated = time();
@@ -168,7 +168,7 @@ function ivs_add_completion_event($moduleinstance) {
  * @param mod_ivs_mod_form $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function ivs_update_instance(stdClass $ivs, mod_ivs_mod_form $mform = null) {
+function ivs_update_instance(stdClass $ivs, ?mod_ivs_mod_form $mform = null) {
     global $DB, $CFG;
 
     $ivs->timemodified = time();
@@ -313,7 +313,9 @@ function ivs_delete_instance($id) {
     $matchcontroller = new \mod_ivs\MoodleMatchController();
 
     foreach ($matchquestions as $matchqquestion) {
-        $matchcontroller->match_question_delete_db($matchqquestion->id);
+        // No capability check: cron, CLI and course deletion have no editing
+        // user, and the check would abort the deletion.
+        $matchcontroller->match_question_delete_db($matchqquestion->id, true);
     }
 
     // Delete ivs settings.
@@ -534,7 +536,7 @@ function ivs_extend_navigation(navigation_node $navref, stdClass $course, stdCla
  * @param settings_navigation $settingsnav complete settings navigation tree
  * @param navigation_node $ivsnode ivs administration node
  */
-function ivs_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $ivsnode = null) {
+function ivs_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $ivsnode = null) {
     // TODO Delete this function and its docblock, or implement it.
 }
 
